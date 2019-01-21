@@ -1,6 +1,20 @@
 # Created by .ignore support plugin (hsz.mobi)
+
+# IntelliJ IDEA
 .idea
+
+# Huge data files
 data/
+
+# Same, huge files
 analytics/*.csv
+
+# Docs...
 README.docx
 Twitter Article Draft.pdf
+
+# Node.js
+node_modules
+
+# Yarn
+yarn.lock
