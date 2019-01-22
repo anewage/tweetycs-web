@@ -1,5 +1,5 @@
 {
-  "name": "TweetSense",
+  "name": "tweet_sense",
   "version": "0.0.1",
   "dependencies": {
     "d3": "^5.7.0",
