@@ -20,19 +20,19 @@ function circularHeatChartV() {
     offset = 0,
     accessor = function(d) {return d;},
     radialLabels = segmentLabels = [];
-    var colorScale = d3v4.scaleLinear();
+    var colorScale = d3.scaleLinear();
     var colorAccessor = function(d){ return d; };
-    var heightScale = d3v4.scaleLinear();
+    var heightScale = d3.scaleLinear();
     function chart(selection) {
         selection.each(function (data) {
 
 
-            heightScale =  d3.scale.linear()
+            heightScale =  d3.scaleLinear()
                 .domain([0, -1]).range([0, innerRadius]);
                 //.domain([-1, 0]).range([0, segmentHeight]);
 
-            var svg = d3v4.select(this);
-            var colorScale = d3v4.scaleLinear()
+            var svg = d3.select(this);
+            var colorScale = d3.scaleLinear()
                 .domain([-1, 1])
                 .range([negativeSentimentColor, positiveSentimentColor]);
 
@@ -54,7 +54,7 @@ function circularHeatChartV() {
                 .enter()
                 .append("path")
                 .attr('class', 'variableArc')
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
              //   .attr('stroke-width', '5px')
                 .attr('fill', function (d) {
                     if (d.netSentimentValue < 0)
@@ -69,7 +69,7 @@ function circularHeatChartV() {
                 //.style('stroke-width', '2px');
 
             arcPaths//.transition()
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
                 .attr('fill', function (d) {
                     if (d.netSentimentValue < 0)
                         return negativeSentimentColor;
@@ -84,13 +84,12 @@ function circularHeatChartV() {
             arcPaths.exit().remove();
 
         if (showAxis){
-            var axisScale =  d3.scale.linear()
+            var axisScale =  d3.scaleLinear()
               //  .domain([-1, 0]).range([0, segmentHeight+140])
                 .domain([0, -1]).range([0, innerRadius*0.75]);
 
-            var xAxis = d3.svg.axis().scale(axisScale)
-                .ticks(3)
-                .orient("bottom");
+            var xAxis = d3.axisBottom(axisScale)
+                .ticks(3);
 
             axisGroup.call(xAxis);
 
