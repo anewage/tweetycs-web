@@ -20,14 +20,14 @@ function circularHeatChart() {
     offset = 200,
     accessor = function(d) {return d;},
     radialLabels = segmentLabels = [];
-    var colorScale = d3v4.scaleLinear();
+    var colorScale = d3.scaleLinear();
     var colorAccessor = function(d){ return d; };
 
     function chart(selection) {
         selection.each(function(data) {
-            svg = d3v4.select(this);
+            svg = d3.select(this);
 
-            var colorScale = d3v4.scaleLinear()
+            var colorScale = d3.scaleLinear()
                 .domain([-1, 1])
                 .range([negativeSentimentColor, positiveSentimentColor]);
 
@@ -55,7 +55,7 @@ function circularHeatChart() {
 
             arcPaths
                 .enter().append("path")
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
                 //.attr("fill", function(d) {return colorAccessor(d);})
                 .attr('fill', function(d){
                     if (d.netSentimentValue < 0)
@@ -71,7 +71,7 @@ function circularHeatChart() {
                 //.style('stroke-width', '2px');
 
             arcPaths//.transition()
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
                 .attr('fill', function(d){
                     if(d.netSentimentValue < 0)
                         return negativeSentimentColor;
