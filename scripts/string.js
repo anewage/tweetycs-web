@@ -63,7 +63,7 @@ d3.uwo.string = function module() {
 		theight = leftHalf ? -heightInner : heightInner;
 		
 
-        if (!context) context = buffer = d3v4.path();
+        if (!context) context = buffer = d3.path();
 
 		//Change the pullout based on where the string is
 		pulloutContext  = (leftHalf ? -1 : 1 ) * pullout;
@@ -75,28 +75,28 @@ d3.uwo.string = function module() {
 		//Circular part along the outer arc
         context.arc(pulloutContext, 0, sr, sa0, sa1);
 		//From end outer arc to center (taking into account the pullout)
-        xco = d3v4.interpolateNumber(pulloutContext, sx1)(0.5);
-        yco = d3v4.interpolateNumber(0, sy1)(0.5);
+        xco = d3.interpolateNumber(pulloutContext, sx1)(0.5);
+        yco = d3.interpolateNumber(0, sy1)(0.5);
 		if( (!leftHalf && sx1 < tx) || (leftHalf && sx1 > tx) ) {
 			//If the outer point lies closer to the center than the inner point
 			xci = tx + (tx - sx1)/2;
-			yci = d3v4.interpolateNumber(ty + theight/2, sy1)(0.5);
+			yci = d3.interpolateNumber(ty + theight/2, sy1)(0.5);
 		} else {
-			xci = d3v4.interpolateNumber(tx, sx1)(0.25);
+			xci = d3.interpolateNumber(tx, sx1)(0.25);
 			yci = ty + theight/2;
 		}//else
         context.bezierCurveTo(xco, yco, xci, yci, tx, ty + theight/2);
 		//Draw a straight line up/down (depending on the side of the circle)
 		context.lineTo(tx, ty - theight/2);
 		//From center (taking into account the pullout) to start of outer arc
-        xco = d3v4.interpolateNumber(pulloutContext, sx0)(0.5);
-        yco = d3v4.interpolateNumber(0, sy0)(0.5);
+        xco = d3.interpolateNumber(pulloutContext, sx0)(0.5);
+        yco = d3.interpolateNumber(0, sy0)(0.5);
 		if( (!leftHalf && sx0 < tx) || (leftHalf && sx0 > tx) ) { 
 			//If the outer point lies closer to the center than the inner point
 			xci = tx + (tx - sx0)/2;
-			yci = d3v4.interpolateNumber(ty - theight/2, sy0)(0.5);
+			yci = d3.interpolateNumber(ty - theight/2, sy0)(0.5);
 		} else {
-			xci = d3v4.interpolateNumber(tx, sx0)(0.25);
+			xci = d3.interpolateNumber(tx, sx0)(0.25);
 			yci = ty - theight/2;
 		}//else
 		context.bezierCurveTo(xci, yci, xco, yco, sx0, sy0);
