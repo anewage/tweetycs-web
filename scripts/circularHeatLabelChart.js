@@ -16,7 +16,7 @@ function circularHeatChartLabel() {
 
     function chart(selection) {
         selection.each(function(data) {
-            svg = d3v4.select(this);
+            svg = d3.select(this);
 
             if(!container){
                 container = svg.append("g")
@@ -32,7 +32,7 @@ function circularHeatChartLabel() {
 
             arcPaths
                 .enter().append("path")
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
                 .attr("id", function(d, i) {
                     return (i+0) % numSegments == 0 ? "radial-label-path-"+refineString(d.category) : null;
                 })
@@ -41,7 +41,7 @@ function circularHeatChartLabel() {
                 //.style('stroke-width', '2px');
 
             arcPaths//.transition()
-                .attr("d", d3v4.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
+                .attr("d", d3.arc().innerRadius(ir).outerRadius(or).startAngle(sa).endAngle(ea))
                 .attr("id", function(d, i) {
                     return (i+0) % numSegments == 0 ? "radial-label-path-"+refineString(d.category) : null;
                 })
