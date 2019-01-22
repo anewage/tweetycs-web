@@ -96,6 +96,7 @@ function circularHeatChartV() {
             axisGroup.append('text')
                 .attr('x', 100)
                 .attr('y', -25)
+                .attr('fill', "#777")
                 .text('Net sentiment rate')
         }
 
