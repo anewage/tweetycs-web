@@ -25,6 +25,8 @@
     <!-- Latest underscore.js -->
     <script src="node_modules/underscore/underscore-min.js"></script>
 
+    <script src="node_modules/d3-save-svg/build/d3-save-svg.min.js"></script>
+
     <!-- Custom scripts... -->
     <!-- Custom "chord" and "ribbon" functions -->
     <script src="scripts/loom.js"></script>
@@ -47,12 +49,21 @@
     <!--<script src="https://d3js.org/d3.v3.min.js"></script>-->
 </head>
 <body>
+    <button id="export" type="button">Save as SVG</button>
     <div id="lotr-chart"></div>
     <script>
         var container = d3.select('#lotr-chart');
         var chart = d3.uwo.sentiViz();
         // The variable `data` comes from entrypoint.js
         container.data([data]).call(chart);
+
+        d3.select('button#export').on('click', saveAsSVG);
+        function saveAsSVG(){
+            var config = {
+                filename: 'customFileName',
+            }
+            d3_save_svg.save(d3.select('svg').node(), config);
+        }
 /*
         d3.csv('data/keywordsUpdated50.csv', function(d) {
             return {
