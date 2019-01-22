@@ -44,18 +44,18 @@ d3.uwo.sentiViz = function module() {
 
 //Reset the overall font size
             var newFontSize = Math.min(70, Math.max(40, innerRadius * 62.5 / 250));
-            d3v4.select("html").style("font-size", newFontSize + "%");
+            d3.select("html").style("font-size", newFontSize + "%");
 
 ////////////////////////////////////////////////////////////
 ////////////////// Set-up Chord parameters /////////////////
 ////////////////////////////////////////////////////////////
             //20
             var pullOutSize = 110 + 30/135 * innerRadius; //you might want to change this ratio
-            var numFormat = d3v4.format(",.0f");
+            var numFormat = d3.format(",.0f");
             var defaultOpacity = 0.85,
                 fadeOpacity = 0.075;
 
-            svg = d3v4.select(this)
+            svg = d3.select(this)
                 .append("svg")
                 .attr("width", width + margin.left + margin.right+extraSpace*2)
                 .attr("height", height + margin.top + margin.bottom+extraSpace*2);
@@ -72,7 +72,7 @@ d3.uwo.sentiViz = function module() {
                 .outer(function(d) { return d.location; });
 
 //this is for the arc
-            var arc = d3v4.arc()
+            var arc = d3.arc()
                 .innerRadius(innerRadius*1.01) //outerRadius = innerRadius * 1.05  the space between the ribbons and the arc at the top
                 .outerRadius(outerRadius);
 
@@ -153,11 +153,11 @@ d3.uwo.sentiViz = function module() {
             function drawDumbo(svg, dataAgg){
 
                 //Find the total number of words per character
-                var dataChar = d3v4.nest()
+                var dataChar = d3.nest()
                     .key(function(d) { return d.character; })
-                    .rollup(function(leaves) { return d3v4.sum(leaves, function(d) { return d.words; }); })
+                    .rollup(function(leaves) { return d3.sum(leaves, function(d) { return d.words; }); })
                     .entries(dataAgg)
-                    .sort(function(a, b){ return d3v4.descending(a.value, b.value); });
+                    .sort(function(a, b){ return d3.descending(a.value, b.value); });
                 //Unflatten the result
                 var characterOrder = dataChar.map(function(d) { return d.key; });
 
@@ -231,7 +231,7 @@ d3.uwo.sentiViz = function module() {
                     "#6a51a3"
 
                 ];
-                var color = d3v4.scaleOrdinal()
+                var color = d3.scaleOrdinal()
                     .domain(locations)
                     .range(colors);
 
@@ -279,26 +279,26 @@ d3.uwo.sentiViz = function module() {
                     })
                     .on("mouseover", function(d) {
 
-                        d3v4.selectAll(".inner-label-rect")
+                        d3.selectAll(".inner-label-rect")
                             .transition()
                             .attr("opacity", function(s) {
                                 return s.name !== d.outername ? 0 : 1;
                             });
 
                         //Hide all other arcs
-                        d3v4.selectAll(".arc-wrapper")
+                        d3.selectAll(".arc-wrapper")
                             .transition()
                             .style("opacity", function(s) { return s.outername === d.outername ? 1 : 0.5; });
 
                         //Hide all other strings
-                        d3v4.selectAll(".string")
+                        d3.selectAll(".string")
                             .transition()
                             .style("opacity", function(s) { return s.outer.outername === d.outername ? 1 : fadeOpacity; });
 
                         //Find the data for the strings of the hovered over location
                         var locationData = loom(dataAgg).filter(function(s) { return s.outer.outername === d.outername; });
                         //Hide the characters who haven't said a word
-                        d3v4.selectAll(".inner-label")
+                        d3.selectAll(".inner-label")
                             .transition()
                             .style("opacity", function(s) {
                                 //Find out how many words the character said at the hovered over location
@@ -308,22 +308,22 @@ d3.uwo.sentiViz = function module() {
                     })
                     .on("mouseout", function(d) {
 
-                        d3v4.selectAll(".inner-label-rect")
+                        d3.selectAll(".inner-label-rect")
                             .transition()
                             .attr('opacity', 1);
 
                         //Sjow all arc labels
-                        d3v4.selectAll(".arc-wrapper")
+                        d3.selectAll(".arc-wrapper")
                             .transition()
                             .style("opacity", 1);
 
                         //Show all strings again
-                        d3v4.selectAll(".string")
+                        d3.selectAll(".string")
                             .transition()
                             .style("opacity", defaultOpacity);
 
                         //Show all characters again
-                        d3v4.selectAll(".inner-label")
+                        d3.selectAll(".inner-label")
                             .transition()
                             .style("opacity", 1);
                     });
@@ -381,7 +381,7 @@ d3.uwo.sentiViz = function module() {
                     .attr("class", "string")
                     .style("mix-blend-mode", "multiply")
                     .attr("d", string)
-                    .style("fill", function(d) { return d3v4.rgb( color(d.outer.outername) ).brighter(0.2) ; })
+                    .style("fill", function(d) { return d3.rgb( color(d.outer.outername) ).brighter(0.2) ; })
                     .style("opacity", defaultOpacity);
 
 
@@ -428,7 +428,7 @@ d3.uwo.sentiViz = function module() {
                     .on("mouseover", function(d) {
 
                         //Show all the strings of the highlighted character and hide all else
-                        d3v4.selectAll(".string")
+                        d3.selectAll(".string")
                             .transition()
                             .style("opacity", function(s) {
                                 return s.outer.innername !== d.name ? fadeOpacity : 1;
@@ -436,7 +436,7 @@ d3.uwo.sentiViz = function module() {
 
                         //Update the word count of the outer labels
                         var characterData = loom(dataAgg).filter(function(s) { return s.outer.innername === d.name; });
-                        d3v4.selectAll(".outer-label-value")
+                        d3.selectAll(".outer-label-value")
                             .text(function(s,i){
                                 //Find which characterData is the correct one based on location
                                 var loc = characterData.filter(function(c) { return c.outer.outername === s.outername; });
@@ -450,7 +450,7 @@ d3.uwo.sentiViz = function module() {
                             });
 
                         //Hide the arc where the character hasn't said a thing
-                        d3v4.selectAll(".arc-wrapper")
+                        d3.selectAll(".arc-wrapper")
                             .transition()
                             .style("opacity", function(s) {
                                 //Find which characterData is the correct one based on location
@@ -459,11 +459,11 @@ d3.uwo.sentiViz = function module() {
                             });
 
                         //Update the title to show the total word count of the character
-                        d3v4.selectAll(".texts")
+                        d3.selectAll(".texts")
                             .transition()
                             .style("opacity", 1);
 
-                        d3v4.select(".name-title")
+                        d3.select(".name-title")
                             .attr('dy',0)
                             .text(d.name)
                             .style("opacity", 1)
@@ -487,16 +487,16 @@ d3.uwo.sentiViz = function module() {
                     .on("mouseout", function(d) {
 
                         //Put the string opacity back to normal
-                        d3v4.selectAll(".string")
+                        d3.selectAll(".string")
                             .transition()
                             .style("opacity", defaultOpacity);
 
                         //Return the word count to what it was
-                        d3v4.selectAll(".outer-label-value")
+                        d3.selectAll(".outer-label-value")
                             .text(function(s,i){ return numFormat(s.value) + " words"; });
 
                         //Show all arcs again
-                        d3v4.selectAll(".arc-wrapper")
+                        d3.selectAll(".arc-wrapper")
                             .transition()
                             .style("opacity", 1);
 
@@ -505,7 +505,7 @@ d3.uwo.sentiViz = function module() {
                             .transition()
                             .style("opacity", 0);
 */
-                        d3v4.select(".name-title")
+                        d3.select(".name-title")
                             .transition()
                             .style("opacity", 0);
                     })
@@ -514,13 +514,13 @@ d3.uwo.sentiViz = function module() {
                         {
                             d.clicked = true;
 
-                        d3v4.selectAll(".inner-label-rect")
+                        d3.selectAll(".inner-label-rect")
                             .transition()
                             .attr("stroke", function(s) {
                                 return s.name !== d.name ? 'none' : 'black';
                             });
 
-                        d3v4.select(".click-title")
+                        d3.select(".click-title")
                             .attr('dy',0)
                             .text(d.name)
                             .style("opacity", 1)
@@ -530,11 +530,11 @@ d3.uwo.sentiViz = function module() {
                         }
                         else {
                             d.clicked = undefined;
-                            d3v4.selectAll(".inner-label-rect")
+                            d3.selectAll(".inner-label-rect")
                                 .transition()
                                 .attr("stroke", 'none' )
 
-                            d3v4.select(".click-title")
+                            d3.select(".click-title")
                                 .attr('dy',0)
                                 .text(d.name)
                                 .style("opacity", 0)
@@ -551,18 +551,18 @@ d3.uwo.sentiViz = function module() {
                     .attr('id', 'piePortion')
                     .attr("transform", "translate(" + (width/2 + margin.left + extraSpace/2) + "," + (height + margin.top+ extraSpace/20) + ")");
 
-                var colorPie = d3v4.scaleOrdinal()
+                var colorPie = d3.scaleOrdinal()
                     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00", "#5a3511", "#47635f",   "#223e15", "#C6CAC9", "#0d1e25",  "#53821a",    "#4387AA",         "#770000", "#373F41", "#602317"]);
 
-                var arcPie = d3v4.arc()
+                var arcPie = d3.arc()
                     .outerRadius(radius - 10)
                     .innerRadius(radius - 20);
 
-                var labelArc = d3v4.arc()
+                var labelArc = d3.arc()
                     .outerRadius(radius - 0)
                     .innerRadius(radius - 0);
 
-                var pie = d3v4.pie()
+                var pie = d3.pie()
                     .startAngle(-2*Math.PI/3)
                     .endAngle(2*Math.PI/3)
                     .padAngle(0.015)
@@ -746,11 +746,11 @@ d3.uwo.sentiViz = function module() {
                     .segmentLabels(null);
 
 
-                var sum = d3v4.sum(dataTop, function(d){ return d.numTweets;});
+                var sum = d3.sum(dataTop, function(d){ return d.numTweets;});
                 var dataToUse = dataTop.map(function(d) {
                     d.proportion = d.numTweets/sum*100;
                     return d;
-                }).sort(function(a,b){ return d3v4.ascending(a.cause, b.cause); });
+                }).sort(function(a,b){ return d3.ascending(a.cause, b.cause); });
             //.sort(function(a,b){ return d3v4.ascending(a.netSentimentValue, b.netSentimentValue); });
 
 
@@ -771,15 +771,15 @@ d3.uwo.sentiViz = function module() {
                     regionEndRadians = 2 * Math.PI - 22 * gap;
 
 
-                var arcPie = d3v4.arc()
+                var arcPie = d3.arc()
                     .outerRadius(radius)
                     .innerRadius(radius -5);
 
-                var labelArc = d3v4.arc()
+                var labelArc = d3.arc()
                     .outerRadius(radius + 5)
                     .innerRadius(radius + 15 );
 
-                var pie = d3v4.pie()
+                var pie = d3.pie()
                     .startAngle(regionStartRadians)
                     .endAngle(regionEndRadians)
                     //  .padAngle(0.02)
@@ -788,7 +788,7 @@ d3.uwo.sentiViz = function module() {
 
                 //data = data.sort(function(a,b) { return b.population - a.population});
 
-                data = data.sort(function(a,b){ return d3v4.ascending(a.cause, b.cause); });
+                data = data.sort(function(a,b){ return d3.ascending(a.cause, b.cause); });
                 var g = loc6.selectAll(".arc")
                     .data(pie(data))
                     .enter().append("g")
@@ -1029,7 +1029,7 @@ d3.uwo.sentiViz = function module() {
 
 function wrap(text, width) {
   text.each(function() {
-	var text = d3v4.select(this),
+	var text = d3.select(this),
 		words = text.text().split(/\s+/).reverse(),
 		word,
 		line = [],
