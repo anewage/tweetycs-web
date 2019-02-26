@@ -2,8 +2,9 @@
   "name": "tweet_sense",
   "version": "0.0.1",
   "dependencies": {
-    "d3": "^5.7.0",
-    "underscore": "^1.9.1",
-    "d3-save-svg": "^0.0.2"
+    "axios": "latest",
+    "d3": "latest",
+    "d3-save-svg": "^0.0.2",
+    "underscore": "^1.9.1"
   }
 }
