@@ -37,7 +37,7 @@ def is_valid_word(word):
 def preprocess_tweet(tweet):
     processed_tweet = []
     # Convert to lower case
-    # tweet = tweet.lower()
+    tweet = tweet.lower()
     # Delete the URL
     tweet = re.sub(r'((www\.[\S]+)|(https?://[\S]+))', '', str(tweet))
     # Delete the handle
@@ -45,7 +45,7 @@ def preprocess_tweet(tweet):
     # Replaces #hashtag with hashtag
     tweet = re.sub(r'#(\S+)', r' \1 ', tweet)
     # Remove RT (retweet)
-    tweet = re.sub(r'\bRT\b', '', tweet)
+    tweet = re.sub(r'\brt\b', '', tweet)
     # Replace 2+ dots with space
     tweet = re.sub(r'\.{2,}', ' ', tweet)
     # Strip space, " and ' from tweet
