@@ -12,32 +12,27 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 
-csvfile = sys.argv[1]
-bDataFrame = pd.read_csv(csvfile).fillna('')
-tweet = bDataFrame['text']
-processed_tweet = []
-for t in tweet:
-    processed_tweet.append(t)
-textp=' '.join(processed_tweet)
-stemmed_tweet = []
-ps = PorterStemmer()
-lem = WordNetLemmatizer()
-words = word_tokenize(textp)
 
-for w in words:
-        p= ps.stem(w)
+def stem(text):
+    stemmed_tweet = []
+    ps = PorterStemmer()
+    words = word_tokenize(text)
+    for w in words:
+        p = ps.stem(w)
+        stemmed_tweet.append(p)
+    return(' '.join(stemmed_tweet))
+
+def lemmatize(text):
+    lem_tweet = []
+    lem = WordNetLemmatizer()
+    words = word_tokenize(text)
+    for w in words:
         l = lem.lemmatize(w)
-        stemmed_tweet.append(l)
-text_review = ' '.join(stemmed_tweet)
-#print(text_review)
-
-# Google original vectors from Google News corpora
-model = word2vec.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+        lem_tweet.append(l)
+    return(' '.join(lem_tweet))
 
 
 def text_to_wordlist(text, remove_stopwords=True):
- 
-
     # Convert words to lower case and split them, clean stopwords from model' vocabulary
     words = text.lower().split()
     stopkey = [w.strip() for w in codecs.open('stopwords.txt', 'r').readlines()]
@@ -56,6 +51,32 @@ def get_feature_vec(words, model):
             clean_text.append(model[word])
 
     return clean_text
+
+# pagerank powermethod
+def powerMethod(A, x0, m, iter):
+    n = A.shape[1]
+    delta = m * (array([1] * n, dtype='float64') / n)
+    for i in range(iter):
+        x0 = dot((1 - m), dot(A, x0)) + delta
+    return x0
+
+
+csvfile = sys.argv[1]
+bDataFrame = pd.read_csv(csvfile).fillna('')
+tweet = bDataFrame['text']
+processed_tweet = []
+for t in tweet:
+    processed_tweet.append(t)
+textp=' '.join(processed_tweet)
+
+#Stem the tweets
+# text_review = stem(textp)
+
+#Lem the tweets
+text_review = lemmatize(textp)
+
+# Google original vectors from Google News corpora
+model = word2vec.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
 
 
 # bag of word list without stopwords
@@ -95,16 +116,6 @@ inv_mag = numpy.sqrt(inv_square_mag)
 cosine = similarity * inv_mag
 cosine = cosine.T * inv_mag
 
-
-# pagerank powermethod
-def powerMethod(A, x0, m, iter):
-    n = A.shape[1]
-    delta = m * (array([1] * n, dtype='float64') / n)
-    for i in range(iter):
-        x0 = dot((1 - m), dot(A, x0)) + delta
-    return x0
-
-
 n = cosine.shape[1]  # A is n x n
 m = 0.15
 x0 = [1] * n
@@ -112,20 +123,30 @@ x0 = [1] * n
 pagerank_values = powerMethod(cosine, x0, m, 130)
 
 srt = numpy.argsort(pagerank_values)
-a = srt[0:20]
+
+a = srt[0:40]
 
 keywords_list = []
 
 for words in a:
     keywords_list.append(clean_train_text[words])
 
+#Calculate the frequency of the keywords
 frequency={}
-for word in stemmed_tweet:
+words = word_tokenize(text_review)
+for word in words:
     if word in keywords_list:
         if word not in frequency:
             frequency[word]=1
         else:
             frequency[word]+=1
-print(frequency)
 
+#Sort the word in descending order
+data_sorted = {k: v for k, v in sorted(frequency.items(), key=lambda x: x[1], reverse=True)}
+#sorted_keywords = sorted(frequency.items(), key=lambda kv: kv[1], reverse=True)
+print(data_sorted)
+
+df = pd.DataFrame.from_dict(data_sorted, orient='index')
+#test=pd.DataFrame(columns='frequency', data=sorted_keywords)
+df.to_csv("keywords_bagofwords.csv")
 
