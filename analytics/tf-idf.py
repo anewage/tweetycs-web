@@ -21,27 +21,38 @@ def dataPrepos(text, stopkey):
             l.append(i)
     return l
 
+def stem(text):
+    stemmed_tweet = []
+    ps = PorterStemmer()
+    words = word_tokenize(text)
+    for w in words:
+        p = ps.stem(w)
+        stemmed_tweet.append(p)
+    return(' '.join(stemmed_tweet))
+
+def lemmatize(text):
+    lem_tweet = []
+    lem = WordNetLemmatizer()
+    words = word_tokenize(text)
+    for w in words:
+        l = lem.lemmatize(w)
+        lem_tweet.append(l)
+    return(' '.join(lem_tweet))
+
 # tf-idf
 def getKeywords_tfidf(data,stopkey,topK):
 
     idList =data['id']
     tweet = data['text']
     processed_tweet = []
-    lem = WordNetLemmatizer()
-    s = PorterStemmer()
     for t in tweet:
         processed_tweet.append(t)
     textp=' '.join(processed_tweet)
     words = textp.lower().split()
     meaningful_words = [w for w in words if not w in stopkey]
     textf=' '.join(meaningful_words)
-    words = word_tokenize(textf)
-    l = []
-    for i in words:
-        m = lem.lemmatize(i)
-        l.append(m)
-
-    textm=' '.join(l)
+    textm=stem(textf)
+    #textm=lemmatize(textf)
     corpus=[]
     corpus.append(textm) 
 
@@ -69,7 +80,7 @@ def getKeywords_tfidf(data,stopkey,topK):
         df_weight = pd.DataFrame(df_weight,columns=['weight'])
         word_weight = pd.concat([df_word, df_weight], axis=1) #
         word_weight = word_weight.sort_values(by="weight",ascending = False) # sort
-        print(word_weight)
+        #print(word_weight)
         keyword = np.array(word_weight['word']) 
         word_split = [keyword[x] for x in range(0,topK)] 
 
@@ -80,20 +91,22 @@ def getKeywords_tfidf(data,stopkey,topK):
                 frequency[word]=1
             else:
                 frequency[word]+=1
-    print(frequency)
-    result = pd.DataFrame({"key": word_split},columns=['key'])
-    return result
+    data_sorted = {k: v for k, v in sorted(frequency.items(), key=lambda x: x[1], reverse=True)}
+    print(data_sorted)
+    df = pd.DataFrame.from_dict(data_sorted, orient='index')
+    return df
 
 
 def main():
     csvfile = sys.argv[1]
+    number = int(sys.argv[2])
     # read the file
     data = pd.read_csv(csvfile).fillna('')
     # Get the stopwords
     stopkey = [w.strip() for w in codecs.open('stopwords.txt', 'r').readlines()]
     # extract the tf-idf keyword
-    result = getKeywords_tfidf(data,stopkey,100)
-    result.to_csv("keys_TFIDF.csv",index=False)
+    result = getKeywords_tfidf(data,stopkey,number)
+    result.to_csv("keys_TFIDF.csv")
 
 if __name__ == '__main__':
     main()
