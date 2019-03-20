@@ -62,6 +62,7 @@ def powerMethod(A, x0, m, iter):
 
 
 csvfile = sys.argv[1]
+number= int(sys.argv[2])
 bDataFrame = pd.read_csv(csvfile).fillna('')
 tweet = bDataFrame['text']
 processed_tweet = []
@@ -124,7 +125,8 @@ pagerank_values = powerMethod(cosine, x0, m, 130)
 
 srt = numpy.argsort(pagerank_values)
 
-a = srt[0:40]
+
+a = srt[0:number]
 
 keywords_list = []
 
