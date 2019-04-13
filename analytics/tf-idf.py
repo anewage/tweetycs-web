@@ -44,17 +44,16 @@ def getKeywords_tfidf(data,stopkey,topK):
 
     idList =data['id']
     tweet = data['text']
-    processed_tweet = []
-    for t in tweet:
-        processed_tweet.append(t)
-    textp=' '.join(processed_tweet)
-    words = textp.lower().split()
-    meaningful_words = [w for w in words if not w in stopkey]
-    textf=' '.join(meaningful_words)
-    textm=stem(textf)
-    #textm=lemmatize(textf)
     corpus=[]
-    corpus.append(textm) 
+    for t in tweet:
+    #     processed_tweet.append(t)
+    # textp=' '.join(processed_tweet)
+        words = t.lower().split()
+        meaningful_words = [w for w in words if not w in stopkey]
+        textf=' '.join(meaningful_words)
+        textm=stem(textf)
+        corpus.append(textm) 
+    #textm=lemmatize(textf)
 
     #construct the vector
     vectorizer = CountVectorizer()
