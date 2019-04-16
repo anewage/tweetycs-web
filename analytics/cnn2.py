@@ -101,6 +101,7 @@ def top_n_words(tweetm,n,shift=0):
     words = {p[0]: i + shift for i, p in enumerate(most_common)}
     return words
 
+
 if __name__ == '__main__':
     train = len(sys.argv) == 1
     np.random.seed(1337)
@@ -156,3 +157,7 @@ if __name__ == '__main__':
         mDataFrame=pd.read_csv(TEST_PROCESSED_FILE).fillna('')
         mDataFrame['new']=results
         mDataFrame.to_csv(TEST_PROCESSED_FILE)
+
+
+        #results = zip(map(str, range(len(test_tweets))),  np.round(predictions[:, 0]).astype(int))
+        #save_results_to_csv(results, 'cnn.csv')
