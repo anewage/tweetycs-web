@@ -101,16 +101,6 @@ def top_n_words(tweetm,n,shift=0):
     words = {p[0]: i + shift for i, p in enumerate(most_common)}
     return words
 
-def save_results_to_csv(results, csv_file):
-    ''' Save list of type [(tweet_id, positive)] to csv in Kaggle format '''
-    with open(csv_file, 'w') as csv:
-        csv.write('id,prediction\n')
-        for tweet_id, pred in results:
-            csv.write(tweet_id)
-            csv.write(',')
-            csv.write(str(pred))
-            csv.write('\n')
-
 if __name__ == '__main__':
     train = len(sys.argv) == 1
     np.random.seed(1337)
@@ -162,5 +152,7 @@ if __name__ == '__main__':
         test_tweets = pad_sequences(test_tweets, maxlen=max_length, padding='post')
         predictions = model.predict(test_tweets, batch_size=128, verbose=1)
         print(predictions)
-        results = zip(map(str, range(len(test_tweets))),  np.argmax(predictions, axis=1).astype(int))
-        save_results_to_csv(results, 'cnn.csv')
+        results =  np.argmax(predictions, axis=1).astype(int)
+        mDataFrame=pd.read_csv(TEST_PROCESSED_FILE).fillna('')
+        mDataFrame['new']=results
+        mDataFrame.to_csv(TEST_PROCESSED_FILE)
