@@ -141,18 +141,18 @@ if __name__ == '__main__':
         model.add(Dense(3))
         model.add(Activation('softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        filepath = "4cnn-{epoch:02d}-{loss:0.3f}-{acc:0.3f}-{val_loss:0.3f}-{val_acc:0.3f}.hdf5"
+        #filepath = "4cnn-{epoch:02d}-{loss:0.3f}-{acc:0.3f}-{val_loss:0.3f}-{val_acc:0.3f}.hdf5"
+        filepath = "4cnn.hdf5"
         checkpoint = ModelCheckpoint(filepath, monitor="loss", verbose=1, save_best_only=True, mode='min')
         reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=2, min_lr=0.000001)
         model.fit(tweets, labels, batch_size=128, epochs=8, validation_split=0.1, shuffle=True, callbacks=[checkpoint, reduce_lr])
     else:
-        model = load_model(sys.argv[1])
-        TEST_PROCESSED_FILE = sys.argv[2]
+        model = load_model("4cnn.hdf5")
+        TEST_PROCESSED_FILE = sys.argv[1]
         print (model.summary())
         test_tweets, _ = process_tweets(TEST_PROCESSED_FILE, test_file=True)
         test_tweets = pad_sequences(test_tweets, maxlen=max_length, padding='post')
         predictions = model.predict(test_tweets, batch_size=128, verbose=1)
-        print(predictions)
         results =  np.argmax(predictions, axis=1).astype(int)
         mDataFrame=pd.read_csv(TEST_PROCESSED_FILE).fillna('')
         mDataFrame['new']=results
