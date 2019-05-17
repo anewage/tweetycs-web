@@ -1,7 +1,7 @@
 {
   "name": "tweetycs-web",
   "version": "1.0.0",
-  "description": "Web Application for Tweetycs Project @ UWO",
+  "description": "Web Application for Tweetycs Project @ Insight Lab - UWO",
   "author": "Amir Haghighati",
   "private": true,
   "scripts": {
@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "cross-env": "^5.2.0",
-    "nuxt": "^2.4.0",
+    "nuxt": "^2.7.1",
     "hapi-nuxt": "^1.0.1",
-    "vuetify": "^1.5.5",
-    "vuetify-loader": "^1.2.1",
-    "@nuxtjs/axios": "^5.3.6",
+    "vuetify": "^1.5.14",
+    "vuetify-loader": "^1.2.2",
+    "@nuxtjs/axios": "^5.4.1",
     "@nuxtjs/pwa": "^2.6.0"
   },
   "devDependencies": {
