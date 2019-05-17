@@ -1,6 +1,6 @@
 # tweetycs-web
 
-> Web Application for Tweetycs Project @ UWO
+> Web Application for Tweetycs Project from Insight lab at Western University
 
 ## Build Setup
 

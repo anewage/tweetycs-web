@@ -1,12 +1,12 @@
-const pkg = require('./package')
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin'
+import pkg from './package'
 
-module.exports = {
+export default {
   mode: 'spa',
 
   /*
-  ** Headers of the page
-  */
+   ** Headers of the page
+   */
   head: {
     title: pkg.name,
     meta: [
@@ -25,42 +25,38 @@ module.exports = {
   },
 
   /*
-  ** Customize the progress-bar color
-  */
+   ** Customize the progress-bar color
+   */
   loading: { color: '#fff' },
 
   /*
-  ** Global CSS
-  */
-  css: [
-    '~/assets/style/app.styl'
-  ],
+   ** Global CSS
+   */
+  css: ['~/assets/style/app.styl'],
 
   /*
-  ** Plugins to load before mounting the App
-  */
-  plugins: [
-    '@/plugins/vuetify'
-  ],
+   ** Plugins to load before mounting the App
+   */
+  plugins: ['@/plugins/vuetify'],
 
   /*
-  ** Nuxt.js modules
-  */
+   ** Nuxt.js modules
+   */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/pwa',
+    '@nuxtjs/pwa'
   ],
   /*
-  ** Axios module configuration
-  */
+   ** Axios module configuration
+   */
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
   },
 
   /*
-  ** Build configuration
-  */
+   ** Build configuration
+   */
   build: {
     transpile: ['vuetify/lib'],
     plugins: [new VuetifyLoaderPlugin()],
@@ -70,9 +66,18 @@ module.exports = {
       }
     },
     /*
-    ** You can extend webpack config here
-    */
+     ** You can extend webpack config here
+     */
     extend(config, ctx) {
+      // Run ESLint on save
+      if (ctx.isDev && ctx.isClient) {
+        config.module.rules.push({
+          enforce: 'pre',
+          test: /\.(js|vue)$/,
+          loader: 'eslint-loader',
+          exclude: /(node_modules)/
+        })
+      }
     }
   }
 }
