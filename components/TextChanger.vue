@@ -1,5 +1,7 @@
 <template>
-  <div :id="chartDomID"></div>
+  <div :id="chartDomID">
+    <svg :width="width" :height="height" class="svg"></svg>
+  </div>
 </template>
 
 <script>
@@ -10,6 +12,31 @@ export default {
     chartDomID: {
       type: String,
       default: 'text-changer'
+    },
+    height: {
+      type: Number,
+      default: 500
+    },
+    width: {
+      type: Number,
+      default: 0
+    },
+    minWidth: {
+      type: Number,
+      default: 200
+    },
+    minHeight: {
+      type: Number,
+      default: 200
+    },
+    margin: {
+      type: Object,
+      default: () => ({
+        left: 30,
+        right: 10,
+        top: 10,
+        bottom: 20
+      })
     }
   },
   data() {
@@ -18,15 +45,81 @@ export default {
       g: null
     }
   },
+  computed: {
+    actualWidth: function() {
+      if (this.width) {
+        return this.width
+      }
+      return document.getElementById(this.chartDomID).clientWidth
+    },
+    displayWidth: function() {
+      if (this.minWidth > this.actualWidth) {
+        return this.minWidth - this.margin.left - this.margin.right
+      }
+      return this.actualWidth - this.margin.left - this.margin.right
+    },
+    displayHeight: function() {
+      if (this.minHeight > this.height) {
+        return this.minHeight - this.margin.top - this.margin.bottom
+      }
+      return this.height - this.margin.top - this.margin.bottom
+    }
+  },
+  watch: {
+    // width: function(newValue) {
+    //   d3.select('#' + this.chartDomID)
+    //     .selectAll('*')
+    //     .remove()
+    //   this.setupSVG()
+    //   this.update()
+    // },
+    // height: function(newValue) {
+    //   d3.select('#' + this.chartDomID)
+    //     .selectAll('*')
+    //     .remove()
+    //   this.setupSVG()
+    //   this.update()
+    // }
+  },
   mounted() {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
     const that = this
+    // Setup
     this.setupSVG()
-    function update(data) {
+
+    // The initial display.
+    this.update(alphabet)
+
+    // Grab a random sample of letters from the alphabet, in alphabetical order.
+    d3.interval(function() {
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
+      that.update(
+        d3
+          .shuffle(alphabet)
+          .slice(0, Math.floor(Math.random() * 26))
+          .sort()
+      )
+    }, 1000)
+  },
+  methods: {
+    setupSVG: function() {
+      this.svg = d3.select('svg')
+      // .append('svg')
+      // .attr('width', this.displayWidth + this.margin.left + this.margin.right)
+      // .attr(
+      //   'height',
+      //   this.displayHeight + this.margin.top + this.margin.bottom
+      // )
+      const height = +this.svg.attr('height')
+      this.g = this.svg
+        .append('g')
+        .attr('transform', 'translate(20,' + height / 2 + ')')
+    },
+    update: function(data = 'abcdefghijklmnopqrstuvwxyz'.split('')) {
       const t = d3.transition().duration(750)
 
       // JOIN new data with old elements.
-      const text = that.g.selectAll('text').data(data, function(d) {
+      const text = this.g.selectAll('text').data(data, function(d) {
         return d
       })
 
@@ -67,34 +160,6 @@ export default {
         .attr('y', 0)
         .style('fill-opacity', 1)
     }
-
-    // The initial display.
-    update(alphabet)
-
-    // Grab a random sample of letters from the alphabet, in alphabetical order.
-    d3.interval(function() {
-      const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
-      update(
-        d3
-          .shuffle(alphabet)
-          .slice(0, Math.floor(Math.random() * 26))
-          .sort()
-      )
-    }, 1000)
-  },
-  methods: {
-    setupSVG: function() {
-      this.svg = d3
-        .select('#' + this.chartDomID)
-        .append('svg')
-        .attr('width', 960)
-        .attr('height', 720)
-      // const width = +svg.attr('width')
-      const height = +this.svg.attr('height')
-      this.g = this.svg
-        .append('g')
-        .attr('transform', 'translate(32,' + height / 2 + ')')
-    }
   }
 }
 </script>
@@ -102,6 +167,10 @@ export default {
 <style>
 text {
   font: bold 48px monospace;
+}
+
+.svg {
+  background: lightgrey;
 }
 
 .enter {
