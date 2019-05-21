@@ -20,23 +20,6 @@ export default {
     width: {
       type: Number,
       default: 0
-    },
-    minWidth: {
-      type: Number,
-      default: 200
-    },
-    minHeight: {
-      type: Number,
-      default: 200
-    },
-    margin: {
-      type: Object,
-      default: () => ({
-        left: 30,
-        right: 10,
-        top: 10,
-        bottom: 20
-      })
     }
   },
   data() {
@@ -44,42 +27,6 @@ export default {
       svg: null,
       g: null
     }
-  },
-  computed: {
-    actualWidth: function() {
-      if (this.width) {
-        return this.width
-      }
-      return document.getElementById(this.chartDomID).clientWidth
-    },
-    displayWidth: function() {
-      if (this.minWidth > this.actualWidth) {
-        return this.minWidth - this.margin.left - this.margin.right
-      }
-      return this.actualWidth - this.margin.left - this.margin.right
-    },
-    displayHeight: function() {
-      if (this.minHeight > this.height) {
-        return this.minHeight - this.margin.top - this.margin.bottom
-      }
-      return this.height - this.margin.top - this.margin.bottom
-    }
-  },
-  watch: {
-    // width: function(newValue) {
-    //   d3.select('#' + this.chartDomID)
-    //     .selectAll('*')
-    //     .remove()
-    //   this.setupSVG()
-    //   this.update()
-    // },
-    // height: function(newValue) {
-    //   d3.select('#' + this.chartDomID)
-    //     .selectAll('*')
-    //     .remove()
-    //   this.setupSVG()
-    //   this.update()
-    // }
   },
   mounted() {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
