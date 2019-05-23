@@ -37,8 +37,6 @@ export default {
     return {
       svg: null,
       circlesGroup: null,
-      xScale: null,
-      yScale: null,
       xAxis: null,
       yAxis: null,
       xTicks: 10,
@@ -66,6 +64,36 @@ export default {
     },
     chartWidth: function() {
       return this.chartRight - this.chartLeft
+    },
+    xScale: function() {
+      // X scale
+      return d3
+        .scaleLinear()
+        .domain([
+          d3.min(this.dataset, function(d) {
+            return d[0]
+          }),
+          d3.max(this.dataset, function(d) {
+            return d[0]
+          })
+        ])
+        .range([this.chartLeft, this.chartRight])
+        .nice()
+    },
+    yScale: function() {
+      // Y scale
+      return d3
+        .scaleLinear()
+        .domain([
+          d3.min(this.dataset, function(d) {
+            return d[1]
+          }),
+          d3.max(this.dataset, function(d) {
+            return d[1]
+          })
+        ])
+        .range([this.chartBottom, this.chartTop])
+        .nice()
     }
   },
   watch: {
@@ -95,7 +123,7 @@ export default {
     d3.interval(function() {
       for (let i = 0; i < that.step; i++) {
         const val = Math.random() * 1000
-        that.dataset.push([val, val])
+        that.dataset.push([val, val, 'Hello!'])
       }
     }, 1000)
   },
@@ -115,34 +143,6 @@ export default {
       this.drawData(data)
     },
     drawAxes: function() {
-      // X scale
-      this.xScale = d3
-        .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[0]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[0]
-          })
-        ])
-        .range([this.chartLeft, this.chartRight])
-        .nice()
-
-      // Y scale
-      this.yScale = d3
-        .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[1]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[1]
-          })
-        ])
-        .range([this.chartBottom, this.chartTop])
-        .nice()
-
       this.xAxis = d3.axisBottom(this.xScale).ticks(this.xTicks)
       this.yAxis = d3.axisLeft(this.yScale).ticks(this.yTicks)
 
