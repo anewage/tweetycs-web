@@ -27,7 +27,7 @@ export default {
         return {
           top: 20,
           right: 20,
-          left: 30,
+          left: 35,
           bottom: 20
         }
       }
@@ -41,9 +41,31 @@ export default {
       yScale: null,
       xAxis: null,
       yAxis: null,
+      xTicks: 10,
+      yTicks: 10,
       dataset: [],
       step: 10,
       limit: 100
+    }
+  },
+  computed: {
+    chartLeft: function() {
+      return this.padding.left
+    },
+    chartRight: function() {
+      return this.width - this.padding.right
+    },
+    chartBottom: function() {
+      return this.height - this.padding.bottom
+    },
+    chartTop: function() {
+      return this.padding.top
+    },
+    chartHeight: function() {
+      return this.chartBottom - this.chartTop
+    },
+    chartWidth: function() {
+      return this.chartRight - this.chartLeft
     }
   },
   watch: {
@@ -72,7 +94,8 @@ export default {
     // Update dataset (add new data)
     d3.interval(function() {
       for (let i = 0; i < that.step; i++) {
-        that.dataset.push([Math.random() * 1000, Math.random() * 1000])
+        const val = Math.random() * 1000
+        that.dataset.push([val, val])
       }
     }, 1000)
   },
@@ -92,6 +115,7 @@ export default {
       this.drawData(data)
     },
     drawAxes: function() {
+      // X scale
       this.xScale = d3
         .scaleLinear()
         .domain([
@@ -102,8 +126,10 @@ export default {
             return d[0]
           })
         ])
-        .range([this.padding.left, this.width - this.padding.right])
+        .range([this.chartLeft, this.chartRight])
+        .nice()
 
+      // Y scale
       this.yScale = d3
         .scaleLinear()
         .domain([
@@ -114,12 +140,13 @@ export default {
             return d[1]
           })
         ])
-        .range([this.height - this.padding.bottom, this.padding.top])
+        .range([this.chartBottom, this.chartTop])
+        .nice()
 
-      this.xAxis = d3.axisBottom(this.xScale).ticks(10)
-      this.yAxis = d3.axisLeft(this.yScale).ticks(10)
+      this.xAxis = d3.axisBottom(this.xScale).ticks(this.xTicks)
+      this.yAxis = d3.axisLeft(this.yScale).ticks(this.yTicks)
 
-      // X axis
+      // Draw X axis
       this.svg
         .append('g')
         .attr('class', 'x axis')
@@ -129,7 +156,7 @@ export default {
         )
         .call(this.xAxis)
 
-      // Y axis
+      // Draw Y axis
       this.svg
         .append('g')
         .attr('class', 'y axis')
