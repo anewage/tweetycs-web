@@ -1,7 +1,7 @@
 <template>
-  <v-layout>
-    <v-flex text-xs-center>
-      <text-changer
+  <v-layout row wrap>
+    <v-flex text-xs-center xs12>
+      <scatter-plot
         :id="component_id"
         :width="chartWidth"
         :height="chartHeight"
@@ -11,28 +11,29 @@
 </template>
 
 <script>
-import TextChanger from '../components/TextChanger'
+import ScatterPlot from '../components/ScatterPlot'
 export default {
+  name: 'PageInspire',
   components: {
-    'text-changer': TextChanger
+    'scatter-plot': ScatterPlot
   },
   data() {
     return {
       component_id: 'text-changer',
       chartHeight: 500,
-      chartWidth: 100
+      chartWidth: null
     }
   },
   mounted() {
     const elem = document.getElementById(this.component_id)
-    this.chartHeight = elem.clientHeight
+    // this.chartHeight = elem.clientHeight
     this.chartWidth = elem.clientWidth
     window.addEventListener('resize', this.handleResize)
   },
   methods: {
     handleResize: function() {
       const elem = document.getElementById(this.component_id)
-      this.chartHeight = elem.clientHeight
+      // this.chartHeight = elem.clientHeight
       this.chartWidth = elem.clientWidth
     }
   }
