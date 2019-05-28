@@ -39,11 +39,17 @@ export default {
       circlesGroup: null,
       xAxis: null,
       yAxis: null,
+      scales: {
+        x: null,
+        y: null
+      },
       xTicks: 10,
       yTicks: 10,
       dataset: [],
       step: 10,
-      limit: 100
+      limit: 100,
+      xScale: null,
+      yScale: null
     }
   },
   computed: {
@@ -64,43 +70,13 @@ export default {
     },
     chartWidth: function() {
       return this.chartRight - this.chartLeft
-    },
-    xScale: function() {
-      // X scale
-      return d3
-        .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[0]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[0]
-          })
-        ])
-        .range([this.chartLeft, this.chartRight])
-        .nice()
-    },
-    yScale: function() {
-      // Y scale
-      return d3
-        .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[1]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[1]
-          })
-        ])
-        .range([this.chartBottom, this.chartTop])
-        .nice()
     }
   },
   watch: {
-    height: function(newValue) {
+    width: function() {
       this.update()
     },
-    width: function(newValue) {
+    height: function() {
       this.update()
     },
     dataset: function(newValue) {
@@ -122,19 +98,31 @@ export default {
     // Update dataset (add new data)
     d3.interval(function() {
       for (let i = 0; i < that.step; i++) {
-        const val = Math.random() * 1000
-        that.dataset.push([val, val, 'Hello!'])
+        const val1 = Math.random() * 1000
+        const val2 = Math.random() * 1000
+        that.dataset.push([val1, val2, 'Hello!'])
       }
     }, 1000)
   },
   methods: {
     setupSVG: function() {
+      // Select the SVG element
       this.svg = d3.select('svg')
+
+      // Add circles group
       this.circlesGroup = this.svg.append('g')
+
+      for (let i = 0; i < this.step; i++) {
+        const val = Math.random() * 1000
+        this.dataset.push([val, val, 'Hello!'])
+      }
     },
     update: function(data = this.dataset) {
-      // Remove old axes
-      d3.selectAll('.axis').remove()
+      // remove outdated elements
+      this.flush()
+
+      // update scales
+      this.updateScales()
 
       // re-draw axes
       this.drawAxes()
@@ -142,7 +130,41 @@ export default {
       // re-draw data points
       this.drawData(data)
     },
+    flush: function() {
+      // Remove old axes
+      d3.selectAll('.axis').remove()
+    },
+    updateScales: function() {
+      // X Scale
+      this.xScale = d3
+        .scaleLinear()
+        .domain([
+          d3.min(this.dataset, function(d) {
+            return d[0]
+          }),
+          d3.max(this.dataset, function(d) {
+            return d[0]
+          })
+        ])
+        .range([this.chartLeft, this.chartRight])
+        .nice()
+
+      // Y Scale
+      this.yScale = d3
+        .scaleLinear()
+        .domain([
+          d3.min(this.dataset, function(d) {
+            return d[1]
+          }),
+          d3.max(this.dataset, function(d) {
+            return d[1]
+          })
+        ])
+        .range([this.chartBottom, this.chartTop])
+        .nice()
+    },
     drawAxes: function() {
+      // Update Axes
       this.xAxis = d3.axisBottom(this.xScale).ticks(this.xTicks)
       this.yAxis = d3.axisLeft(this.yScale).ticks(this.yTicks)
 
@@ -184,13 +206,13 @@ export default {
       // UPDATE old elements present in new data.
       // Cx and Cy are being updated just to maintain the responsiveness to changes in screen resize
       circles
-        .transition(t)
         .attr('cx', function(d) {
           return that.xScale(d[0])
         })
         .attr('cy', function(d) {
           return that.yScale(d[1])
         })
+        .transition(t)
         .attr('class', 'update')
         .style('fill-opacity', 1)
 
@@ -204,7 +226,7 @@ export default {
         .attr('cy', function(d) {
           return that.yScale(d[1])
         })
-        .attr('r', 2)
+        .attr('r', 4)
         .attr('class', 'enter')
         .style('fill-opacity', 1e-6)
         .transition(t)

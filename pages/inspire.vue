@@ -21,7 +21,7 @@ export default {
     return {
       component_id: 'text-changer',
       chartHeight: 500,
-      chartWidth: null
+      chartWidth: 600
     }
   },
   mounted() {
