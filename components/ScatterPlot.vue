@@ -1,6 +1,6 @@
 <template>
   <div :id="chartDomID">
-    <svg :width="width" :height="height" class="svg"></svg>
+    <svg :width="width" :height="height" class="svg scatterplot"></svg>
   </div>
 </template>
 
@@ -11,7 +11,7 @@ export default {
   props: {
     chartDomID: {
       type: String,
-      default: 'text-changer'
+      default: 'scatter-plot'
     },
     height: {
       type: Number,
@@ -107,7 +107,7 @@ export default {
   methods: {
     setupSVG: function() {
       // Select the SVG element
-      this.svg = d3.select('svg')
+      this.svg = d3.select('.scatterplot')
 
       // Add circles group
       this.circlesGroup = this.svg.append('g')
@@ -189,48 +189,53 @@ export default {
       const that = this
       const t = d3.transition().duration(750)
       // JOIN new data with old elements.
-      const circles = this.circlesGroup
+      this.circlesGroup
         .selectAll('circle')
         .data(data, function(d) {
           return d
         })
+        .join(
+          // ENTER new elements present in new data.
+          enter =>
+            enter
+              .append('circle')
+              .attr('cx', function(d) {
+                return that.xScale(d[0])
+              })
+              .attr('cy', function(d) {
+                return that.yScale(d[1])
+              })
+              .attr('r', 6)
+              .attr('class', 'enter')
+              .style('fill-opacity', 1e-6)
+              .call(enter => enter.transition(t).style('fill-opacity', 1)),
 
-      // EXIT old elements not present in new data.
-      circles
-        .exit()
-        .attr('class', 'exit')
-        .transition(t)
-        .style('fill-opacity', 1e-6)
-        .remove()
+          // UPDATE old elements present in new data.
+          // Cx and Cy are being updated just to maintain the responsiveness to changes in screen resize
+          update =>
+            update
+              .attr('cx', function(d) {
+                return that.xScale(d[0])
+              })
+              .attr('cy', function(d) {
+                return that.yScale(d[1])
+              })
+              .call(update =>
+                update
+                  .transition(t)
+                  .attr('class', 'update')
+                  .style('fill-opacity', 1)
+              ),
 
-      // UPDATE old elements present in new data.
-      // Cx and Cy are being updated just to maintain the responsiveness to changes in screen resize
-      circles
-        .attr('cx', function(d) {
-          return that.xScale(d[0])
-        })
-        .attr('cy', function(d) {
-          return that.yScale(d[1])
-        })
-        .transition(t)
-        .attr('class', 'update')
-        .style('fill-opacity', 1)
-
-      // ENTER new elements present in new data.
-      circles
-        .enter()
-        .append('circle')
-        .attr('cx', function(d) {
-          return that.xScale(d[0])
-        })
-        .attr('cy', function(d) {
-          return that.yScale(d[1])
-        })
-        .attr('r', 4)
-        .attr('class', 'enter')
-        .style('fill-opacity', 1e-6)
-        .transition(t)
-        .style('fill-opacity', 1)
+          // EXIT old elements not present in new data.
+          exit =>
+            exit.attr('class', 'exit').call(exit =>
+              exit
+                .transition(t)
+                .style('fill-opacity', 1e-6)
+                .remove()
+            )
+        )
     }
   }
 }
