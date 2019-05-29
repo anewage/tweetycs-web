@@ -42,7 +42,7 @@
       </v-btn>
     </v-toolbar>
     <v-content>
-      <v-container>
+      <v-container :fluid="fluid">
         <nuxt />
       </v-container>
     </v-content>
@@ -66,6 +66,7 @@
 export default {
   data() {
     return {
+      fluid: false,
       clipped: false,
       drawer: false,
       fixed: false,
