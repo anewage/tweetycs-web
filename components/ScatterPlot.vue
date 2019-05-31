@@ -14,10 +14,10 @@
       >
         <circle
           v-for="item in dataset"
-          :key="item[0]"
-          :cx="xScale(item[0])"
-          :cy="yScale(item[1])"
-          :r="6"
+          :key="JSON.stringify(item)"
+          :cx="xScale(item.a)"
+          :cy="yScale(item.v)"
+          :r="4"
           class="circle"
         ></circle>
       </transition-group>
@@ -109,10 +109,10 @@ export default {
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d[0]
+            return d.a
           }),
           d3.max(this.dataset, function(d) {
-            return d[0]
+            return d.a
           })
         ])
         .range([this.chartLeft, this.chartRight])
@@ -123,10 +123,10 @@ export default {
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d[1]
+            return d.v
           }),
           d3.max(this.dataset, function(d) {
-            return d[1]
+            return d.v
           })
         ])
         .range([this.chartBottom, this.chartTop])

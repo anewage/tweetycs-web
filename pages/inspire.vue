@@ -5,13 +5,13 @@
         :id="scatter_id"
         :width="sizes.scatterplot.width"
         :height="sizes.scatterplot.height"
-        :dataset="scatter_dataset"
+        :dataset="dataset"
       />
       <heat-map
         :id="heat_id"
         :width="sizes.heatmap.width"
         :height="sizes.heatmap.height"
-        :dataset="heatmap_dataset"
+        :dataset="dataset"
       />
     </v-flex>
   </v-layout>
@@ -28,24 +28,6 @@ export default {
   },
   data() {
     return {
-      scatter_dataset: [[2, 3]],
-      heatmap_dataset: [
-        { x: 'A', y: 'v1', v: 10 },
-        { x: 'A', y: 'v2', v: 14 },
-        { x: 'A', y: 'v3', v: 1 },
-        { x: 'B', y: 'v1', v: 6 },
-        { x: 'B', y: 'v2', v: 15 },
-        { x: 'B', y: 'v3', v: 3 },
-        { x: 'C', y: 'v1', v: 10 },
-        { x: 'C', y: 'v2', v: 10 },
-        { x: 'C', y: 'v3', v: 10 },
-        { x: 'D', y: 'v1', v: 10 },
-        { x: 'D', y: 'v2', v: 10 },
-        { x: 'D', y: 'v3', v: 10 },
-        { x: 'E', y: 'v1', v: 10 },
-        { x: 'E', y: 'v2', v: 10 },
-        { x: 'E', y: 'v3', v: 1 }
-      ],
       scatter_id: 'scatter-plot',
       heat_id: 'heatmap',
       sizes: {
@@ -60,9 +42,9 @@ export default {
       }
     }
   },
-  watch: {
-    scatter_dataset: function(newValue) {
-      if (newValue.length > 100) newValue.splice(0, 10)
+  computed: {
+    dataset() {
+      return this.$store.state.fetched
     }
   },
   mounted() {
@@ -72,15 +54,15 @@ export default {
 
     // Update dataset (add new data)
     window.setInterval(function() {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
       for (let i = 0; i < 10; i++) {
-        const val1 = Math.random() * 100
-        const val2 = Math.random() * 100
-        that.scatter_dataset.push([val1, val2])
-
-        const val3 = parseInt(Math.random() * that.heatmap_dataset.length)
-        that.heatmap_dataset[val3].v = Math.random() * 15
+        const x = alphabet.charAt(parseInt(Math.random() * 26))
+        const y = 'v' + parseInt(Math.random() * 4)
+        const v = Math.random() * 100
+        const a = Math.random() * 100
+        that.$store.commit('add', { x: x, y: y, v: v, a: a })
       }
-    }, 300)
+    }, 1500)
   },
   methods: {
     resize: function() {
