@@ -10,7 +10,7 @@
         id="circles"
         tag="g"
         name="fade"
-        :duration="transitionDuraton"
+        :duration="transitionDuration"
       >
         <circle
           v-for="item in dataset"
@@ -23,11 +23,11 @@
         ></circle>
       </transition-group>
       <g
-        :class="'x-axis scatterplot-' + chartDomID + '-axis'"
+        :class="'x-axis scatterplot-' + chartDomID + '-x-axis'"
         :transform="'translate(0,' + chartBottom + ')'"
       ></g>
       <g
-        :class="'y-axis scatterplot-' + chartDomID + '-axis'"
+        :class="'y-axis scatterplot-' + chartDomID + '-y-axis'"
         :transform="'translate(' + chartLeft + ', 0)'"
       ></g>
     </svg>
@@ -73,16 +73,17 @@ export default {
     return {
       svg: null,
       circlesGroup: null,
-      xAxis: null,
-      yAxis: null,
-      scales: {
-        x: null,
-        y: null
+      axes: {
+        x: {
+          ticks: 10,
+          element: null
+        },
+        y: {
+          ticks: 10,
+          element: null
+        }
       },
-      xTicks: 10,
-      yTicks: 10,
-      limit: 100,
-      transitionDuraton: 1000
+      transitionDuration: 500
     }
   },
   computed: {
@@ -131,6 +132,12 @@ export default {
         ])
         .range([this.chartBottom, this.chartTop])
         .nice()
+    },
+    xAxisFunction: function() {
+      return d3.axisBottom(this.xScale).ticks(this.axes.x.ticks)
+    },
+    yAxisFunction: function() {
+      return d3.axisLeft(this.yScale).ticks(this.axes.y.ticks)
     }
   },
   beforeUpdate() {
@@ -146,17 +153,19 @@ export default {
       // Select the SVG element
       this.svg = d3.select('.scatterplot')
       this.circlesGroup = d3.select('#circles')
+      this.axes.x.element = d3.select(
+        '.scatterplot-' + this.chartDomID + '-x-axis'
+      )
+      this.axes.y.element = d3.select(
+        '.scatterplot-' + this.chartDomID + '-y-axis'
+      )
     },
     drawAxes: function() {
-      // Update Axes
-      this.xAxis = d3.axisBottom(this.xScale).ticks(this.xTicks)
-      this.yAxis = d3.axisLeft(this.yScale).ticks(this.yTicks)
-
       // Draw X axis
-      d3.select('.x-axis').call(this.xAxis)
+      this.axes.x.element.call(this.xAxisFunction)
 
       // Draw Y axis
-      d3.select('.y-axis').call(this.yAxis)
+      this.axes.y.element.call(this.yAxisFunction)
     }
   }
 }
@@ -168,7 +177,7 @@ export default {
 }
 
 .circle {
-  transition: all 1s;
+  transition: all 500ms;
 }
 
 .fade-enter-active {

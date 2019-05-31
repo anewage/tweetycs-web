@@ -53,8 +53,6 @@ export default {
     resize: function() {
       const scatter = document.getElementById(this.scatter_id)
       this.sizes.scatterplot.width = scatter.clientWidth
-      // eslint-disable-next-line no-console
-      console.log(scatter.clientHeight)
     }
   }
 }
