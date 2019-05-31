@@ -2,9 +2,10 @@
   <v-layout row wrap>
     <v-flex text-xs-center xs12>
       <scatter-plot
-        :id="component_id"
-        :width="chartWidth"
-        :height="chartHeight"
+        :id="scatter_id"
+        :width="sizes.scatterplot.width"
+        :height="sizes.scatterplot.height"
+        :dataset="dataset"
       />
     </v-flex>
   </v-layout>
@@ -19,22 +20,41 @@ export default {
   },
   data() {
     return {
-      component_id: 'text-changer',
-      chartHeight: 500,
-      chartWidth: 600
+      dataset: [[2, 3, true]],
+      scatter_id: 'scatter-plot',
+      sankey_id: 'heatmap',
+      sizes: {
+        scatterplot: {
+          width: 600,
+          height: 500
+        }
+      }
+    }
+  },
+  watch: {
+    dataset: function(newValue) {
+      if (newValue.length > 100) newValue.splice(0, 10)
     }
   },
   mounted() {
-    const elem = document.getElementById(this.component_id)
-    // this.chartHeight = elem.clientHeight
-    this.chartWidth = elem.clientWidth
-    window.addEventListener('resize', this.handleResize)
+    const that = this
+    this.resize()
+    window.addEventListener('resize', this.resize)
+    // Update dataset (add new data)
+    window.setInterval(function() {
+      for (let i = 0; i < 10; i++) {
+        const val1 = Math.random() * 100
+        const val2 = Math.random() * 100
+        that.dataset.push([val1, val2, true])
+      }
+    }, 3000)
   },
   methods: {
-    handleResize: function() {
-      const elem = document.getElementById(this.component_id)
-      // this.chartHeight = elem.clientHeight
-      this.chartWidth = elem.clientWidth
+    resize: function() {
+      const scatter = document.getElementById(this.scatter_id)
+      this.sizes.scatterplot.width = scatter.clientWidth
+      // eslint-disable-next-line no-console
+      console.log(scatter.clientHeight)
     }
   }
 }
