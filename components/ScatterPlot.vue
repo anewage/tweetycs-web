@@ -14,7 +14,6 @@
       >
         <circle
           v-for="item in dataset"
-          v-show="item[2]"
           :key="item[0]"
           :cx="xScale(item[0])"
           :cy="yScale(item[1])"

@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      dataset: [[2, 3, true]],
+      dataset: [[2, 3]],
       scatter_id: 'scatter-plot',
       sankey_id: 'heatmap',
       sizes: {
@@ -45,7 +45,7 @@ export default {
       for (let i = 0; i < 10; i++) {
         const val1 = Math.random() * 100
         const val2 = Math.random() * 100
-        that.dataset.push([val1, val2, true])
+        that.dataset.push([val1, val2])
       }
     }, 3000)
   },
