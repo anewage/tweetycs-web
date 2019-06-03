@@ -6,6 +6,13 @@
       :height="height"
       class="svg scatterplot"
     >
+      <rect
+        class="view"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+      ></rect>
       <transition-group
         id="circles"
         tag="g"
@@ -72,6 +79,7 @@ export default {
     return {
       svg: null,
       circlesGroup: null,
+      view: null,
       axes: {
         x: {
           ticks: 10,
@@ -82,7 +90,8 @@ export default {
           element: null
         }
       },
-      transitionDuration: 500
+      transitionDuration: 500,
+      zoom: null
     }
   },
   computed: {
@@ -133,7 +142,7 @@ export default {
         .nice()
     },
     xAxisFunction: function() {
-      return d3.axisBottom(this.xScale).ticks(this.axes.x.ticks)
+      return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
     },
     yAxisFunction: function() {
       return d3.axisLeft(this.yScale).ticks(this.axes.y.ticks)
@@ -142,6 +151,9 @@ export default {
   beforeUpdate() {
     // re-draw axes
     this.drawAxes()
+
+    // call zoom behaviour
+    this.callZoomBehaviour()
   },
   mounted() {
     // Setup the SVG and Groups
@@ -152,6 +164,7 @@ export default {
       // Select the SVG element
       this.svg = d3.select('.scatterplot')
       this.circlesGroup = d3.select('#circles')
+      this.view = d3.select('.view')
       this.axes.x.element = d3.select(
         '.scatterplot-' + this.chartDomID + '-x-axis'
       )
@@ -159,12 +172,48 @@ export default {
         '.scatterplot-' + this.chartDomID + '-y-axis'
       )
     },
-    drawAxes: function() {
-      // Draw X axis
-      this.axes.x.element.call(this.xAxisFunction)
+    drawAxes: function(zoomed = false) {
+      if (zoomed) {
+        // Draw X axis
+        this.axes.x.element.call(
+          this.xAxisFunction.scale(d3.event.transform.rescaleX(this.xScale))
+        )
 
-      // Draw Y axis
-      this.axes.y.element.call(this.yAxisFunction)
+        // Draw Y axis
+        this.axes.y.element.call(
+          this.yAxisFunction.scale(d3.event.transform.rescaleY(this.yScale))
+        )
+
+        // Transform the dots (move)
+        this.circlesGroup.attr('transform', d3.event.transform)
+      } else {
+        // Draw X axis without transformation
+        this.axes.x.element.call(this.xAxisFunction)
+
+        // Draw Y axis without transformation
+        this.axes.y.element.call(this.yAxisFunction)
+
+        // reset zoom
+        this.resetZoom()
+      }
+    },
+    callZoomBehaviour: function() {
+      const that = this
+      this.zoom = d3
+        .zoom()
+        .scaleExtent([0.5, 20])
+        .extent([
+          [this.chartLeft, this.chartTop],
+          [this.chartRight, this.chartBottom]
+        ])
+        .on('zoom', () => {
+          that.drawAxes(true)
+        })
+      this.view.call(this.zoom)
+    },
+    resetZoom: function() {
+      // reset the zoom
+      if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
     }
   }
 }
@@ -173,6 +222,11 @@ export default {
 <style>
 .svg {
   /*background: lightgrey;*/
+}
+
+.view {
+  fill: transparent;
+  stroke: none;
 }
 
 .circle {
