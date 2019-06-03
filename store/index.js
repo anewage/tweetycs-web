@@ -1,11 +1,11 @@
 export const state = () => ({
-  fetched: []
+  tweets: []
 })
 
 export const mutations = {
-  add(state, datapoint) {
+  addTweet(state, tweet) {
     const limit = 100
-    if (state.fetched.length > limit) state.fetched.splice(1, 10)
-    state.fetched.push(datapoint)
+    if (state.tweets.length > limit) state.tweets = state.tweets.slice(-limit)
+    state.fetched.push(tweet)
   }
 }

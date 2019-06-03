@@ -1,6 +1,13 @@
 <template>
   <v-layout row wrap>
     <v-flex text-xs-center xs12>
+      <h1>
+        Delay: <span>{{ delay }}</span>
+      </h1>
+      <h1>
+        Avg. Delay: <span>{{ avgDelay }}</span>
+      </h1>
+      <h1 id="log">Response: {{ msg }}</h1>
       <scatter-plot
         :id="scatter_id"
         :width="sizes.scatterplot.width"
@@ -20,6 +27,7 @@
 <script>
 import ScatterPlot from '../components/ScatterPlot'
 import HeatMap from '../components/HeatMap'
+import socket from '../lib/socket.io'
 export default {
   name: 'PageInspire',
   components: {
@@ -39,13 +47,75 @@ export default {
           width: 600,
           height: 500
         }
+      },
+      msg: '',
+      pingPong: {
+        start: 0,
+        end: 0,
+        busy: false,
+        history: []
       }
     }
   },
   computed: {
     dataset() {
-      return this.$store.state.fetched
+      return this.$store.state.tweets
+    },
+    delay() {
+      if (this.pingPong.busy)
+        if (this.pingPong.history.length > 0)
+          return this.pingPong.history[this.pingPong.history.length - 1]
+        else return 0
+      return this.pingPong.end - this.pingPong.start
+    },
+    avgDelay() {
+      let avg = 0
+      for (const num of this.pingPong.history) avg += num
+      avg = (10 * avg) / (this.pingPong.history.length * 10)
+      return avg
     }
+  },
+  beforeMount() {
+    const that = this
+
+    /**
+     * Event handler for new connections.
+     * The callback function is invoked when a connection with the server is established.
+     */
+    socket.on('connect', () => {
+      socket.emit('client_event', { data: "I'm connected!" })
+    })
+
+    /**
+     * Event handler for server sent data.
+     * The callback function is invoked whenever the server emits data
+     * to the client. The data is then displayed in the "Received"
+     * section of the page.
+     */
+    socket.on('server_response', msg => {
+      document.getElementById('log').innerText = msg.data
+    })
+
+    /**
+     * Handler for the "pong" message. When the pong is received, the
+     * time from the ping is stored, and the average of the last 30
+     * samples is average and displayed.
+     */
+    socket.on('server_pong', () => {
+      that.pingPong.end = new Date().getTime()
+      // Keep last 30 samples
+      that.pingPong.history = that.pingPong.history.slice(-30)
+      that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
+      that.pingPong.busy = false
+    })
+
+    /**
+     * Store the incoming tweets
+     */
+    socket.on('tweet', msg => {
+      const tweet = JSON.parse(msg.tweet)
+      that.$store.commit('addTweet', tweet)
+    })
   },
   mounted() {
     const that = this
@@ -53,16 +123,24 @@ export default {
     window.addEventListener('resize', this.resize)
 
     // Update dataset (add new data)
-    window.setInterval(function() {
-      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      for (let i = 0; i < 10; i++) {
-        const x = alphabet.charAt(parseInt(Math.random() * 26))
-        const y = 'v' + parseInt(Math.random() * 4)
-        const v = Math.random() * 100
-        const a = Math.random() * 100
-        that.$store.commit('add', { x: x, y: y, v: v, a: a })
+    // window.setInterval(function() {
+    //   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    //   for (let i = 0; i < 10; i++) {
+    //     const x = alphabet.charAt(parseInt(Math.random() * 26))
+    //     const y = 'v' + parseInt(Math.random() * 6)
+    //     const v = Math.random() * 100
+    //     const a = Math.random() * 100
+    //     that.$store.commit('add', { x: x, y: y, v: v, a: a })
+    //   }
+    // }, 3000)
+
+    window.setInterval(() => {
+      if (socket.connected) {
+        that.pingPong.busy = true
+        that.pingPong.start = new Date().getTime()
+        socket.emit('client_ping')
       }
-    }, 1500)
+    }, 2000)
   },
   methods: {
     resize: function() {
