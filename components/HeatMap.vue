@@ -115,14 +115,14 @@ export default {
     xScale: function() {
       return d3
         .scaleBand()
-        .domain(this.dataset.map(d => d.x))
+        .domain(this.dataset.map(d => d.x).sort())
         .range([this.chartLeft, this.chartRight])
         .padding(this.axes.x.padding)
     },
     yScale: function() {
       return d3
         .scaleBand()
-        .domain(this.dataset.map(d => d.y))
+        .domain(this.dataset.map(d => d.y).sort())
         .range([this.chartBottom, this.chartTop])
         .padding(this.axes.y.padding)
     },
