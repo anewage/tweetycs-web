@@ -1,8 +1,17 @@
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin'
 import pkg from './package'
+require('dotenv').config()
 
 export default {
   mode: 'spa',
+
+  /*
+   *
+   */
+  server: {
+    port: process.env.NUXT_PORT,
+    host: process.env.NUXT_HOST
+  },
 
   /*
    ** Headers of the page
@@ -45,7 +54,8 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/pwa'
+    '@nuxtjs/pwa',
+    '@nuxtjs/dotenv'
   ],
   /*
    ** Axios module configuration
