@@ -13,21 +13,24 @@
         :width="chartWidth"
         :height="chartHeight"
       ></rect>
-      <transition-group
-        id="circles"
-        tag="g"
-        name="fade"
-        :duration="transitionDuration"
-      >
+      <!--      <transition-group-->
+      <!--        id="circles"-->
+      <!--        tag="g"-->
+      <!--        name="fade"-->
+      <!--        :duration="transitionDuration"-->
+      <!--      >-->
+      <g id="circles">
         <circle
-          v-for="item in dataset"
-          :key="JSON.stringify(item)"
-          :cx="xScale(item.a)"
-          :cy="yScale(item.v)"
-          :r="4"
+          v-for="(item, index) in dataset"
+          :key="item.name"
+          :cx="xScale(item.x)"
+          :cy="yScale(item.y)"
+          :r="3"
           class="circle"
+          :style="'fill: ' + colorScale(index) + ';'"
         ></circle>
-      </transition-group>
+        <!--      </transition-group>-->
+      </g>
       <g
         :class="'x-axis scatterplot-' + chartDomID + '-x-axis'"
         :transform="'translate(0,' + chartBottom + ')'"
@@ -90,8 +93,9 @@ export default {
           element: null
         }
       },
-      transitionDuration: 500,
-      zoom: null
+      transitionDuration: 0,
+      zoom: null,
+      transform: d3.zoomIdentity
     }
   },
   computed: {
@@ -114,32 +118,38 @@ export default {
       return this.chartRight - this.chartLeft
     },
     xScale: function() {
-      return d3
+      const x = d3
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d.a
+            return d.x
           }),
-          d3.max(this.dataset, function(d) {
-            return d.a
-          })
+          5
         ])
         .range([this.chartLeft, this.chartRight])
         .nice()
+      return this.transform.rescaleX(x)
     },
     yScale: function() {
-      return d3
+      const y = d3
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d.v
+            return d.y
           }),
           d3.max(this.dataset, function(d) {
-            return d.v
+            return d.y
           })
         ])
         .range([this.chartBottom, this.chartTop])
         .nice()
+      return this.transform.rescaleY(y)
+    },
+    colorScale: function() {
+      return d3
+        .scaleLinear()
+        .range(['#2c475d', '#c0e5be'])
+        .domain([0, 300])
     },
     xAxisFunction: function() {
       return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
@@ -151,13 +161,13 @@ export default {
   beforeUpdate() {
     // re-draw axes
     this.drawAxes()
-
-    // call zoom behaviour
-    this.callZoomBehaviour()
   },
   mounted() {
     // Setup the SVG and Groups
     this.setupSVG()
+
+    // call zoom behaviour
+    this.callZoomBehaviour()
   },
   methods: {
     setupSVG: function() {
@@ -172,43 +182,21 @@ export default {
         '.scatterplot-' + this.chartDomID + '-y-axis'
       )
     },
-    drawAxes: function(zoomed = false) {
-      if (zoomed) {
-        // Draw X axis
-        this.axes.x.element.call(
-          this.xAxisFunction.scale(d3.event.transform.rescaleX(this.xScale))
-        )
+    drawAxes: function() {
+      // Draw X axis without transformation
+      this.axes.x.element.call(this.xAxisFunction)
 
-        // Draw Y axis
-        this.axes.y.element.call(
-          this.yAxisFunction.scale(d3.event.transform.rescaleY(this.yScale))
-        )
+      // Draw Y axis without transformation
+      this.axes.y.element.call(this.yAxisFunction)
 
-        // Transform the dots (move)
-        this.circlesGroup.attr('transform', d3.event.transform)
-      } else {
-        // Draw X axis without transformation
-        this.axes.x.element.call(this.xAxisFunction)
-
-        // Draw Y axis without transformation
-        this.axes.y.element.call(this.yAxisFunction)
-
-        // reset zoom
-        this.resetZoom()
-      }
+      // reset zoom
+      // this.resetZoom()
     },
     callZoomBehaviour: function() {
       const that = this
-      this.zoom = d3
-        .zoom()
-        .scaleExtent([0.5, 20])
-        .extent([
-          [this.chartLeft, this.chartTop],
-          [this.chartRight, this.chartBottom]
-        ])
-        .on('zoom', () => {
-          that.drawAxes(true)
-        })
+      this.zoom = d3.zoom().on('zoom', () => {
+        that.transform = d3.event.transform
+      })
       this.view.call(this.zoom)
     },
     resetZoom: function() {
@@ -227,22 +215,5 @@ export default {
 .view {
   fill: transparent;
   stroke: none;
-}
-
-.circle {
-  transition: all 500ms;
-}
-
-.fade-enter-active {
-  fill: green;
-}
-
-.fade-leave-active {
-  fill: brown;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

@@ -1,11 +1,11 @@
 export const state = () => ({
-  tweets: []
+  analysisMethods: []
 })
 
 export const mutations = {
-  addTweet(state, tweet) {
-    const limit = 100
-    if (state.tweets.length > limit) state.tweets = state.tweets.slice(-limit)
-    state.fetched.push(tweet)
+  addAnalysisMethod(state, methods) {
+    const ids = state.analysisMethods.map(x => x.id)
+    for (const m of methods)
+      if (!ids.includes(m.id)) state.analysisMethods.push(m)
   }
 }
