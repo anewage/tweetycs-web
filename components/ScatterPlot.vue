@@ -51,7 +51,7 @@
       <text
         class="label"
         :transform="
-          'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-45)'
+          'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-25)'
         "
       >
         {{ axesMeta.y.label }}
@@ -116,7 +116,7 @@ export default {
         return {
           top: 10,
           right: 10,
-          left: 60,
+          left: 40,
           bottom: 40
         }
       }
