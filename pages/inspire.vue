@@ -66,10 +66,12 @@ export default {
           axesMeta: {
             x: {
               selector: 'x',
+              zoomEnabled: true,
               label: 'User Influence'
             },
             y: {
               selector: 'y',
+              zoomEnabled: false,
               label: 'Average Sentiment'
             }
           }

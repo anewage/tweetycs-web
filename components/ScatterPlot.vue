@@ -173,7 +173,8 @@ export default {
         ])
         .range([0, this.chartWidth])
         .nice()
-      return this.transform.rescaleX(x)
+      if (this.axesMeta.x.zoomEnabled) return this.transform.rescaleX(x)
+      else return x
     },
     yScale: function() {
       const selector = this.axesMeta.y.selector
@@ -189,7 +190,8 @@ export default {
         ])
         .range([this.chartHeight, 0])
         .nice()
-      return this.transform.rescaleY(y)
+      if (this.axesMeta.y.zoomEnabled) return this.transform.rescaleY(y)
+      else return y
     },
     colorScale: function() {
       return d3
