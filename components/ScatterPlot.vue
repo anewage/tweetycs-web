@@ -83,10 +83,12 @@ export default {
         return {
           x: {
             selector: 'x',
+            zoomEnabled: true,
             label: 'User Influence'
           },
           y: {
             selector: 'y',
+            zoomEnabled: true,
             label: 'Average Sentiment'
           }
         }
@@ -200,11 +202,11 @@ export default {
         .domain([0, this.dataset.length - 1])
     },
     xAxisFunction: function() {
-      // return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
       return d3
         .axisBottom(this.xScale)
         .tickSize(-this.chartHeight)
         .ticks((this.width / this.height) * 10)
+      // return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
     },
     yAxisFunction: function() {
       return d3
@@ -217,10 +219,6 @@ export default {
   beforeUpdate() {
     // re-draw axes
     this.drawAxes()
-  },
-  updated() {
-    // eslint-disable-next-line no-console
-    console.log(this.xScale(0), this.yScale(0))
   },
   mounted() {
     // Setup the SVG and Groups
@@ -255,6 +253,7 @@ export default {
     callZoomBehaviour: function() {
       const that = this
       this.zoom = d3.zoom().on('zoom', () => {
+        that.$emit('zoomed', d3.event.transform)
         that.transform = d3.event.transform
       })
       this.view.call(this.zoom)
@@ -284,7 +283,7 @@ export default {
 
 /* Axis Labels */
 .axis >>> .label {
-  fill: #35495e;
+  fill: currentColor;
   font-size: large;
   font-weight: bolder;
   text-anchor: end;
