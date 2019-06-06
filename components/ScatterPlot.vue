@@ -29,7 +29,7 @@
           :key="item.name"
           :cx="xScale(item.x)"
           :cy="yScale(item.y)"
-          :r="3"
+          :r="5"
           :style="'fill: ' + colorScale(index) + ';'"
           class="circle"
         ></circle>
@@ -99,6 +99,10 @@ export default {
       default: function() {
         return []
       }
+    },
+    datasetLimit: {
+      type: Number,
+      default: 100
     },
     padding: {
       type: Object,
@@ -182,8 +186,8 @@ export default {
     colorScale: function() {
       return d3
         .scaleLinear()
-        .range(['#000000', '#000000'])
-        .domain([0, 300])
+        .range(['#bbd6f4', '#1c008b'])
+        .domain([0, this.datasetLimit])
     },
     xAxisFunction: function() {
       // return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
@@ -272,18 +276,26 @@ export default {
   text-anchor: end;
 }
 
-.svg >>> .fade-enter,
-.svg >>> .fade-leave-to {
+.svg >>> .fade-enter {
   opacity: 0;
 }
 
-.svg >>> .fade-enter-to,
+.svg >>> .fade-enter-to {
+  opacity: 100%;
+  fill: green;
+}
+
 .svg >>> .fade-leave {
   opacity: 100%;
 }
 
+.svg >>> .fade-leave-to {
+  opacity: 0;
+  fill: red;
+}
+
 .svg >>> .circle {
-  transition: opacity 1800ms;
-  -webkit-transition: opacity 1800ms;
+  transition: opacity 1800ms, fill 1800ms;
+  -webkit-transition: opacity 1800ms, fill 1800ms;
 }
 </style>

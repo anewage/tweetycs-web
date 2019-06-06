@@ -21,6 +21,7 @@
         :width="charts.scatterplot.width"
         :height="charts.scatterplot.height"
         :dataset="scatterplotData"
+        :dataset-limit="$store.state.tweets.limit"
       />
       <heat-map
         :id="charts.heatmap.id"
