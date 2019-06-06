@@ -98,6 +98,12 @@ export default {
       type: Number,
       default: 4
     },
+    colorRange: {
+      type: Array,
+      default: function() {
+        return ['#bbd6f4', '#1c008b']
+      }
+    },
     dataset: {
       type: Array,
       default: function() {
@@ -190,7 +196,7 @@ export default {
     colorScale: function() {
       return d3
         .scaleLinear()
-        .range(['#bbd6f4', '#1c008b'])
+        .range(this.colorRange)
         .domain([0, this.datasetLimit])
     },
     xAxisFunction: function() {

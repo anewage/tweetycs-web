@@ -20,6 +20,9 @@
         :id="charts.scatterplot.id"
         :width="charts.scatterplot.width"
         :height="charts.scatterplot.height"
+        :axes-meta="charts.scatterplot.axesMeta"
+        :radius="charts.scatterplot.radius"
+        :color-range="charts.scatterplot.colorRange"
         :dataset="scatterplotData"
         :dataset-limit="$store.state.tweets.limit"
       />
@@ -51,7 +54,19 @@ export default {
         scatterplot: {
           id: 'scatter-plot',
           width: 600,
-          height: 500
+          height: 500,
+          radius: 4,
+          colorRange: ['#d4e3f4', '#14004f'],
+          axesMeta: {
+            x: {
+              selector: 'x',
+              label: 'User Influence'
+            },
+            y: {
+              selector: 'y',
+              label: 'Average Sentiment'
+            }
+          }
         },
         heatmap: {
           id: 'heatmap',
