@@ -29,7 +29,7 @@
           :key="item.name"
           :cx="xScale(item.x)"
           :cy="yScale(item.y)"
-          :r="5"
+          :r="radius"
           :style="'fill: ' + colorScale(index) + ';'"
           class="circle"
         ></circle>
@@ -93,6 +93,10 @@ export default {
           }
         }
       }
+    },
+    radius: {
+      type: Number,
+      default: 4
     },
     dataset: {
       type: Array,
