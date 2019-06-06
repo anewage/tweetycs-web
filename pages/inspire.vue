@@ -19,15 +19,41 @@
         </v-radio-group>
       </div>
       <div :id="charts.scatterplot.div_id">
-        <scatter-plot
-          :id="charts.scatterplot.id"
-          :width="charts.scatterplot.width"
-          :height="charts.scatterplot.height"
-          :axes-meta="charts.scatterplot.axesMeta"
-          :radius="charts.scatterplot.radius"
-          :color-range="charts.scatterplot.colorRange"
-          :dataset="scatterplotData"
-        />
+        <v-card>
+          <v-card-title>
+            <div class="headline" text-xs-center>
+              {{ charts.scatterplot.label }}
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn large round outline color="info">
+              Reset
+            </v-btn>
+            <v-btn large round outline color="primary">Lock Zoom</v-btn>
+            <v-slider
+              v-model="charts.scatterplot.zoomLevel"
+              prepend-icon="zoom_out"
+              append-icon="zoom_in"
+              thumb-label="always"
+              min="-100"
+              @click:prepend="zoomOut"
+              @click:append="zoomIn"
+            ></v-slider>
+            <v-spacer></v-spacer>
+            <v-btn icon fab outline>
+              <v-icon>pause</v-icon>
+            </v-btn>
+          </v-card-actions>
+          <scatter-plot
+            :id="charts.scatterplot.id"
+            :width="charts.scatterplot.width"
+            :height="charts.scatterplot.height"
+            :axes-meta="charts.scatterplot.axesMeta"
+            :radius="charts.scatterplot.radius"
+            :color-range="charts.scatterplot.colorRange"
+            :dataset="scatterplotData"
+          />
+        </v-card>
       </div>
       <div :id="charts.heatmap.div_id">
         <heat-map
@@ -59,10 +85,12 @@ export default {
         scatterplot: {
           id: 'scatter-plot',
           div_id: 'scatter-plot-div',
+          label: 'User Influence Vs. Average Sentiment',
           width: 600,
           height: 500,
           radius: 4,
           colorRange: ['#d4e3f4', '#14004f'],
+          zoomLevel: 1,
           axesMeta: {
             x: {
               selector: 'x',
@@ -93,8 +121,14 @@ export default {
       msg: '',
       temp: [],
       threshold: 20,
-      selectedAnalysisMethod: '',
-      scatterplotData2: []
+      selectedAnalysisMethod: ''
+      // scatterplotData: [
+      //   { x: 1, y: 0.55, name: 'amir' },
+      //   { x: 2, y: 0.75, name: 'ali' },
+      //   { x: 0, y: 0.85, name: 'ahmad' },
+      //   { x: 2.5, y: 1, name: 'ghader' },
+      //   { x: 2, y: 0.35, name: 'bagher' }
+      // ]
     }
   },
   computed: {
@@ -201,13 +235,13 @@ export default {
 
     // Update dataset (add new data)
     // window.setInterval(function() {
-    //   for (let i = 0; i < 10; i++) {
-    //     const name = Math.random() * 1000000
-    //     // const y = 'v' + parseInt(Math.random() * 6)
-    //     const x = Math.random() * 100
-    //     const y = Math.random() * 100
-    //     that.scatterplotData2.push('addData', { x: x, y: y, name: name })
-    //   }
+    // for (let i = 0; i < ; i++) {
+    //   const name = Math.random() * 1000000
+    //   // const y = 'v' + parseInt(Math.random() * 6)
+    //   const x = Math.random() * 100
+    //   const y = Math.random() * 100
+    // that.scatterplotData.push('addData', { x: x, y: y, name: name })
+    // }
     // }, 3000)
 
     window.setInterval(() => {
@@ -242,6 +276,14 @@ export default {
         this.$store.commit('tweets/addBulkTweet', this.temp)
         this.temp = []
       }
+    },
+    zoomOut: function() {
+      this.charts.scatterplot.zoomLevel =
+        this.charts.scatterplot.zoomLevel - 10 || -100
+    },
+    zoomIn: function() {
+      this.charts.scatterplot.zoomLevel =
+        this.charts.scatterplot.zoomLevel + 10 || 100
     }
   }
 }
