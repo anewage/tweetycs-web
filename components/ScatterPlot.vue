@@ -1,65 +1,63 @@
 <template>
-  <div :id="chartDomID">
-    <svg
-      :id="chartDomID + '-svg'"
-      :width="width"
-      :height="height"
-      class="svg scatterplot"
+  <svg
+    :id="chartDomID + '-svg'"
+    :width="width"
+    :height="height"
+    class="svg scatterplot"
+  >
+    <rect
+      class="view"
+      :x="chartLeft"
+      :y="chartTop"
+      :width="chartWidth"
+      :height="chartHeight"
+    ></rect>
+    <transition-group
+      id="circles"
+      tag="svg"
+      name="fade"
+      :x="chartLeft"
+      :y="chartTop"
+      :width="chartWidth"
+      :height="chartHeight"
+      :duration="transitionDuration"
+      :appear="true"
     >
-      <rect
-        class="view"
-        :x="chartLeft"
-        :y="chartTop"
-        :width="chartWidth"
-        :height="chartHeight"
-      ></rect>
-      <transition-group
-        id="circles"
-        tag="svg"
-        name="fade"
-        :x="chartLeft"
-        :y="chartTop"
-        :width="chartWidth"
-        :height="chartHeight"
-        :duration="transitionDuration"
-        :appear="true"
+      <circle
+        v-for="(item, index) in dataset"
+        :key="item.name"
+        :cx="xScale(item[axesMeta.x.selector])"
+        :cy="yScale(item[axesMeta.y.selector])"
+        :r="radius"
+        :style="'fill: ' + colorScale(index) + ';'"
+        class="circle"
+      ></circle>
+    </transition-group>
+    <g
+      :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
+      :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
+    >
+      <text
+        class="label"
+        :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
       >
-        <circle
-          v-for="(item, index) in dataset"
-          :key="item.name"
-          :cx="xScale(item[axesMeta.x.selector])"
-          :cy="yScale(item[axesMeta.y.selector])"
-          :r="radius"
-          :style="'fill: ' + colorScale(index) + ';'"
-          class="circle"
-        ></circle>
-      </transition-group>
-      <g
-        :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
-        :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
+        {{ axesMeta.x.label }}
+      </text>
+    </g>
+    <g
+      :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
+      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
+    >
+      <text
+        class="label"
+        :transform="
+          'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-45)'
+        "
       >
-        <text
-          class="label"
-          :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
-        >
-          {{ axesMeta.x.label }}
-        </text>
-      </g>
-      <g
-        :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
-        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
-      >
-        <text
-          class="label"
-          :transform="
-            'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-45)'
-          "
-        >
-          {{ axesMeta.y.label }}
-        </text>
-      </g>
-    </svg>
-  </div>
+        {{ axesMeta.y.label }}
+      </text>
+    </g>
+  </svg>
 </template>
 
 <script>

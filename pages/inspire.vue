@@ -1,36 +1,42 @@
 <template>
   <v-layout row wrap>
     <v-flex text-xs-center xs12>
-      <h1>
-        Delay: <span>{{ delay }}</span>
-      </h1>
-      <h1>
-        Avg. Delay: <span>{{ avgDelay }}</span>
-      </h1>
-      <h1 id="log">Response: {{ msg }}</h1>
-      <v-radio-group v-model="selectedAnalysisMethod" row>
-        <v-radio
-          v-for="method in analysisMethods"
-          :key="method.id"
-          :label="method.title"
-          :value="method.id"
-        ></v-radio>
-      </v-radio-group>
-      <scatter-plot
-        :id="charts.scatterplot.id"
-        :width="charts.scatterplot.width"
-        :height="charts.scatterplot.height"
-        :axes-meta="charts.scatterplot.axesMeta"
-        :radius="charts.scatterplot.radius"
-        :color-range="charts.scatterplot.colorRange"
-        :dataset="scatterplotData"
-      />
-      <heat-map
-        :id="charts.heatmap.id"
-        :width="charts.heatmap.width"
-        :height="charts.heatmap.height"
-        :dataset="heatmapData"
-      />
+      <div>
+        <h1>
+          Delay: <span>{{ delay }}</span>
+        </h1>
+        <h1>
+          Avg. Delay: <span>{{ avgDelay }}</span>
+        </h1>
+        <h1 id="log">Response: {{ msg }}</h1>
+        <v-radio-group v-model="selectedAnalysisMethod" row>
+          <v-radio
+            v-for="method in analysisMethods"
+            :key="method.id"
+            :label="method.title"
+            :value="method.id"
+          ></v-radio>
+        </v-radio-group>
+      </div>
+      <div :id="charts.scatterplot.div_id">
+        <scatter-plot
+          :id="charts.scatterplot.id"
+          :width="charts.scatterplot.width"
+          :height="charts.scatterplot.height"
+          :axes-meta="charts.scatterplot.axesMeta"
+          :radius="charts.scatterplot.radius"
+          :color-range="charts.scatterplot.colorRange"
+          :dataset="scatterplotData"
+        />
+      </div>
+      <div :id="charts.heatmap.div_id">
+        <heat-map
+          :id="charts.heatmap.id"
+          :width="charts.heatmap.width"
+          :height="charts.heatmap.height"
+          :dataset="heatmapData"
+        />
+      </div>
     </v-flex>
   </v-layout>
 </template>
@@ -52,6 +58,7 @@ export default {
       charts: {
         scatterplot: {
           id: 'scatter-plot',
+          div_id: 'scatter-plot-div',
           width: 600,
           height: 500,
           radius: 4,
@@ -69,6 +76,7 @@ export default {
         },
         heatmap: {
           id: 'heatmap',
+          div_id: 'heatmap-div',
           width: 600,
           height: 500
         }
@@ -210,8 +218,8 @@ export default {
   },
   methods: {
     resize: function() {
-      const scatterDiv = document.getElementById(this.charts.scatterplot.id)
-      const heatDiv = document.getElementById(this.charts.heatmap.id)
+      const scatterDiv = document.getElementById(this.charts.scatterplot.div_id)
+      const heatDiv = document.getElementById(this.charts.heatmap.div_id)
       this.charts.scatterplot.width = scatterDiv.clientWidth - 10
       this.charts.heatmap.width = heatDiv.clientWidth - 10
     },
