@@ -118,7 +118,7 @@ export default {
             tweets[0].user.followers_count / (tweets[0].user.friends_count + 1),
 
           // sentiment
-          y: 0.5 - Math.random() * 1,
+          y: tweets[0].sentiment,
 
           // meta data
           tweets: tweets,

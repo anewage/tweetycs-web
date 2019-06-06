@@ -173,7 +173,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .svg {
   /*background: lightgrey;*/
 }

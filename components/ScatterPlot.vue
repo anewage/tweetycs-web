@@ -13,32 +13,51 @@
         :width="chartWidth"
         :height="chartHeight"
       ></rect>
-      <!--      <transition-group-->
-      <!--        id="circles"-->
-      <!--        tag="g"-->
-      <!--        name="fade"-->
-      <!--        :duration="transitionDuration"-->
-      <!--      >-->
-      <g id="circles">
+      <transition-group
+        id="circles"
+        tag="svg"
+        name="fade"
+        :duration="transitionDuration"
+        :appear="true"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+      >
         <circle
           v-for="(item, index) in dataset"
           :key="item.name"
           :cx="xScale(item.x)"
           :cy="yScale(item.y)"
           :r="3"
-          class="circle"
           :style="'fill: ' + colorScale(index) + ';'"
+          class="circle"
         ></circle>
-        <!--      </transition-group>-->
+      </transition-group>
+      <g
+        :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
+        :transform="'translate(0,' + chartBottom + ')'"
+      >
+        <text
+          class="label"
+          :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
+        >
+          {{ axesMeta.x.label }}
+        </text>
       </g>
       <g
-        :class="'x-axis scatterplot-' + chartDomID + '-x-axis'"
-        :transform="'translate(0,' + chartBottom + ')'"
-      ></g>
-      <g
-        :class="'y-axis scatterplot-' + chartDomID + '-y-axis'"
+        :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
         :transform="'translate(' + chartLeft + ', 0)'"
-      ></g>
+      >
+        <text
+          class="label"
+          :transform="
+            'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-45)'
+          "
+        >
+          {{ axesMeta.y.label }}
+        </text>
+      </g>
     </svg>
   </div>
 </template>
@@ -60,6 +79,21 @@ export default {
       type: Number,
       default: 0
     },
+    axesMeta: {
+      type: Object,
+      default: function() {
+        return {
+          x: {
+            selector: 'x',
+            label: 'User Influence'
+          },
+          y: {
+            selector: 'y',
+            label: 'Average Sentiment'
+          }
+        }
+      }
+    },
     dataset: {
       type: Array,
       default: function() {
@@ -70,10 +104,10 @@ export default {
       type: Object,
       default: function() {
         return {
-          top: 20,
-          right: 20,
-          left: 35,
-          bottom: 20
+          top: 10,
+          right: 10,
+          left: 60,
+          bottom: 40
         }
       }
     }
@@ -93,9 +127,9 @@ export default {
           element: null
         }
       },
-      transitionDuration: 0,
       zoom: null,
-      transform: d3.zoomIdentity
+      transform: d3.zoomIdentity,
+      transitionDuration: 2000
     }
   },
   computed: {
@@ -148,14 +182,22 @@ export default {
     colorScale: function() {
       return d3
         .scaleLinear()
-        .range(['#2c475d', '#c0e5be'])
+        .range(['#000000', '#000000'])
         .domain([0, 300])
     },
     xAxisFunction: function() {
-      return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
+      // return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
+      return d3
+        .axisBottom(this.xScale)
+        .tickSize(-this.chartHeight)
+        .ticks((this.width / this.height) * 10)
     },
     yAxisFunction: function() {
-      return d3.axisLeft(this.yScale).ticks(this.axes.y.ticks)
+      return d3
+        .axisLeft(this.yScale)
+        .tickSize(-this.chartWidth)
+        .ticks(this.axes.y.ticks)
+      // return d3.axisLeft(this.yScale).tickSize(this.chartHeight)
     }
   },
   beforeUpdate() {
@@ -207,13 +249,41 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .svg {
   /*background: lightgrey;*/
 }
 
 .view {
   fill: transparent;
-  stroke: none;
+}
+
+/* Gridlines */
+.axis >>> .tick line {
+  stroke: #e6deec;
+  stroke-dasharray: 1;
+}
+
+/* Axis Labels */
+.axis >>> .label {
+  fill: #35495e;
+  font-size: large;
+  font-weight: bolder;
+  text-anchor: end;
+}
+
+.svg >>> .fade-enter,
+.svg >>> .fade-leave-to {
+  opacity: 0;
+}
+
+.svg >>> .fade-enter-to,
+.svg >>> .fade-leave {
+  opacity: 100%;
+}
+
+.svg >>> .circle {
+  transition: opacity 1800ms;
+  -webkit-transition: opacity 1800ms;
 }
 </style>
