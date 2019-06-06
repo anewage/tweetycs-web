@@ -27,8 +27,8 @@
         <circle
           v-for="(item, index) in dataset"
           :key="item.name"
-          :cx="xScale(item.x)"
-          :cy="yScale(item.y)"
+          :cx="xScale(item[axesMeta.x.selector])"
+          :cy="yScale(item[axesMeta.y.selector])"
           :r="radius"
           :style="'fill: ' + colorScale(index) + ';'"
           class="circle"
@@ -166,27 +166,31 @@ export default {
       return this.chartRight - this.chartLeft
     },
     xScale: function() {
+      const selector = this.axesMeta.x.selector
       const x = d3
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d.x
+            return d[selector]
           }),
-          5
+          d3.max(this.dataset, function(d) {
+            return d[selector]
+          })
         ])
         .range([this.chartLeft, this.chartRight])
         .nice()
       return this.transform.rescaleX(x)
     },
     yScale: function() {
+      const selector = this.axesMeta.y.selector
       const y = d3
         .scaleLinear()
         .domain([
           d3.min(this.dataset, function(d) {
-            return d.y
+            return d[selector]
           }),
           d3.max(this.dataset, function(d) {
-            return d.y
+            return d[selector]
           })
         ])
         .range([this.chartBottom, this.chartTop])
