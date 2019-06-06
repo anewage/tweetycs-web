@@ -17,12 +17,12 @@
         id="circles"
         tag="svg"
         name="fade"
-        :duration="transitionDuration"
-        :appear="true"
         :x="chartLeft"
         :y="chartTop"
         :width="chartWidth"
         :height="chartHeight"
+        :duration="transitionDuration"
+        :appear="true"
       >
         <circle
           v-for="(item, index) in dataset"
@@ -36,7 +36,7 @@
       </transition-group>
       <g
         :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
-        :transform="'translate(0,' + chartBottom + ')'"
+        :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
       >
         <text
           class="label"
@@ -47,7 +47,7 @@
       </g>
       <g
         :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
-        :transform="'translate(' + chartLeft + ', 0)'"
+        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
       >
         <text
           class="label"
@@ -109,10 +109,6 @@ export default {
       default: function() {
         return []
       }
-    },
-    datasetLimit: {
-      type: Number,
-      default: 100
     },
     padding: {
       type: Object,
@@ -177,7 +173,7 @@ export default {
             return d[selector]
           })
         ])
-        .range([this.chartLeft, this.chartRight])
+        .range([0, this.chartWidth])
         .nice()
       return this.transform.rescaleX(x)
     },
@@ -193,7 +189,7 @@ export default {
             return d[selector]
           })
         ])
-        .range([this.chartBottom, this.chartTop])
+        .range([this.chartHeight, 0])
         .nice()
       return this.transform.rescaleY(y)
     },
@@ -201,7 +197,7 @@ export default {
       return d3
         .scaleLinear()
         .range(this.colorRange)
-        .domain([0, this.datasetLimit])
+        .domain([0, this.dataset.length - 1])
     },
     xAxisFunction: function() {
       // return d3.axisBottom(this.xScale).ticks((this.width / this.height) * 10)
@@ -221,6 +217,10 @@ export default {
   beforeUpdate() {
     // re-draw axes
     this.drawAxes()
+  },
+  updated() {
+    // eslint-disable-next-line no-console
+    console.log(this.xScale(0), this.yScale(0))
   },
   mounted() {
     // Setup the SVG and Groups

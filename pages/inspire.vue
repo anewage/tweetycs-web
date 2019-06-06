@@ -24,7 +24,6 @@
         :radius="charts.scatterplot.radius"
         :color-range="charts.scatterplot.colorRange"
         :dataset="scatterplotData"
-        :dataset-limit="$store.state.tweets.limit"
       />
       <heat-map
         :id="charts.heatmap.id"
@@ -211,10 +210,10 @@ export default {
   },
   methods: {
     resize: function() {
-      const scatter = document.getElementById(this.charts.scatterplot.id)
-      const heat = document.getElementById(this.charts.heatmap.id)
-      this.charts.scatterplot.width = scatter.clientWidth
-      this.charts.heatmap.width = heat.clientWidth
+      const scatterDiv = document.getElementById(this.charts.scatterplot.id)
+      const heatDiv = document.getElementById(this.charts.heatmap.id)
+      this.charts.scatterplot.width = scatterDiv.clientWidth - 10
+      this.charts.heatmap.width = heatDiv.clientWidth - 10
     },
     storeTemp: function(tweet) {
       // Store the analysis methods

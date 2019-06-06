@@ -1,6 +1,6 @@
 export const state = () => ({
   list: [],
-  limit: 50
+  limit: 100
 })
 
 export const mutations = {
