@@ -48,10 +48,10 @@
                 : 'keyboard_arrow_up'
             }}</v-icon>
           </v-btn>
-          <v-btn flat round>
-            Reset
+          <v-btn icon>
+            <v-icon>refresh</v-icon>
           </v-btn>
-          <v-btn icon fab small flat>
+          <v-btn icon>
             <v-icon>pause</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
