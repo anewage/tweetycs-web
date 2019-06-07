@@ -114,8 +114,8 @@ export default {
       type: Object,
       default: function() {
         return {
-          top: 10,
-          right: 10,
+          top: 5,
+          right: 5,
           left: 40,
           bottom: 40
         }
