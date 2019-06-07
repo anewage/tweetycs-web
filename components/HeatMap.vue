@@ -1,38 +1,36 @@
 <template>
-  <div :id="chartDomID">
-    <svg
-      :id="chartDomID + '-svg'"
-      :width="width"
-      :height="height"
-      class="svg heatmap"
+  <svg
+    :id="chartDomID + '-svg'"
+    :width="width"
+    :height="height"
+    class="svg heatmap"
+  >
+    <transition-group
+      id="rects"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
     >
-      <transition-group
-        id="rects"
-        tag="g"
-        name="fade"
-        :duration="transitionDuration"
-      >
-        <rect
-          v-for="item in dataset"
-          :key="JSON.stringify(item)"
-          :x="xScale(item.x)"
-          :y="yScale(item.y)"
-          :width="xScale.bandwidth()"
-          :height="yScale.bandwidth()"
-          :style="'fill: ' + colorScale(item.v) + ';'"
-          class="rect"
-        ></rect>
-      </transition-group>
-      <g
-        :class="'x-axis heatmap-' + chartDomID + '-x-axis'"
-        :transform="'translate(0,' + chartBottom + ')'"
-      ></g>
-      <g
-        :class="'y-axis heatmap-' + chartDomID + '-y-axis'"
-        :transform="'translate(' + chartLeft + ', 0)'"
-      ></g>
-    </svg>
-  </div>
+      <rect
+        v-for="item in dataset"
+        :key="JSON.stringify(item)"
+        :x="xScale(item.x)"
+        :y="yScale(item.y)"
+        :width="xScale.bandwidth()"
+        :height="yScale.bandwidth()"
+        :style="'fill: ' + colorScale(item.v) + ';'"
+        class="rect"
+      ></rect>
+    </transition-group>
+    <g
+      :class="'x-axis heatmap-' + chartDomID + '-x-axis'"
+      :transform="'translate(0,' + chartBottom + ')'"
+    ></g>
+    <g
+      :class="'y-axis heatmap-' + chartDomID + '-y-axis'"
+      :transform="'translate(' + chartLeft + ', 0)'"
+    ></g>
+  </svg>
 </template>
 
 <script>
@@ -173,7 +171,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .svg {
   /*background: lightgrey;*/
 }

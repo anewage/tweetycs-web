@@ -66,7 +66,7 @@
 export default {
   data() {
     return {
-      fluid: false,
+      fluid: true,
       clipped: false,
       drawer: false,
       fixed: false,
