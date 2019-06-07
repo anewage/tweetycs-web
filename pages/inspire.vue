@@ -18,43 +18,74 @@
           ></v-radio>
         </v-radio-group>
       </div>
-      <div :id="charts.scatterplot.div_id">
-        <v-card>
-          <v-card-title>
-            <div class="headline" text-xs-center>
-              {{ charts.scatterplot.label }}
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn large round outline color="info">
-              Reset
-            </v-btn>
-            <v-btn large round outline color="primary">Lock Zoom</v-btn>
-            <v-slider
-              v-model="charts.scatterplot.zoomLevel"
-              prepend-icon="zoom_out"
-              append-icon="zoom_in"
-              thumb-label="always"
-              min="-100"
-              @click:prepend="zoomOut"
-              @click:append="zoomIn"
-            ></v-slider>
-            <v-spacer></v-spacer>
-            <v-btn icon fab outline>
-              <v-icon>pause</v-icon>
-            </v-btn>
-          </v-card-actions>
-          <scatter-plot
-            :id="charts.scatterplot.id"
-            :width="charts.scatterplot.width"
-            :height="charts.scatterplot.height"
-            :axes-meta="charts.scatterplot.axesMeta"
-            :radius="charts.scatterplot.radius"
-            :color-range="charts.scatterplot.colorRange"
-            :dataset="scatterplotData"
-          />
-        </v-card>
-      </div>
+    </v-flex>
+    <v-flex text-xs-center xs12 md8>
+      <v-card color="grey" height="650">
+        <v-card-title>
+          <h2>
+            Sankey soon...
+          </h2>
+        </v-card-title>
+      </v-card>
+    </v-flex>
+    <v-flex xs12 md4>
+      <v-card color="transparent" flat>
+        <v-card-title>
+          <h2>
+            {{ charts.scatterplot.label }}
+          </h2>
+        </v-card-title>
+        <v-card-actions>
+          <v-btn
+            icon
+            @click="
+              charts.scatterplot.meta.show = !charts.scatterplot.meta.show
+            "
+          >
+            <v-icon>{{
+              charts.scatterplot.meta.show
+                ? 'keyboard_arrow_down'
+                : 'keyboard_arrow_up'
+            }}</v-icon>
+          </v-btn>
+          <v-btn flat round>
+            Reset
+          </v-btn>
+          <v-btn icon fab small flat>
+            <v-icon>pause</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-slider
+            v-model="charts.scatterplot.zoomLevel"
+            prepend-icon="zoom_out"
+            append-icon="zoom_in"
+            thumb-label="always"
+            min="-100"
+            @click:prepend="zoomOut"
+            @click:append="zoomIn"
+          ></v-slider>
+        </v-card-actions>
+        <v-slide-y-transition>
+          <v-card-text v-show="charts.scatterplot.meta.show">
+            {{ charts.scatterplot.meta.info }}
+          </v-card-text>
+        </v-slide-y-transition>
+        <v-card-text>
+          <div :id="charts.scatterplot.div_id">
+            <scatter-plot
+              :id="charts.scatterplot.id"
+              :width="charts.scatterplot.width"
+              :height="charts.scatterplot.height"
+              :axes-meta="charts.scatterplot.axesMeta"
+              :radius="charts.scatterplot.radius"
+              :color-range="charts.scatterplot.colorRange"
+              :dataset="scatterplotData"
+            />
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+    <v-flex text-xs-center xs12 md8>
       <div :id="charts.heatmap.div_id">
         <heat-map
           :id="charts.heatmap.id"
@@ -91,6 +122,10 @@ export default {
           radius: 4,
           colorRange: ['#d4e3f4', '#14004f'],
           zoomLevel: 1,
+          meta: {
+            show: false,
+            info: 'Hello this is only a help box!'
+          },
           axesMeta: {
             x: {
               selector: 'x',
@@ -215,9 +250,9 @@ export default {
      */
     socket.on('server_pong', () => {
       that.pingPong.end = new Date().getTime()
-      // Keep last 30 samples
-      that.pingPong.history = that.pingPong.history.slice(-30)
       that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
+      // Keep last 30 samples
+      if (that.pingPong.history.length > 30) that.pingPong.history.splice(-30)
       that.pingPong.busy = false
     })
     /*
@@ -256,8 +291,8 @@ export default {
     resize: function() {
       const scatterDiv = document.getElementById(this.charts.scatterplot.div_id)
       const heatDiv = document.getElementById(this.charts.heatmap.div_id)
-      this.charts.scatterplot.width = scatterDiv.clientWidth - 10
-      this.charts.heatmap.width = heatDiv.clientWidth - 10
+      this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      this.charts.heatmap.width = heatDiv.clientWidth - 5
     },
     storeTemp: function(tweet) {
       // Store the analysis methods
