@@ -104,7 +104,7 @@ import ScatterPlot from '../components/ScatterPlot'
 import HeatMap from '../components/HeatMap'
 import socket from '../lib/socket.io'
 export default {
-  name: 'PageInspire',
+  name: 'PageAnalytics',
   components: {
     'scatter-plot': ScatterPlot,
     'heat-map': HeatMap
