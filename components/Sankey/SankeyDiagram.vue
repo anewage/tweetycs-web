@@ -4,7 +4,6 @@
     :width="width"
     :height="height"
     class="svg sankey"
-    style="background: white;"
   >
     <g id="rects" stroke="#000">
       <rect
@@ -128,7 +127,7 @@ export default {
         .sankey()
         .nodeId(node => node.id)
         .nodeAlign(d3Sankey.sankeyJustify)
-        .nodeWidth(5)
+        .nodeWidth(15)
         .nodePadding(10)
         .extent([[1, 5], [this.chartWidth - 1, this.chartHeight - 5]])
       return sankey({

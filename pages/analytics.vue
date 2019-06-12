@@ -19,147 +19,97 @@
         </v-radio-group>
       </div>
     </v-flex>
-    <v-flex text-xs-center xs12 md8>
-      <v-card color="transparent">
-        <v-card-title>
-          <h2>
-            Sankey soon...
-          </h2>
-        </v-card-title>
-        <v-card-text>
-          <div :id="charts.sankey.div_id">
-            <sankey-diagram
-              :id="charts.sankey.id"
-              :width="charts.sankey.width"
-              :height="charts.sankey.height"
-              :dataset="sankeyData"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
+    <v-flex text-xs-center xs12 md7>
+      <sankey-diagram-wrapper
+        :id="charts.sankey.id"
+        :div-id="charts.sankey.divId"
+        :label="charts.sankey.label"
+        :width="charts.sankey.width"
+        :height="charts.sankey.height"
+        :color="color"
+        :flat="flat"
+        :dataset="sankeyData"
+      ></sankey-diagram-wrapper>
     </v-flex>
-    <v-flex xs12 md4>
-      <v-card color="transparent">
-        <v-card-title>
-          <h2>
-            {{ charts.scatterplot.label }}
-          </h2>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn
-            icon
-            @click="
-              charts.scatterplot.meta.show = !charts.scatterplot.meta.show
-            "
-          >
-            <v-icon>{{
-              charts.scatterplot.meta.show
-                ? 'keyboard_arrow_down'
-                : 'keyboard_arrow_up'
-            }}</v-icon>
-          </v-btn>
-          <v-btn icon>
-            <v-icon>refresh</v-icon>
-          </v-btn>
-          <v-btn icon>
-            <v-icon>pause</v-icon>
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-slider
-            v-model="charts.scatterplot.zoomLevel"
-            prepend-icon="zoom_out"
-            append-icon="zoom_in"
-            thumb-label="always"
-            min="-100"
-            @click:prepend="zoomOut"
-            @click:append="zoomIn"
-          ></v-slider>
-        </v-card-actions>
-        <v-slide-y-transition>
-          <v-card-text v-show="charts.scatterplot.meta.show">
-            {{ charts.scatterplot.meta.info }}
-          </v-card-text>
-        </v-slide-y-transition>
-        <v-card-text>
-          <div :id="charts.scatterplot.div_id">
-            <scatter-plot
-              :id="charts.scatterplot.id"
-              :width="charts.scatterplot.width"
-              :height="charts.scatterplot.height"
-              :axes-meta="charts.scatterplot.axesMeta"
-              :radius="charts.scatterplot.radius"
-              :color-range="charts.scatterplot.colorRange"
-              :dataset="scatterplotData"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
+    <v-flex text-xs-center xs12 md5>
+      <scatter-plot-wrapper
+        :id="charts.scatterplot.id"
+        :div-id="charts.scatterplot.divId"
+        :label="charts.scatterplot.label"
+        :width="charts.scatterplot.width"
+        :height="charts.scatterplot.height"
+        :selected-analysis-method="selectedAnalysisMethod"
+        :color="color"
+        :flat="flat"
+        :dataset="dataset"
+      ></scatter-plot-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md8>
-      <div :id="charts.heatmap.div_id">
-        <heat-map
-          :id="charts.heatmap.id"
-          :width="charts.heatmap.width"
-          :height="charts.heatmap.height"
-          :dataset="heatmapData"
-        />
-      </div>
+      <heat-map-wrapper
+        :id="charts.heatmap.id"
+        :div-id="charts.heatmap.divId"
+        :label="charts.heatmap.label"
+        :width="charts.heatmap.width"
+        :height="charts.heatmap.height"
+        :color="color"
+        :flat="flat"
+        :dataset="heatmapData"
+      ></heat-map-wrapper>
+    </v-flex>
+    <v-flex text-xs-center xs12 md4>
+      <v-card color="transparent" :flat="flat">
+        <v-card-title>
+          <h2>
+            Extra Tweets...
+          </h2>
+        </v-card-title>
+        <v-card-text></v-card-text>
+      </v-card>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
-import { _ } from 'vue-underscore'
-import ScatterPlot from '../components/ScatterPlot'
-import HeatMap from '../components/HeatMap'
+import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
+import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
+import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
 import socket from '../lib/socket.io'
-import SankeyDiagram from '../components/SankeyDiagram'
 export default {
   name: 'PageAnalytics',
   components: {
-    'sankey-diagram': SankeyDiagram,
-    'scatter-plot': ScatterPlot,
-    'heat-map': HeatMap
+    'sankey-diagram-wrapper': SankeyDiagramWrapper,
+    'scatter-plot-wrapper': ScatterPlotWrapper,
+    'heat-map-wrapper': HeatMapWrapper
   },
   data() {
     return {
+      flat: true,
+      color: 'transparent',
+      threshold: 20,
+      selectedAnalysisMethod: '',
+      msg: '',
+      temp: [],
+      heatmapData: [],
       // Charts and all of their configurations
       charts: {
         scatterplot: {
           id: 'scatter-plot',
-          div_id: 'scatter-plot-div',
+          divId: 'scatter-plot-div',
           label: 'User Influence Vs. Average Sentiment',
           width: 600,
-          height: 500,
-          radius: 4,
-          colorRange: ['#d4e3f4', '#14004f'],
-          zoomLevel: 1,
-          meta: {
-            show: false,
-            info: 'Hello this is only a help box!'
-          },
-          axesMeta: {
-            x: {
-              selector: 'x',
-              zoomEnabled: true,
-              label: 'User Influence'
-            },
-            y: {
-              selector: 'y',
-              zoomEnabled: false,
-              label: 'Average Sentiment'
-            }
-          }
+          height: 600
         },
         sankey: {
           id: 'sankey-diagram',
-          div_id: 'sankey-diagram-div',
+          divId: 'sankey-diagram-div',
+          label: 'Sankey Soon...',
           width: 600,
-          height: 800
+          height: 700
         },
         heatmap: {
           id: 'heatmap',
-          div_id: 'heatmap-div',
+          divId: 'heatmap-div',
+          label: 'HeatMap Soon...',
           width: 600,
           height: 500
         }
@@ -171,10 +121,6 @@ export default {
         busy: false,
         history: []
       },
-      msg: '',
-      temp: [],
-      threshold: 20,
-      selectedAnalysisMethod: '',
       sankeyData: {
         nodes: [
           { id: 'neoplasms', name: 'Neoplasms' },
@@ -192,16 +138,15 @@ export default {
         ],
         links: [
           { source: 'fundraising', target: 'hiv', value: 10.729 },
-          { source: 'hiv', target: 'media', value: 30 }
+          { source: 'hiv', target: 'media', value: 30 },
+          { source: 'hiv', target: 'interest_group', value: 15 },
+          { source: 'promotional', target: 'neoplasms', value: 9 },
+          { source: 'neoplasms', target: 'public', value: 16 },
+          { source: 'promotional', target: 'diarrhea', value: 7 },
+          { source: 'diarrhea', target: 'public', value: 3 },
+          { source: 'diarrhea', target: 'media', value: 5 }
         ]
       }
-      // scatterplotData: [
-      //   { x: 1, y: 0.55, name: 'amir' },
-      //   { x: 2, y: 0.75, name: 'ali' },
-      //   { x: 0, y: 0.85, name: 'ahmad' },
-      //   { x: 2.5, y: 1, name: 'ghader' },
-      //   { x: 2, y: 0.35, name: 'bagher' }
-      // ]
     }
   },
   computed: {
@@ -235,39 +180,8 @@ export default {
       for (const num of this.pingPong.history) avg += num
       avg = (10 * avg) / (this.pingPong.history.length * 10)
       return avg
-    },
-    userBasedTweets() {
-      return _.groupBy(this.dataset, tweet => tweet.user.screen_name)
-    },
-    scatterplotData() {
-      const res = []
-      if (this.selectedAnalysisMethod === '') return res
-      for (const user in this.userBasedTweets) {
-        const tweets = this.userBasedTweets[user]
-        res.push({
-          // influence
-          x:
-            tweets[0].user.followers_count / (tweets[0].user.friends_count + 1),
-
-          // sentiment
-          y: tweets[0].sentiment,
-
-          // meta data
-          tweets: tweets,
-          name: user
-        })
-      }
-      return res
-    },
-    heatmapData() {
-      return []
     }
   },
-  // asyncData({ params }) {
-  //   return this.$axios.get(process.env.NUXT_PORT).then(res => {
-  //     return { dataset: res.data }
-  //   })
-  // },
   beforeMount() {
     const that = this
     /*
@@ -305,6 +219,12 @@ export default {
       const tweet = msg.data
       that.storeTemp(tweet)
     })
+    socket.on('tweet-bulk', msg => {
+      const tweets = msg.data
+      for (const tweet of tweets) {
+        that.storeTemp(tweet)
+      }
+    })
   },
   mounted() {
     const that = this
@@ -313,13 +233,12 @@ export default {
 
     // Update dataset (add new data)
     // window.setInterval(function() {
-    // for (let i = 0; i < ; i++) {
-    //   const name = Math.random() * 1000000
-    //   // const y = 'v' + parseInt(Math.random() * 6)
-    //   const x = Math.random() * 100
-    //   const y = Math.random() * 100
-    // that.scatterplotData.push('addData', { x: x, y: y, name: name })
-    // }
+    //   for (let i = 0; i < 10; i++) {
+    //     const y = 'v' + parseInt(Math.random() * 6)
+    //     const x = 'name-' + parseInt(Math.random() * 10)
+    //     const v = Math.random() * 100
+    //     that.heatmapData.push({ x: x, y: y, v: v })
+    //   }
     // }, 3000)
 
     window.setInterval(() => {
@@ -332,9 +251,9 @@ export default {
   },
   methods: {
     resize: function() {
-      const scatterDiv = document.getElementById(this.charts.scatterplot.div_id)
-      const heatDiv = document.getElementById(this.charts.heatmap.div_id)
-      const sankeyDiv = document.getElementById(this.charts.sankey.div_id)
+      const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
+      const heatDiv = document.getElementById(this.charts.heatmap.divId)
+      const sankeyDiv = document.getElementById(this.charts.sankey.divId)
       this.charts.scatterplot.width = scatterDiv.clientWidth - 5
       this.charts.heatmap.width = heatDiv.clientWidth - 5
       this.charts.sankey.width = sankeyDiv.clientWidth - 5
@@ -356,14 +275,6 @@ export default {
         this.$store.commit('tweets/addBulkTweet', this.temp)
         this.temp = []
       }
-    },
-    zoomOut: function() {
-      this.charts.scatterplot.zoomLevel =
-        this.charts.scatterplot.zoomLevel - 10 || -100
-    },
-    zoomIn: function() {
-      this.charts.scatterplot.zoomLevel =
-        this.charts.scatterplot.zoomLevel + 10 || 100
     }
   }
 }

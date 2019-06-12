@@ -120,6 +120,12 @@ export default {
           bottom: 40
         }
       }
+    },
+    transform: {
+      type: Object,
+      default: function() {
+        return d3.zoomIdentity
+      }
     }
   },
   data() {
@@ -138,7 +144,6 @@ export default {
         }
       },
       zoom: null,
-      transform: d3.zoomIdentity,
       transitionDuration: 2000
     }
   },
@@ -254,7 +259,7 @@ export default {
       const that = this
       this.zoom = d3.zoom().on('zoom', () => {
         that.$emit('zoomed', d3.event.transform)
-        that.transform = d3.event.transform
+        // that.transform = d3.event.transform
       })
       this.view.call(this.zoom)
     },
