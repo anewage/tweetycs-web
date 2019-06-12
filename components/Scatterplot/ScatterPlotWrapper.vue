@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-card :color="color" :flat="flat">
     <v-card-title>
       <h2>
@@ -7,17 +7,37 @@
     </v-card-title>
     <v-card-actions>
       <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{
-          meta.show ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
-        }}</v-icon>
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
       </v-btn>
-      <v-btn icon @click="resetZoom">
+      <v-btn icon @click="reset">
         <v-icon>refresh</v-icon>
       </v-btn>
-      <v-btn icon @click="pause">
-        <v-icon>pause</v-icon>
-      </v-btn>
+
       <v-spacer></v-spacer>
+
+      <span class="caption theme--light">Recent:</span>
+      <input v-model="colorRange[0]" type="color" />
+
+      <v-spacer></v-spacer>
+
+      <span class="caption theme--light">Old:</span>
+      <input v-model="colorRange[1]" type="color" />
+
+      <v-spacer></v-spacer>
+
+      <v-slider
+        v-model="radius"
+        hint="Circle size"
+        persistent-hint
+        thumb-label="always"
+        min="1"
+        max="20"
+        prepend-icon="remove_circle"
+        append-icon="add_circle"
+        @click:prepend="decrement"
+        @click:append="increment"
+      >
+      </v-slider>
     </v-card-actions>
     <v-slide-y-transition>
       <v-card-text v-show="meta.show">
@@ -143,11 +163,17 @@ export default {
     zoomed: function(transform) {
       this.transform = transform
     },
-    zoomIn: function() {},
-    zoomOut: function() {},
+    increment: function() {
+      this.radius += 1
+    },
+    decrement: function() {
+      this.radius -= 1
+    },
     pause: function() {},
-    resetZoom: function() {
+    reset: function() {
       this.transform = d3.zoomIdentity
+      this.colorRange = ['#d4e3f4', '#14004f']
+      this.radius = 4
     }
   }
 }
