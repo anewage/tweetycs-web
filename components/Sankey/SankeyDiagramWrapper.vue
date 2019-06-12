@@ -67,7 +67,7 @@ export default {
       default: 'This Amazing Sankey Diagram'
     },
     dataset: {
-      type: Array,
+      type: Object,
       default: function() {
         return {
           nodes: [],
