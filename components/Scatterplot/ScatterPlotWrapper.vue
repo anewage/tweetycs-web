@@ -15,12 +15,12 @@
 
       <v-spacer></v-spacer>
 
-      <span class="caption theme--light">Recent:</span>
+      <span class="caption theme--light">Old:</span>
       <input v-model="colorRange[0]" type="color" />
 
       <v-spacer></v-spacer>
 
-      <span class="caption theme--light">Old:</span>
+      <span class="caption theme--light">Recent:</span>
       <input v-model="colorRange[1]" type="color" />
 
       <v-spacer></v-spacer>
