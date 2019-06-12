@@ -20,16 +20,26 @@
       </div>
     </v-flex>
     <v-flex text-xs-center xs12 md8>
-      <v-card color="grey" height="650">
+      <v-card color="transparent">
         <v-card-title>
           <h2>
             Sankey soon...
           </h2>
         </v-card-title>
+        <v-card-text>
+          <div :id="charts.sankey.div_id">
+            <sankey-diagram
+              :id="charts.sankey.id"
+              :width="charts.sankey.width"
+              :height="charts.sankey.height"
+              :dataset="sankeyData"
+            />
+          </div>
+        </v-card-text>
       </v-card>
     </v-flex>
     <v-flex xs12 md4>
-      <v-card color="transparent" flat>
+      <v-card color="transparent">
         <v-card-title>
           <h2>
             {{ charts.scatterplot.label }}
@@ -103,9 +113,11 @@ import { _ } from 'vue-underscore'
 import ScatterPlot from '../components/ScatterPlot'
 import HeatMap from '../components/HeatMap'
 import socket from '../lib/socket.io'
+import SankeyDiagram from '../components/SankeyDiagram'
 export default {
   name: 'PageAnalytics',
   components: {
+    'sankey-diagram': SankeyDiagram,
     'scatter-plot': ScatterPlot,
     'heat-map': HeatMap
   },
@@ -139,6 +151,12 @@ export default {
             }
           }
         },
+        sankey: {
+          id: 'sankey-diagram',
+          div_id: 'sankey-diagram-div',
+          width: 600,
+          height: 800
+        },
         heatmap: {
           id: 'heatmap',
           div_id: 'heatmap-div',
@@ -156,7 +174,27 @@ export default {
       msg: '',
       temp: [],
       threshold: 20,
-      selectedAnalysisMethod: ''
+      selectedAnalysisMethod: '',
+      sankeyData: {
+        nodes: [
+          { id: 'neoplasms', name: 'Neoplasms' },
+          {
+            id: 'diarrhea',
+            name:
+              'Diarrhea, Lower Respiratory Infections, Meningitis, and Other Common Infectious Diseases'
+          },
+          { id: 'hiv', name: 'HIV/AIDS and Tuberculosis' },
+          { id: 'fundraising', name: 'Fundraising' },
+          { id: 'promotional', name: 'Promotional' },
+          { id: 'public', name: 'Public' },
+          { id: 'interest_group', name: 'Intereset Groups' },
+          { id: 'media', name: 'Media' }
+        ],
+        links: [
+          { source: 'fundraising', target: 'hiv', value: 10.729 },
+          { source: 'hiv', target: 'media', value: 30 }
+        ]
+      }
       // scatterplotData: [
       //   { x: 1, y: 0.55, name: 'amir' },
       //   { x: 2, y: 0.75, name: 'ali' },
@@ -225,6 +263,11 @@ export default {
       return []
     }
   },
+  // asyncData({ params }) {
+  //   return this.$axios.get(process.env.NUXT_PORT).then(res => {
+  //     return { dataset: res.data }
+  //   })
+  // },
   beforeMount() {
     const that = this
     /*
@@ -291,8 +334,10 @@ export default {
     resize: function() {
       const scatterDiv = document.getElementById(this.charts.scatterplot.div_id)
       const heatDiv = document.getElementById(this.charts.heatmap.div_id)
+      const sankeyDiv = document.getElementById(this.charts.sankey.div_id)
       this.charts.scatterplot.width = scatterDiv.clientWidth - 5
       this.charts.heatmap.width = heatDiv.clientWidth - 5
+      this.charts.sankey.width = sankeyDiv.clientWidth - 5
     },
     storeTemp: function(tweet) {
       // Store the analysis methods
