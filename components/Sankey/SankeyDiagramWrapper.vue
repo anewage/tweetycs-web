@@ -7,9 +7,7 @@
     </v-card-title>
     <v-card-actions>
       <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{
-          meta.show ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
-        }}</v-icon>
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
       </v-btn>
     </v-card-actions>
     <v-slide-y-transition>
