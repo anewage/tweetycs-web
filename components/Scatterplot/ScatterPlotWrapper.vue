@@ -149,7 +149,11 @@ export default {
             tweets[0].user.followers_count / (tweets[0].user.friends_count + 1),
 
           // sentiment
-          y: tweets[0].sentiment,
+          y: tweets.map(tw =>
+            tw.analysis
+              .filter(an => an.id === this.selectedAnalysisMethod)
+              .reduce((a, b) => a + b.result, 0)
+          )[0],
 
           // meta data
           tweets: tweets,
