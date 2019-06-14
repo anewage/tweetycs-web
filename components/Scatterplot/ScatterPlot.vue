@@ -313,7 +313,7 @@ export default {
 }
 
 .svg >>> .circle {
-  transition: opacity 1800ms, fill 1800ms;
-  -webkit-transition: opacity 1800ms, fill 1800ms;
+  transition: opacity 1800ms, fill 1800ms, cy 1800ms;
+  -webkit-transition: opacity 1800ms, fill 1800ms, cy 1800ms;
 }
 </style>
