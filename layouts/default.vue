@@ -24,22 +24,22 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar :clipped-left="clipped" fixed app>
+    <v-toolbar :clipped-left="clipped" fixed app color="primary lighten-2" dark>
       <v-toolbar-side-icon @click="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn>
+      <!--      <v-btn icon @click.stop="clipped = !clipped">-->
+      <!--        <v-icon>web</v-icon>-->
+      <!--      </v-btn>-->
+      <!--      <v-btn icon @click.stop="fixed = !fixed">-->
+      <!--        <v-icon>remove</v-icon>-->
+      <!--      </v-btn>-->
       <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
+      <!--      <v-spacer />-->
+      <!--      <v-btn icon @click.stop="rightDrawer = !rightDrawer">-->
+      <!--        <v-icon>menu</v-icon>-->
+      <!--      </v-btn>-->
     </v-toolbar>
     <v-content>
       <v-container :fluid="fluid">
@@ -56,8 +56,30 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-footer :fixed="fixed" app>
-      <span>&copy; 2019</span>
+    <v-footer height="auto" color="primary lighten-1" app>
+      <v-layout justify-center row wrap>
+        <v-btn
+          v-for="link in items"
+          :key="link.title"
+          nuxt
+          flat
+          round
+          :to="link.to"
+          color="white"
+        >
+          {{ link.title }}
+        </v-btn>
+        <v-flex primary lighten-2 py-3 text-xs-center white--text xs12>
+          &copy;2018 —
+          <strong
+            ><a
+              href="http://insight.uwo.ca"
+              style="color: #fff6f9; text-decoration: none;"
+              >Insight Lab @ Western</a
+            ></strong
+          >
+        </v-flex>
+      </v-layout>
     </v-footer>
   </v-app>
 </template>
@@ -67,7 +89,7 @@ export default {
   data() {
     return {
       fluid: true,
-      clipped: false,
+      clipped: true,
       drawer: false,
       fixed: false,
       items: [
