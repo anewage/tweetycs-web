@@ -24,7 +24,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar :clipped-left="clipped" fixed app color="primary lighten-2" dark>
+    <v-toolbar :clipped-left="clipped" fixed app color="primary" dark>
       <v-toolbar-side-icon @click="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
@@ -56,7 +56,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-footer height="auto" color="primary lighten-1" app>
+    <v-footer height="auto" color="primary" app>
       <v-layout justify-center row wrap>
         <v-btn
           v-for="link in items"
@@ -69,14 +69,16 @@
         >
           {{ link.title }}
         </v-btn>
-        <v-flex primary lighten-2 py-3 text-xs-center white--text xs12>
-          &copy;2018 —
-          <strong
-            ><a
-              href="http://insight.uwo.ca"
-              style="color: #fff6f9; text-decoration: none;"
-              >Insight Lab @ Western</a
-            ></strong
+        <v-flex primary lighten-2 py-1 text-xs-center white--text xs12>
+          <span class="caption">
+            <strong>
+              <a
+                href="http://insight.uwo.ca"
+                style="color: #fff6f9; text-decoration: none;"
+              >
+                Insight Lab @ Western </a
+              >— </strong
+            >&copy; {{ new Date().getFullYear() }}</span
           >
         </v-flex>
       </v-layout>
