@@ -219,6 +219,11 @@ export default {
       return avg
     }
   },
+  asyncData({ $axios }) {
+    return $axios.get('/api/').then(res => {
+      return { sample: res.data.data }
+    })
+  },
   beforeMount() {
     const that = this
     /*
