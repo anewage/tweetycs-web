@@ -3,7 +3,9 @@ export const state = () => ({
     group_topics: [],
     theme_topics: []
   },
-  aggregatedUsers: []
+  aggregatedUsers: [],
+  selectedMachineLearningMethod: '',
+  selectedSentimentAnalysisMethod: ''
 })
 
 export const mutations = {
@@ -12,5 +14,11 @@ export const mutations = {
   },
   updateAggregatedUsers(state, data) {
     state.aggregatedUsers = data
+  },
+  updateSelectedMachineLearningMethod(state, data) {
+    state.selectedMachineLearningMethod = data
+  },
+  updateSelectedSentimentAnalysisMethod(state, data) {
+    state.selectedSentimentAnalysisMethod = data
   }
 }

@@ -132,8 +132,6 @@ export default {
       flat: true,
       color: 'transparent',
       threshold: 20,
-      selectedSentimentAnalysisMethod: '',
-      selectedMachineLearningMethod: '',
       msg: '',
       temp: [],
       heatmapData: [],
@@ -185,6 +183,22 @@ export default {
     },
     aggregatedUsers() {
       return this.$store.state.aggregatedUsers
+    },
+    selectedSentimentAnalysisMethod: {
+      set(val) {
+        this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
+      },
+      get() {
+        return this.$store.state.selectedSentimentAnalysisMethod
+      }
+    },
+    selectedMachineLearningMethod: {
+      set(val) {
+        this.$store.commit('updateSelectedMachineLearningMethod', val)
+      },
+      get() {
+        return this.$store.state.selectedMachineLearningMethod
+      }
     },
     /*
      * the selected sentiment analysis method

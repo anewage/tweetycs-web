@@ -91,14 +91,14 @@ export default {
       const temp = this.dataset.group_topics.filter(
         item => item._id === this.selectedMlMethod
       )
-      if (temp.length > 0) return temp[0].details
+      if (temp.length > 0) return temp[0].items
       return []
     },
     themesToTopics() {
       const temp = this.dataset.theme_topics.filter(
         item => item._id === this.selectedMlMethod
       )
-      if (temp.length > 0) return temp[0].details
+      if (temp.length > 0) return temp[0].items
       return []
     },
     nodesList() {
@@ -144,34 +144,6 @@ export default {
       res.nodes = this.nodesList
       res.links = this.linksList
       return res
-    },
-    sankeyData2() {
-      return {
-        nodes: [
-          { id: 'neoplasms', name: 'Neoplasms' },
-          // {
-          //   id: 'diarrhea',
-          //   name:
-          //     'Diarrhea, Lower Respiratory Infections, Meningitis, and Other Common Infectious Diseases'
-          // },
-          // { id: 'hiv', name: 'HIV/AIDS and Tuberculosis' },
-          // { id: 'fundraising', name: 'Fundraising' },
-          // { id: 'promotional', name: 'Promotional' },
-          { id: 'public', name: 'Public' }
-          // { id: 'interest_group', name: 'Intereset Groups' },
-          // { id: 'media', name: 'Media' }
-        ],
-        links: [
-          // { source: 'fundraising', target: 'hiv', value: 10.729 },
-          // { source: 'hiv', target: 'media', value: 30 },
-          // { source: 'hiv', target: 'interest_group', value: 15 },
-          // { source: 'promotional', target: 'neoplasms', value: 9 },
-          { source: 'neoplasms', target: 'public', value: 16 }
-          // { source: 'promotional', target: 'diarrhea', value: 7 },
-          // { source: 'diarrhea', target: 'public', value: 3 },
-          // { source: 'diarrhea', target: 'media', value: 5 }
-        ]
-      }
     }
   }
 }
