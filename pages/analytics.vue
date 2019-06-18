@@ -122,6 +122,7 @@ import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
 import socket from '../lib/socket.io'
+
 export default {
   name: 'PageAnalytics',
   components: {
@@ -169,7 +170,8 @@ export default {
         end: 0,
         busy: false,
         history: []
-      }
+      },
+      sankeyData: []
     }
   },
   computed: {
@@ -220,11 +222,11 @@ export default {
       return avg
     }
   },
-  asyncData({ $axios }) {
-    return $axios.get('/api/').then(res => {
-      return { sankeyData: res.data }
-    })
-  },
+  // asyncData({ $axios }) {
+  //   return $axios.get('/api/').then(res => {
+  //     return { sankeyData: res.data }
+  //   })
+  // },
   beforeMount() {
     const that = this
     /*
@@ -262,8 +264,9 @@ export default {
       const tweet = msg.data
       that.storeTemp(tweet)
     })
-    socket.on('tweet-bulk', msg => {
-      const tweets = msg.data
+    socket.on('bulk-update', msg => {
+      const tweets = msg.tweets
+      that.sankeyData = msg.aggregate
       for (const tweet of tweets) {
         that.storeTemp(tweet)
       }

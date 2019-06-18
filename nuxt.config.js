@@ -67,7 +67,7 @@ export default {
   },
   proxy: {
     '/api/': {
-      target: 'http://localhost:3000/api/tweets',
+      target: 'http://localhost:3000/api/aggregate',
       pathRewrite: { '^/api/': '' }
     }
   },
