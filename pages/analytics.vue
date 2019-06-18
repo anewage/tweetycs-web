@@ -98,7 +98,7 @@
         :height="charts.heatmap.height"
         :color="color"
         :flat="flat"
-        :dataset="heatmapData"
+        :dataset="aggregatedKeywords"
       ></heat-map-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md4>
@@ -183,6 +183,9 @@ export default {
     },
     aggregatedUsers() {
       return this.$store.state.aggregatedUsers
+    },
+    aggregatedKeywords() {
+      return this.$store.state.aggregatedKeywords
     },
     selectedSentimentAnalysisMethod: {
       set(val) {
@@ -290,16 +293,6 @@ export default {
     this.resize()
     window.addEventListener('resize', this.resize)
 
-    // Update dataset (add new data)
-    // window.setInterval(function() {
-    //   for (let i = 0; i < 10; i++) {
-    //     const y = 'v' + parseInt(Math.random() * 6)
-    //     const x = 'name-' + parseInt(Math.random() * 10)
-    //     const v = Math.random() * 100
-    //     that.heatmapData.push({ x: x, y: y, v: v })
-    //   }
-    // }, 3000)
-
     window.setInterval(() => {
       if (socket.connected) {
         that.pingPong.busy = true
@@ -321,6 +314,8 @@ export default {
       // Store the changes
       this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
       this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
+      this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
+      this.$store.commit('updateTopics', msg.topics)
     },
     updateTweets: function(data) {
       this.charts.tweets.user = data.user
