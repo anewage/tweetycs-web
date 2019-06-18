@@ -20,6 +20,25 @@
         </v-card-title>
         <v-card-actions>
           <v-layout row align-center justify-space-around>
+            <v-flex v-if="Object.keys(mlMethods).length === 0" text-xs-center>
+              <v-progress-circular
+                :size="50"
+                color="orange"
+                indeterminate
+              ></v-progress-circular>
+            </v-flex>
+            <v-flex v-if="Object.keys(mlMethods).length !== 0">
+              <h4>Text Categorization Methods</h4>
+              <v-radio-group v-model="selectedMachineLearningMethod" column>
+                <v-radio
+                  v-for="method in Object.keys(mlMethods)"
+                  :key="method"
+                  :label="mlMethods[method]"
+                  :value="method"
+                  color="orange"
+                ></v-radio>
+              </v-radio-group>
+            </v-flex>
             <v-flex
               v-if="Object.keys(analysisMethods).length === 0"
               text-xs-center
@@ -42,25 +61,6 @@
                 ></v-radio>
               </v-radio-group>
             </v-flex>
-            <v-flex v-if="Object.keys(mlMethods).length === 0" text-xs-center>
-              <v-progress-circular
-                :size="50"
-                color="orange"
-                indeterminate
-              ></v-progress-circular>
-            </v-flex>
-            <v-flex v-if="Object.keys(mlMethods).length !== 0">
-              <h4>Text Categorization Methods</h4>
-              <v-radio-group v-model="selectedMachineLearningMethod" column>
-                <v-radio
-                  v-for="method in Object.keys(mlMethods)"
-                  :key="method"
-                  :label="mlMethods[method]"
-                  :value="method"
-                  color="orange"
-                ></v-radio>
-              </v-radio-group>
-            </v-flex>
           </v-layout>
         </v-card-actions>
       </v-card>
@@ -74,7 +74,8 @@
         :height="charts.sankey.height"
         :color="color"
         :flat="flat"
-        :dataset="dataset"
+        :selected-ml-method="selectedMachineLearningMethod"
+        :dataset="sankeyData"
       ></sankey-diagram-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md5>
@@ -150,7 +151,7 @@ export default {
         sankey: {
           id: 'sankey-diagram',
           divId: 'sankey-diagram-div',
-          label: 'Sankey Soon...',
+          label: 'User Categories, Topics, and Content Theme',
           width: 600,
           height: 700
         },
@@ -221,7 +222,7 @@ export default {
   },
   asyncData({ $axios }) {
     return $axios.get('/api/').then(res => {
-      return { sample: res.data.data }
+      return { sankeyData: res.data }
     })
   },
   beforeMount() {

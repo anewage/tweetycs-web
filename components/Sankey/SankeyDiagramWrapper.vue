@@ -64,10 +64,17 @@ export default {
       type: String,
       default: 'This Amazing Sankey Diagram'
     },
+    selectedMlMethod: {
+      type: String,
+      default: 'CNN'
+    },
     dataset: {
-      type: Array,
+      type: Object,
       default: function() {
-        return []
+        return {
+          group_topics: [],
+          theme_topics: []
+        }
       }
     }
   },
@@ -80,32 +87,89 @@ export default {
     }
   },
   computed: {
+    groupsToTopics() {
+      const temp = this.dataset.group_topics.filter(
+        item => item._id === this.selectedMlMethod
+      )
+      if (temp.length > 0) return temp[0].details
+      return []
+    },
+    themesToTopics() {
+      const temp = this.dataset.theme_topics.filter(
+        item => item._id === this.selectedMlMethod
+      )
+      if (temp.length > 0) return temp[0].details
+      return []
+    },
+    nodesList() {
+      const groups = new Set(this.groupsToTopics.map(it => it._id.group))
+      const topics1 = new Set(this.groupsToTopics.map(it => it._id.topic))
+      const topics2 = new Set(this.themesToTopics.map(it => it._id.topic))
+      const themes = new Set(this.themesToTopics.map(it => it._id.theme))
+      const nodes = [...new Set([...groups, ...topics1, ...topics2, ...themes])]
+      return nodes.map(node => {
+        return { id: node, name: node }
+      })
+    },
+    linksList() {
+      // eslint-disable-next-line no-unused-vars
+      const links1 = this.groupsToTopics.map(it => {
+        return {
+          source: it._id.group,
+          target: it._id.topic,
+          value: it.count
+        }
+      })
+      // eslint-disable-next-line no-unused-vars
+      const links2 = this.themesToTopics.map(it => {
+        return {
+          source: it._id.topic,
+          target: it._id.theme,
+          value: it.count
+        }
+      })
+      return [...links1, ...links2]
+    },
     sankeyData() {
       // Get data from bak and update the values only by each emit
+      const res = {
+        nodes: [
+          { id: 'user_categories', name: 'User Categories' },
+          { id: 'topics', name: 'Topics' },
+          { id: 'content_themes', name: 'Content Themes' }
+        ],
+        links: []
+      }
+      if (this.selectedMlMethod === '') return res
+      res.nodes = this.nodesList
+      res.links = this.linksList
+      return res
+    },
+    sankeyData2() {
       return {
         nodes: [
           { id: 'neoplasms', name: 'Neoplasms' },
-          {
-            id: 'diarrhea',
-            name:
-              'Diarrhea, Lower Respiratory Infections, Meningitis, and Other Common Infectious Diseases'
-          },
-          { id: 'hiv', name: 'HIV/AIDS and Tuberculosis' },
-          { id: 'fundraising', name: 'Fundraising' },
-          { id: 'promotional', name: 'Promotional' },
-          { id: 'public', name: 'Public' },
-          { id: 'interest_group', name: 'Intereset Groups' },
-          { id: 'media', name: 'Media' }
+          // {
+          //   id: 'diarrhea',
+          //   name:
+          //     'Diarrhea, Lower Respiratory Infections, Meningitis, and Other Common Infectious Diseases'
+          // },
+          // { id: 'hiv', name: 'HIV/AIDS and Tuberculosis' },
+          // { id: 'fundraising', name: 'Fundraising' },
+          // { id: 'promotional', name: 'Promotional' },
+          { id: 'public', name: 'Public' }
+          // { id: 'interest_group', name: 'Intereset Groups' },
+          // { id: 'media', name: 'Media' }
         ],
         links: [
-          { source: 'fundraising', target: 'hiv', value: 10.729 },
-          { source: 'hiv', target: 'media', value: 30 },
-          { source: 'hiv', target: 'interest_group', value: 15 },
-          { source: 'promotional', target: 'neoplasms', value: 9 },
-          { source: 'neoplasms', target: 'public', value: 16 },
-          { source: 'promotional', target: 'diarrhea', value: 7 },
-          { source: 'diarrhea', target: 'public', value: 3 },
-          { source: 'diarrhea', target: 'media', value: 5 }
+          // { source: 'fundraising', target: 'hiv', value: 10.729 },
+          // { source: 'hiv', target: 'media', value: 30 },
+          // { source: 'hiv', target: 'interest_group', value: 15 },
+          // { source: 'promotional', target: 'neoplasms', value: 9 },
+          { source: 'neoplasms', target: 'public', value: 16 }
+          // { source: 'promotional', target: 'diarrhea', value: 7 },
+          // { source: 'diarrhea', target: 'public', value: 3 },
+          // { source: 'diarrhea', target: 'media', value: 5 }
         ]
       }
     }
