@@ -20,21 +20,21 @@
         </v-card-title>
         <v-card-actions>
           <v-layout row align-center justify-space-around>
-            <v-flex v-if="Object.keys(mlMethods).length === 0" text-xs-center>
+            <v-flex v-if="mlMethods.length === 0" text-xs-center>
               <v-progress-circular
                 :size="50"
                 color="orange"
                 indeterminate
               ></v-progress-circular>
             </v-flex>
-            <v-flex v-if="Object.keys(mlMethods).length !== 0">
+            <v-flex v-if="mlMethods.length !== 0">
               <h4>Text Categorization Methods</h4>
               <v-radio-group v-model="selectedMachineLearningMethod" column>
                 <v-radio
-                  v-for="method in Object.keys(mlMethods)"
-                  :key="method"
-                  :label="mlMethods[method]"
-                  :value="method"
+                  v-for="method in mlMethods"
+                  :key="method.id"
+                  :label="method.title"
+                  :value="method.id"
                   color="orange"
                 ></v-radio>
               </v-radio-group>
@@ -200,13 +200,12 @@ export default {
       })
     },
     mlMethods() {
-      const res = {}
-      for (const tw of this.dataset) {
-        for (const mt of tw.labels) {
-          res[mt.id] = mt.title
+      return this.aggregatedTopics.group_topics.map(cat => {
+        return {
+          id: cat._id,
+          title: cat.items[0].labels.title
         }
-      }
-      return res
+      })
     },
     /*
      * Current delay in ms
