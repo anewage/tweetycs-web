@@ -138,7 +138,10 @@ export default {
           { id: 'topics', name: 'Topics' },
           { id: 'content_themes', name: 'Content Themes' }
         ],
-        links: []
+        links: [
+          { source: 'user_categories', target: 'topics', value: 1 },
+          { source: 'topics', target: 'content_themes', value: 1 }
+        ]
       }
       if (this.selectedMlMethod === '') return res
       res.nodes = this.nodesList
