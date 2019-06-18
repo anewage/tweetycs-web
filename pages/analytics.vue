@@ -72,7 +72,7 @@
         :color="color"
         :flat="flat"
         :selected-ml-method="selectedMachineLearningMethod"
-        :dataset="sankeyData"
+        :dataset="aggregatedTopics"
       ></sankey-diagram-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md5>
@@ -174,13 +174,9 @@ export default {
         busy: false,
         history: []
       },
-      sankeyData: {
-        nodes: [
-          { id: 'user_categories', name: 'User Categories' },
-          { id: 'topics', name: 'Topics' },
-          { id: 'content_themes', name: 'Content Themes' }
-        ],
-        links: []
+      aggregatedTopics: {
+        group_topics: [],
+        theme_topics: []
       },
       aggregatedUsers: []
     }
@@ -276,7 +272,7 @@ export default {
     })
     socket.on('bulk-update', msg => {
       // const tweets = msg.tweets
-      that.sankeyData = msg.aggregatedTopics
+      that.aggregatedTopics = msg.aggregatedTopics
       that.aggregatedUsers = msg.aggregatedUsers
       // for (const tweet of tweets) {
       //   that.storeTemp(tweet)
