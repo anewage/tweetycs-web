@@ -173,20 +173,18 @@ export default {
         end: 0,
         busy: false,
         history: []
-      },
-      aggregatedTopics: {
-        group_topics: [],
-        theme_topics: []
-      },
-      aggregatedUsers: []
+      }
     }
   },
   computed: {
     /*
      * dataset containing the tweets
      */
-    dataset() {
-      return this.$store.state.tweets.list
+    aggregatedTopics() {
+      return this.$store.state.aggregatedTopics
+    },
+    aggregatedUsers() {
+      return this.$store.state.aggregatedUsers
     },
     /*
      * the selected sentiment analysis method
@@ -270,12 +268,7 @@ export default {
       that.storeTemp(tweet)
     })
     socket.on('bulk-update', msg => {
-      // const tweets = msg.tweets
-      that.aggregatedTopics = msg.aggregatedTopics
-      that.aggregatedUsers = msg.aggregatedUsers
-      // for (const tweet of tweets) {
-      //   that.storeTemp(tweet)
-      // }
+      that.commitUpdates(msg)
     })
   },
   mounted() {
@@ -310,13 +303,10 @@ export default {
       this.charts.heatmap.width = heatDiv.clientWidth - 5
       this.charts.sankey.width = sankeyDiv.clientWidth - 5
     },
-    storeTemp: function(tweet) {
-      // Store the actual tweet
-      this.temp.push(tweet)
-      if (this.temp.length > this.threshold) {
-        this.$store.commit('tweets/addBulkTweet', this.temp)
-        this.temp = []
-      }
+    commitUpdates: function(msg) {
+      // Store the changes
+      this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
+      this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
     },
     updateTweets: function(data) {
       this.charts.tweets.user = data.user
