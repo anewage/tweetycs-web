@@ -104,6 +104,11 @@ export default {
           icon: 'bubble_chart',
           title: 'Analytics',
           to: '/analytics'
+        },
+        {
+          icon: 'dashboard',
+          title: 'Compare',
+          to: '/compare'
         }
       ],
       miniVariant: false,
