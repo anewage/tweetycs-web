@@ -25,12 +25,13 @@
     >
       <circle
         v-for="(item, index) in dataset"
-        :key="item.name"
+        :key="item.user.screen_name"
         :cx="xScale(item[axesMeta.x.selector])"
         :cy="yScale(item[axesMeta.y.selector])"
         :r="radius"
         :style="'fill: ' + colorScale(index) + ';'"
         class="circle"
+        @click="$emit('circleClicked', item)"
       ></circle>
     </transition-group>
     <g

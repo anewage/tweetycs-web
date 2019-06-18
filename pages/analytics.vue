@@ -39,24 +39,21 @@
                 ></v-radio>
               </v-radio-group>
             </v-flex>
-            <v-flex
-              v-if="Object.keys(analysisMethods).length === 0"
-              text-xs-center
-            >
+            <v-flex v-if="analysisMethods.length === 0" text-xs-center>
               <v-progress-circular
                 :size="50"
                 color="cyan"
                 indeterminate
               ></v-progress-circular>
             </v-flex>
-            <v-flex v-if="Object.keys(analysisMethods).length !== 0">
+            <v-flex v-if="analysisMethods.length !== 0">
               <h4>Sentiment Analysis Methods</h4>
               <v-radio-group v-model="selectedSentimentAnalysisMethod" column>
                 <v-radio
-                  v-for="method in Object.keys(analysisMethods)"
-                  :key="method"
-                  :label="analysisMethods[method]"
-                  :value="method"
+                  v-for="method in analysisMethods"
+                  :key="method.id"
+                  :label="method.title"
+                  :value="method.id"
                   color="cyan"
                 ></v-radio>
               </v-radio-group>
@@ -88,7 +85,8 @@
         :selected-analysis-method="selectedSentimentAnalysisMethod"
         :color="color"
         :flat="flat"
-        :dataset="dataset"
+        :dataset="aggregatedUsers"
+        @circleClicked="updateTweets"
       ></scatter-plot-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md8>
@@ -104,14 +102,11 @@
       ></heat-map-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md4>
-      <v-card color="transparent" :flat="flat">
-        <v-card-title>
-          <h2>
-            Extra Tweets...
-          </h2>
-        </v-card-title>
-        <v-card-text></v-card-text>
-      </v-card>
+      <tweets-wrapper
+        :config="charts.tweets"
+        :color="color"
+        :flat="flat"
+      ></tweets-wrapper>
     </v-flex>
   </v-layout>
 </template>
@@ -122,13 +117,15 @@ import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
 import socket from '../lib/socket.io'
+import TweetsWrapper from '../components/Twitter/TweetsWrapper'
 
 export default {
   name: 'PageAnalytics',
   components: {
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
     'scatter-plot-wrapper': ScatterPlotWrapper,
-    'heat-map-wrapper': HeatMapWrapper
+    'heat-map-wrapper': HeatMapWrapper,
+    'tweets-wrapper': TweetsWrapper
   },
   data() {
     return {
@@ -162,6 +159,12 @@ export default {
           label: 'HeatMap Soon...',
           width: 600,
           height: 500
+        },
+        tweets: {
+          user: {},
+          tweets: [],
+          avgSentiment: 0,
+          influence: 0
         }
       },
       // Data required for connection metrics
@@ -171,7 +174,15 @@ export default {
         busy: false,
         history: []
       },
-      sankeyData: []
+      sankeyData: {
+        nodes: [
+          { id: 'user_categories', name: 'User Categories' },
+          { id: 'topics', name: 'Topics' },
+          { id: 'content_themes', name: 'Content Themes' }
+        ],
+        links: []
+      },
+      aggregatedUsers: []
     }
   },
   computed: {
@@ -185,13 +196,12 @@ export default {
      * the selected sentiment analysis method
      */
     analysisMethods() {
-      const res = {}
-      for (const tw of this.dataset) {
-        for (const mt of tw.analysis) {
-          res[mt.id] = mt.title
+      return this.aggregatedUsers.map(cat => {
+        return {
+          id: cat._id,
+          title: cat.items[0].analysis.title
         }
-      }
-      return res
+      })
     },
     mlMethods() {
       const res = {}
@@ -265,11 +275,12 @@ export default {
       that.storeTemp(tweet)
     })
     socket.on('bulk-update', msg => {
-      const tweets = msg.tweets
-      that.sankeyData = msg.aggregate
-      for (const tweet of tweets) {
-        that.storeTemp(tweet)
-      }
+      // const tweets = msg.tweets
+      that.sankeyData = msg.aggregatedTopics
+      that.aggregatedUsers = msg.aggregatedUsers
+      // for (const tweet of tweets) {
+      //   that.storeTemp(tweet)
+      // }
     })
   },
   mounted() {
@@ -311,6 +322,12 @@ export default {
         this.$store.commit('tweets/addBulkTweet', this.temp)
         this.temp = []
       }
+    },
+    updateTweets: function(data) {
+      this.charts.tweets.user = data.user
+      this.charts.tweets.tweets = data.tweets
+      this.charts.tweets.avgSentiment = data.y
+      this.charts.tweets.influence = data.x
     }
   }
 }
