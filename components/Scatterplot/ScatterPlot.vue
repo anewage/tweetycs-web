@@ -3,17 +3,17 @@
     :id="chartDomID + '-svg'"
     :width="width"
     :height="height"
-    class="svg scatterplot"
+    :class="'svg scatterplot-' + chartDomID"
   >
     <rect
-      class="view"
+      :class="'view view-' + chartDomID"
       :x="chartLeft"
       :y="chartTop"
       :width="chartWidth"
       :height="chartHeight"
     ></rect>
     <transition-group
-      id="circles"
+      :id="'circles-' + chartDomID"
       tag="svg"
       name="fade"
       :x="chartLeft"
@@ -236,9 +236,9 @@ export default {
   methods: {
     setupSVG: function() {
       // Select the SVG element
-      this.svg = d3.select('.scatterplot')
-      this.circlesGroup = d3.select('#circles')
-      this.view = d3.select('.view')
+      this.svg = d3.select('.scatterplot-' + this.chartDomID)
+      this.circlesGroup = d3.select('#circles-' + this.chartDomID)
+      this.view = d3.select('.view-' + this.chartDomID)
       this.axes.x.element = d3.select(
         '.scatterplot-' + this.chartDomID + '-x-axis'
       )

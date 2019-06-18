@@ -72,6 +72,7 @@
         :color="color"
         :flat="flat"
         :selected-ml-method="selectedMachineLearningMethod"
+        :topics="topics"
         :dataset="aggregatedTopics"
       ></sankey-diagram-wrapper>
     </v-flex>
@@ -131,10 +132,8 @@ export default {
     return {
       flat: true,
       color: 'transparent',
-      threshold: 20,
       msg: '',
       temp: [],
-      heatmapData: [],
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -187,6 +186,9 @@ export default {
     aggregatedKeywords() {
       return this.$store.state.aggregatedKeywords
     },
+    topics() {
+      return this.$store.state.topics
+    },
     selectedSentimentAnalysisMethod: {
       set(val) {
         this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
@@ -203,9 +205,6 @@ export default {
         return this.$store.state.selectedMachineLearningMethod
       }
     },
-    /*
-     * the selected sentiment analysis method
-     */
     analysisMethods() {
       return this.aggregatedUsers.map(cat => {
         return {
@@ -242,11 +241,6 @@ export default {
       return avg
     }
   },
-  // asyncData({ $axios }) {
-  //   return $axios.get('/api/').then(res => {
-  //     return { sankeyData: res.data }
-  //   })
-  // },
   beforeMount() {
     const that = this
     /*
@@ -278,12 +272,8 @@ export default {
       that.pingPong.busy = false
     })
     /*
-     * Store the incoming tweets
+     * Store the incoming data
      */
-    socket.on('tweet', msg => {
-      const tweet = msg.data
-      that.storeTemp(tweet)
-    })
     socket.on('bulk-update', msg => {
       that.commitUpdates(msg)
     })

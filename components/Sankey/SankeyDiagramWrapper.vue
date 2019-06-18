@@ -68,6 +68,12 @@ export default {
       type: String,
       default: 'CNN'
     },
+    topics: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    },
     dataset: {
       type: Object,
       default: function() {
@@ -102,14 +108,18 @@ export default {
       return []
     },
     nodesList() {
-      const groups = new Set(this.groupsToTopics.map(it => it._id.group))
+      const that = this
       const topics1 = new Set(this.groupsToTopics.map(it => it._id.topic))
       const topics2 = new Set(this.themesToTopics.map(it => it._id.topic))
+      const nodes1 = [...new Set([...topics2, ...topics1])].map(node => {
+        return { id: node, name: that.topics[node].title }
+      })
+      const groups = new Set(this.groupsToTopics.map(it => it._id.group))
       const themes = new Set(this.themesToTopics.map(it => it._id.theme))
-      const nodes = [...new Set([...groups, ...topics1, ...topics2, ...themes])]
-      return nodes.map(node => {
+      const nodes2 = [...new Set([...groups, ...themes])].map(node => {
         return { id: node, name: node }
       })
+      return [...nodes1, ...nodes2]
     },
     linksList() {
       // eslint-disable-next-line no-unused-vars
