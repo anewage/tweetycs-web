@@ -20,6 +20,11 @@
       <input v-model="colorRange[1]" type="color" />
       <v-spacer></v-spacer>
     </v-card-actions>
+    <v-slide-y-transition>
+      <v-card-text v-show="meta.show">
+        {{ meta.info }}
+      </v-card-text>
+    </v-slide-y-transition>
     <v-card-text>
       <div :id="divId">
         <heat-map
@@ -89,7 +94,7 @@ export default {
     },
     selectedTopic: {
       type: String,
-      default: 'neoplasms'
+      default: 'hiv'
     }
   },
   data() {
