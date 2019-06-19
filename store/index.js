@@ -3,8 +3,11 @@ export const state = () => ({
     group_topics: [],
     theme_topics: []
   },
+  aggregatedKeywords: {
+    themes: [],
+    groups: []
+  },
   aggregatedUsers: [],
-  aggregatedKeywords: [],
   topics: {},
   selectedMachineLearningMethod: '',
   selectedSentimentAnalysisMethod: ''

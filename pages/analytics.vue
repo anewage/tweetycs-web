@@ -94,6 +94,8 @@
       <heat-map-wrapper
         :id="charts.heatmap.id"
         :div-id="charts.heatmap.divId"
+        :selected-analysis-method="selectedSentimentAnalysisMethod"
+        :selected-machine-learning-method="selectedMachineLearningMethod"
         :label="charts.heatmap.label"
         :width="charts.heatmap.width"
         :height="charts.heatmap.height"
@@ -153,7 +155,7 @@ export default {
         heatmap: {
           id: 'heatmap',
           divId: 'heatmap-div',
-          label: 'HeatMap Soon...',
+          label: 'Hybrid Analysis',
           width: 600,
           height: 500
         },

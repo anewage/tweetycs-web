@@ -55,9 +55,12 @@ export default {
       default: 'This Amazing Scatter Plot'
     },
     dataset: {
-      type: Array,
+      type: Object,
       default: function() {
-        return []
+        return {
+          themes: [],
+          groups: []
+        }
       }
     },
     selectedAnalysisMethod: {
@@ -70,12 +73,53 @@ export default {
     },
     selectedTopic: {
       type: String,
-      default: ''
+      default: 'neoplasms'
     }
   },
   computed: {
     heatmapData() {
-      return []
+      if (
+        this.selectedMachineLearningMethod === '' ||
+        this.selectedSentimentAnalysisMethod === ''
+      )
+        return []
+      const that = this
+      const final = []
+      const filteredThemes = this.dataset.themes.filter(it => {
+        return (
+          it._id.analysis === that.selectedAnalysisMethod &&
+          it._id.labeling === that.selectedMachineLearningMethod &&
+          it._id.topic === that.selectedTopic
+        )
+      })
+      for (const it of filteredThemes) {
+        for (const kw of it._id.keywords) {
+          final.push({
+            x: kw,
+            y: 'Content Theme: ' + it._id.theme,
+            v: it.avgSentiment,
+            sort: 1
+          })
+        }
+      }
+      const filteredGroups = this.dataset.groups.filter(it => {
+        return (
+          it._id.analysis === that.selectedAnalysisMethod &&
+          it._id.labeling === that.selectedMachineLearningMethod &&
+          it._id.topic === that.selectedTopic
+        )
+      })
+      for (const it of filteredGroups) {
+        for (const kw of it._id.keywords) {
+          final.push({
+            x: kw,
+            y: 'Contributor Category: ' + it._id.group,
+            v: it.avgSentiment,
+            sort: 0
+          })
+        }
+      }
+      return final
     }
   }
 }

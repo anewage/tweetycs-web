@@ -68,7 +68,7 @@ export default {
         return {
           top: 20,
           right: 20,
-          left: 35,
+          left: 200,
           bottom: 20
         }
       }

@@ -92,6 +92,8 @@
           :label="index + 1 + ' - ' + charts.heatmap.label"
           :width="charts.heatmap.width"
           :height="charts.heatmap.height"
+          :selected-analysis-method="selectedSentimentAnalysisMethod"
+          :selected-machine-learning-method="selectedMachineLearningMethod"
           :color="color"
           :flat="flat"
           :dataset="aggregatedKeywords"
@@ -134,7 +136,7 @@ export default {
   },
   data() {
     return {
-      flat: true,
+      flat: false,
       color: 'transparent',
       msg: '',
       temp: [],
