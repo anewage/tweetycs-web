@@ -176,6 +176,10 @@ export default {
   /*background: lightgrey;*/
 }
 
+/*.x-axis >>> .tick > text {*/
+/*  transform: rotate(90deg);*/
+/*}*/
+
 .circle {
   transition: all 500ms;
 }
