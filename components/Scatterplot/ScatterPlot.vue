@@ -84,11 +84,15 @@ export default {
         return {
           x: {
             selector: 'x',
+            initialBound: [-1, 200],
+            scaleToContent: true,
             zoomEnabled: true,
             label: 'User Influence'
           },
           y: {
             selector: 'y',
+            initialBound: [-1, 1],
+            scaleToContent: false,
             zoomEnabled: true,
             label: 'Average Sentiment'
           }
@@ -169,16 +173,19 @@ export default {
     },
     xScale: function() {
       const selector = this.axesMeta.x.selector
+      let min = this.axesMeta.x.initialBound[0]
+      let max = this.axesMeta.x.initialBound[1]
+      if (this.axesMeta.x.scaleToContent) {
+        min = d3.min(this.dataset, function(d) {
+          return d[selector]
+        })
+        max = d3.max(this.dataset, function(d) {
+          return d[selector]
+        })
+      }
       const x = d3
         .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[selector]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[selector]
-          })
-        ])
+        .domain([min, max])
         .range([0, this.chartWidth])
         .nice()
       if (this.axesMeta.x.zoomEnabled) return this.transform.rescaleX(x)
@@ -186,16 +193,19 @@ export default {
     },
     yScale: function() {
       const selector = this.axesMeta.y.selector
+      let min = this.axesMeta.y.initialBound[0]
+      let max = this.axesMeta.y.initialBound[1]
+      if (this.axesMeta.y.scaleToContent) {
+        min = d3.min(this.dataset, function(d) {
+          return d[selector]
+        })
+        max = d3.max(this.dataset, function(d) {
+          return d[selector]
+        })
+      }
       const y = d3
         .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[selector]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[selector]
-          })
-        ])
+        .domain([min, max])
         .range([this.chartHeight, 0])
         .nice()
       if (this.axesMeta.y.zoomEnabled) return this.transform.rescaleY(y)

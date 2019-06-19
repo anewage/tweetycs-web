@@ -75,7 +75,7 @@
         <sankey-diagram-wrapper
           :id="charts.sankey.id + '-comparison-' + index"
           :div-id="charts.sankey.divId + '-comparison-' + index"
-          :label="charts.sankey.label + ' - ' + index"
+          :label="index + 1 + ' - ' + charts.sankey.label"
           :width="charts.sankey.width"
           :height="charts.sankey.height"
           :color="color"
@@ -89,7 +89,7 @@
         <heat-map-wrapper
           :id="charts.heatmap.id + '-comparison-' + index"
           :div-id="charts.heatmap.divId + '-comparison-' + index"
-          :label="charts.heatmap.label + ' - ' + index"
+          :label="index + 1 + ' - ' + charts.heatmap.label"
           :width="charts.heatmap.width"
           :height="charts.heatmap.height"
           :color="color"
@@ -101,7 +101,7 @@
         <scatter-plot-wrapper
           :id="charts.scatterplot.id + '-comparison-' + index"
           :div-id="charts.scatterplot.divId + '-comparison-' + index"
-          :label="charts.scatterplot.label + ' - ' + index"
+          :label="index + 1 + ' - ' + charts.scatterplot.label"
           :width="charts.scatterplot.width"
           :height="charts.scatterplot.height"
           :selected-analysis-method="comparison.analysis"
@@ -141,7 +141,6 @@ export default {
       comparisons: [
         { analysis: '', machineLearning: '' },
         { analysis: '', machineLearning: '' },
-        { analysis: '', machineLearning: '' },
         { analysis: '', machineLearning: '' }
       ],
       // Charts and all of their configurations
@@ -151,7 +150,7 @@ export default {
           divId: 'scatter-plot-div',
           label: 'User Influence Vs. Average Sentiment',
           width: 600,
-          height: 600
+          height: 700
         },
         sankey: {
           id: 'sankey-diagram',

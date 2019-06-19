@@ -47,13 +47,14 @@
     <v-card-text>
       <div :id="divId">
         <scatter-plot
-          :id="id"
+          :chart-dom-i-d="id"
           :width="width"
           :height="height"
           :axes-meta="axesMeta"
           :radius="radius"
           :color-range="colorRange"
           :transform="transform"
+          :scale-to-content="false"
           :dataset="scatterplotData"
           @zoomed="zoomed"
           @circleClicked="circleClicked"
@@ -123,11 +124,15 @@ export default {
       axesMeta: {
         x: {
           selector: 'x',
+          initialBound: [-1, 200],
+          scaleToContent: false,
           zoomEnabled: true,
           label: 'User Influence'
         },
         y: {
           selector: 'y',
+          initialBound: [-1, 1],
+          scaleToContent: false,
           zoomEnabled: false,
           label: 'Average Sentiment'
         }
