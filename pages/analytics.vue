@@ -90,7 +90,7 @@
         @circleClicked="updateTweets"
       ></scatter-plot-wrapper>
     </v-flex>
-    <v-flex text-xs-center xs12 md8>
+    <v-flex text-xs-center xs12 md9>
       <heat-map-wrapper
         :id="charts.heatmap.id"
         :div-id="charts.heatmap.divId"
@@ -104,7 +104,7 @@
         :dataset="aggregatedKeywords"
       ></heat-map-wrapper>
     </v-flex>
-    <v-flex text-xs-center xs12 md4>
+    <v-flex text-xs-center xs12 md3>
       <tweets-wrapper
         :config="charts.tweets"
         :color="color"
