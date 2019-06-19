@@ -5,12 +5,28 @@
         {{ label }}
       </h2>
     </v-card-title>
+    <v-card-actions>
+      <v-btn icon @click="meta.show = !meta.show">
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+
+      <span class="caption theme--light">Low Values:</span>
+      <input v-model="colorRange[0]" type="color" />
+
+      <v-spacer></v-spacer>
+
+      <span class="caption theme--light">High Values:</span>
+      <input v-model="colorRange[1]" type="color" />
+      <v-spacer></v-spacer>
+    </v-card-actions>
     <v-card-text>
       <div :id="divId">
         <heat-map
           :chart-dom-i-d="id"
           :width="width"
           :height="height"
+          :color-range="colorRange"
           :dataset="heatmapData"
         />
       </div>
@@ -74,6 +90,15 @@ export default {
     selectedTopic: {
       type: String,
       default: 'neoplasms'
+    }
+  },
+  data() {
+    return {
+      colorRange: ['#ffffff', '#69b3a2'],
+      meta: {
+        show: false,
+        info: 'Hello this is only a help box!'
+      }
     }
   },
   computed: {
