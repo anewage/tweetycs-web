@@ -1,15 +1,16 @@
 <template>
   <v-layout row wrap>
-    <v-flex text-xs-center xs12>
-      <div>
-        <h1>
-          Delay: <span>{{ delay }}</span>
-        </h1>
-        <h1>
-          Avg. Delay: <span>{{ avgDelay }}</span>
-        </h1>
-        <h1 id="log">Response: {{ msg }}</h1>
-      </div>
+    <v-flex text-xs-center xs12 class="mt-5">
+      <span>Number of Panels:</span>
+      <v-slider
+        :tick-labels="[1, 2, 3, 4, 6, 12]"
+        :max="6"
+        :min="1"
+        step="1"
+        ticks="always"
+        tick-size="1"
+        @change="changeComparisons"
+      ></v-slider>
     </v-flex>
     <v-flex
       v-for="(comparison, index) in comparisons"
@@ -23,9 +24,7 @@
       <v-flex xs12>
         <v-card flat color="transparent">
           <v-card-title>
-            <h2>
-              Control Box
-            </h2>
+            <h2>{{ index + 1 }} - Control Box</h2>
           </v-card-title>
           <v-card-actions>
             <v-layout row align-center justify-space-around>
@@ -92,8 +91,9 @@
           :label="index + 1 + ' - ' + charts.heatmap.label"
           :width="charts.heatmap.width"
           :height="charts.heatmap.height"
-          :selected-analysis-method="selectedSentimentAnalysisMethod"
-          :selected-machine-learning-method="selectedMachineLearningMethod"
+          :selected-analysis-method="comparison.analysis"
+          :selected-machine-learning-method="comparison.machineLearning"
+          :selected-topic="comparison.topic"
           :color="color"
           :flat="flat"
           :dataset="aggregatedKeywords"
@@ -140,11 +140,7 @@ export default {
       color: 'transparent',
       msg: '',
       temp: [],
-      comparisons: [
-        { analysis: '', machineLearning: '' },
-        { analysis: '', machineLearning: '' },
-        { analysis: '', machineLearning: '' }
-      ],
+      comparisons: [{ analysis: '', machineLearning: '', topic: 'hiv' }],
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -164,7 +160,7 @@ export default {
         heatmap: {
           id: 'heatmap',
           divId: 'heatmap-div',
-          label: 'HeatMap Soon...',
+          label: 'Hybrid Analysis',
           width: 600,
           height: 500
         },
@@ -199,22 +195,6 @@ export default {
     },
     topics() {
       return this.$store.state.topics
-    },
-    selectedSentimentAnalysisMethod: {
-      set(val) {
-        this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
-      },
-      get() {
-        return this.$store.state.selectedSentimentAnalysisMethod
-      }
-    },
-    selectedMachineLearningMethod: {
-      set(val) {
-        this.$store.commit('updateSelectedMachineLearningMethod', val)
-      },
-      get() {
-        return this.$store.state.selectedMachineLearningMethod
-      }
     },
     analysisMethods() {
       return this.aggregatedUsers.map(cat => {
@@ -331,6 +311,19 @@ export default {
       this.charts.tweets.tweets = data.tweets
       this.charts.tweets.avgSentiment = data.y
       this.charts.tweets.influence = data.x
+    },
+    changeComparisons: function(count) {
+      count = [1, 2, 3, 4, 6, 12][count - 1]
+      if (this.comparisons.length < count) {
+        for (let i = this.comparisons.length; i < count; i++)
+          this.comparisons.push({
+            analysis: '',
+            machineLearning: '',
+            topic: 'hiv'
+          })
+      } else if (this.comparisons.length > count) {
+        this.comparisons.splice(count)
+      }
     }
   }
 }
