@@ -7,7 +7,12 @@
     </v-card-title>
     <v-card-text>
       <div :id="divId">
-        <heat-map :id="id" :width="width" :height="height" :dataset="dataset" />
+        <heat-map
+          :chart-dom-i-d="id"
+          :width="width"
+          :height="height"
+          :dataset="heatmapData"
+        />
       </div>
     </v-card-text>
   </v-card>
@@ -58,6 +63,19 @@ export default {
     selectedAnalysisMethod: {
       type: String,
       default: ''
+    },
+    selectedMachineLearningMethod: {
+      type: String,
+      default: ''
+    },
+    selectedTopic: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    heatmapData() {
+      return []
     }
   }
 }
