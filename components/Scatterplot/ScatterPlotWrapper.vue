@@ -47,15 +47,17 @@
     <v-card-text>
       <div :id="divId">
         <scatter-plot
-          :id="id"
+          :chart-dom-i-d="id"
           :width="width"
           :height="height"
           :axes-meta="axesMeta"
           :radius="radius"
           :color-range="colorRange"
           :transform="transform"
+          :scale-to-content="false"
           :dataset="scatterplotData"
           @zoomed="zoomed"
+          @circleClicked="circleClicked"
         />
       </div>
     </v-card-text>
@@ -63,7 +65,6 @@
 </template>
 
 <script>
-import { _ } from 'vue-underscore'
 import * as d3 from 'd3'
 import ScatterPlot from './ScatterPlot'
 export default {
@@ -123,11 +124,15 @@ export default {
       axesMeta: {
         x: {
           selector: 'x',
+          initialBound: [-1, 200],
+          scaleToContent: false,
           zoomEnabled: true,
           label: 'User Influence'
         },
         y: {
           selector: 'y',
+          initialBound: [-1, 1],
+          scaleToContent: false,
           zoomEnabled: false,
           label: 'Average Sentiment'
         }
@@ -135,25 +140,26 @@ export default {
     }
   },
   computed: {
-    userBasedTweets() {
-      return _.groupBy(this.dataset, tweet => tweet.user.screen_name)
-    },
     scatterplotData() {
       const res = []
       if (this.selectedAnalysisMethod === '') return res
-      for (const user in this.userBasedTweets) {
-        const tweets = this.userBasedTweets[user]
+      const bucket = this.dataset.filter(
+        cat => cat._id === this.selectedAnalysisMethod
+      )[0]
+      for (const item of bucket.items) {
+        if (!item.user) continue
         res.push({
           // influence
           x:
-            tweets[0].user.followers_count / (tweets[0].user.friends_count + 1),
+            item.user.followers_count ||
+            0 / ((item.user.friends_count || 0) + 1),
 
           // sentiment
-          y: tweets[0].sentiment,
+          y: item.avg_sentiment,
 
           // meta data
-          tweets: tweets,
-          name: user
+          tweets: item.tweets,
+          user: item.user
         })
       }
       return res
@@ -169,7 +175,9 @@ export default {
     decrement: function() {
       this.radius -= 1
     },
-    pause: function() {},
+    circleClicked: function(data) {
+      this.$emit('circleClicked', data)
+    },
     reset: function() {
       this.transform = d3.zoomIdentity
       this.colorRange = ['#d4e3f4', '#14004f']

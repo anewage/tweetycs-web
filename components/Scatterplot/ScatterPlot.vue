@@ -3,17 +3,17 @@
     :id="chartDomID + '-svg'"
     :width="width"
     :height="height"
-    class="svg scatterplot"
+    :class="'svg scatterplot-' + chartDomID"
   >
     <rect
-      class="view"
+      :class="'view view-' + chartDomID"
       :x="chartLeft"
       :y="chartTop"
       :width="chartWidth"
       :height="chartHeight"
     ></rect>
     <transition-group
-      id="circles"
+      :id="'circles-' + chartDomID"
       tag="svg"
       name="fade"
       :x="chartLeft"
@@ -25,12 +25,13 @@
     >
       <circle
         v-for="(item, index) in dataset"
-        :key="item.name"
+        :key="item.user.screen_name"
         :cx="xScale(item[axesMeta.x.selector])"
         :cy="yScale(item[axesMeta.y.selector])"
         :r="radius"
         :style="'fill: ' + colorScale(index) + ';'"
         class="circle"
+        @click="$emit('circleClicked', item)"
       ></circle>
     </transition-group>
     <g
@@ -83,11 +84,15 @@ export default {
         return {
           x: {
             selector: 'x',
+            initialBound: [-1, 200],
+            scaleToContent: true,
             zoomEnabled: true,
             label: 'User Influence'
           },
           y: {
             selector: 'y',
+            initialBound: [-1, 1],
+            scaleToContent: false,
             zoomEnabled: true,
             label: 'Average Sentiment'
           }
@@ -168,16 +173,19 @@ export default {
     },
     xScale: function() {
       const selector = this.axesMeta.x.selector
+      let min = this.axesMeta.x.initialBound[0]
+      let max = this.axesMeta.x.initialBound[1]
+      if (this.axesMeta.x.scaleToContent) {
+        min = d3.min(this.dataset, function(d) {
+          return d[selector]
+        })
+        max = d3.max(this.dataset, function(d) {
+          return d[selector]
+        })
+      }
       const x = d3
         .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[selector]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[selector]
-          })
-        ])
+        .domain([min, max])
         .range([0, this.chartWidth])
         .nice()
       if (this.axesMeta.x.zoomEnabled) return this.transform.rescaleX(x)
@@ -185,16 +193,19 @@ export default {
     },
     yScale: function() {
       const selector = this.axesMeta.y.selector
+      let min = this.axesMeta.y.initialBound[0]
+      let max = this.axesMeta.y.initialBound[1]
+      if (this.axesMeta.y.scaleToContent) {
+        min = d3.min(this.dataset, function(d) {
+          return d[selector]
+        })
+        max = d3.max(this.dataset, function(d) {
+          return d[selector]
+        })
+      }
       const y = d3
         .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d[selector]
-          }),
-          d3.max(this.dataset, function(d) {
-            return d[selector]
-          })
-        ])
+        .domain([min, max])
         .range([this.chartHeight, 0])
         .nice()
       if (this.axesMeta.y.zoomEnabled) return this.transform.rescaleY(y)
@@ -235,9 +246,9 @@ export default {
   methods: {
     setupSVG: function() {
       // Select the SVG element
-      this.svg = d3.select('.scatterplot')
-      this.circlesGroup = d3.select('#circles')
-      this.view = d3.select('.view')
+      this.svg = d3.select('.scatterplot-' + this.chartDomID)
+      this.circlesGroup = d3.select('#circles-' + this.chartDomID)
+      this.view = d3.select('.view-' + this.chartDomID)
       this.axes.x.element = d3.select(
         '.scatterplot-' + this.chartDomID + '-x-axis'
       )
@@ -313,7 +324,7 @@ export default {
 }
 
 .svg >>> .circle {
-  transition: opacity 1800ms, fill 1800ms;
-  -webkit-transition: opacity 1800ms, fill 1800ms;
+  transition: opacity 1800ms, fill 1800ms, cy 1800ms;
+  -webkit-transition: opacity 1800ms, fill 1800ms, cy 1800ms;
 }
 </style>

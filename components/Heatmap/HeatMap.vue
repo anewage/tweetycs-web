@@ -68,7 +68,7 @@ export default {
         return {
           top: 20,
           right: 20,
-          left: 35,
+          left: 150,
           bottom: 20
         }
       }
@@ -175,6 +175,10 @@ export default {
 .svg {
   /*background: lightgrey;*/
 }
+
+/*.x-axis >>> .tick > text {*/
+/*  transform: rotate(90deg);*/
+/*}*/
 
 .circle {
   transition: all 500ms;

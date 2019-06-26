@@ -14,6 +14,7 @@
         :y="item.y0"
         :height="item.y1 - item.y0"
         :fill="color(item.name)"
+        class="rect"
       ></rect>
     </g>
     <g id="links" fill="none" stroke-opacity="0.5">
@@ -26,12 +27,13 @@
           :id="'link-' + index"
           gradientUnits="userSpaceOnUse"
           :x1="link.source.x1"
-          :x2="link.source.x0"
+          :x2="link.target.x0"
         >
           <stop offset="0%" :stop-color="color(link.source.name)"></stop>
           <stop offset="100%" :stop-color="color(link.target.name)"></stop>
         </linearGradient>
         <path
+          class="path"
           :d="d(link)"
           :stroke="'url(#link-' + index + ')'"
           :stroke-width="Math.max(1, link.width)"
@@ -158,23 +160,33 @@ export default {
       this.svg = d3.select('.sankey')
       this.rectsGroup = d3.select('.rects')
       this.linksGroup = d3.select('.links')
-    },
-    sankey: function() {
-      const sankey = d3Sankey
-        .sankey()
-        .nodeAlign(d3Sankey.sankeyJustify)
-        .nodeWidth(15)
-        .nodePadding(10)
-        .extent([[1, 5], [this.chartWidth - 1, this.chartHeight - 5]])
-      return ({ nodes, links }) =>
-        sankey({
-          nodes: nodes.map(d => Object.assign({}, d)),
-          links: links.map(d => Object.assign({}, d))
-        })
-    },
-    drawAxes: function() {}
+    }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.svg >>> .v-enter {
+  opacity: 0;
+}
+
+.svg >>> .v-enter-to {
+  opacity: 100%;
+  fill: green;
+}
+
+.svg >>> .v-leave {
+  opacity: 100%;
+}
+
+.svg >>> .v-leave-to {
+  opacity: 0;
+  fill: red;
+}
+
+.svg >>> .rect,
+.svg >>> .path {
+  transition: all 500ms;
+  -webkit-transition: all 500ms;
+}
+</style>
