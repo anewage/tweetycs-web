@@ -326,7 +326,7 @@ export default {
       this.charts.tweets.influence = data.x
     },
     updateTopic: function(topic) {
-      this.selectedTopic = topic
+      this.selectedTopic = topic.id
     }
   }
 }

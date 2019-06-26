@@ -82,6 +82,7 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
+          @topicSelected="updateTopic"
         ></sankey-diagram-wrapper>
       </v-flex>
       <v-flex text-xs-center xs12>
@@ -148,21 +149,21 @@ export default {
           divId: 'scatter-plot-div',
           label: 'User Influence Vs. Average Sentiment',
           width: 600,
-          height: 700
+          height: 300
         },
         sankey: {
           id: 'sankey-diagram',
           divId: 'sankey-diagram-div',
           label: 'User Categories, Topics, and Content Theme',
           width: 600,
-          height: 700
+          height: 450
         },
         heatmap: {
           id: 'heatmap',
           divId: 'heatmap-div',
           label: 'Hybrid Analysis',
           width: 600,
-          height: 500
+          height: 150
         },
         tweets: {
           user: {},
