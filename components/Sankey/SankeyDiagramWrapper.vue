@@ -22,6 +22,7 @@
           :width="width"
           :height="height"
           :dataset="sankeyData"
+          @nodeClicked="handleClick"
         />
       </div>
     </v-card-text>
@@ -157,6 +158,13 @@ export default {
       res.nodes = this.nodesList
       res.links = this.linksList
       return res
+    }
+  },
+  methods: {
+    handleClick: function(data) {
+      // eslint-disable-next-line no-console
+      console.log(data)
+      this.$emit('topicSelected', data.id)
     }
   }
 }

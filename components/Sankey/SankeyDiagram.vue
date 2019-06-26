@@ -15,6 +15,7 @@
         :height="item.y1 - item.y0"
         :fill="color(item.name)"
         class="rect"
+        @click="$emit('nodeClicked', item)"
       ></rect>
     </g>
     <g id="links" fill="none" stroke-opacity="0.5">
