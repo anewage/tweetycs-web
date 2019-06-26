@@ -23,7 +23,7 @@
           :height="height"
           :dataset="sankeyData"
           @nodeClicked="handleClick"
-          @nodeHovered="handleHover"
+          @nodeMouseover="handleMouseover"
         />
       </div>
     </v-card-text>
@@ -164,12 +164,12 @@ export default {
   methods: {
     handleClick: function(data) {
       // eslint-disable-next-line no-console
-      console.log(data)
+      console.log('click')
       this.$emit('topicSelected', data)
     },
-    handleHover: function(data) {
+    handleMouseover: function(data) {
       // eslint-disable-next-line no-console
-      console.log(data)
+      console.log('mouseover')
     }
   }
 }

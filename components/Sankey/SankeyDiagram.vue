@@ -5,21 +5,6 @@
     :height="height"
     class="svg sankey"
   >
-    <g id="rects" stroke="#000">
-      <rect
-        v-for="(item, index) in sankyed.nodes"
-        :id="'node-' + index"
-        :key="index"
-        :x="item.x0"
-        :width="item.x1 - item.x0"
-        :y="item.y0"
-        :height="item.y1 - item.y0"
-        :fill="color(item.name)"
-        class="rect"
-        @click="$emit('nodeClicked', item)"
-        @mouseover="mousein(item)"
-      ></rect>
-    </g>
     <g id="links" fill="none" stroke-opacity="0.5">
       <g
         v-for="(link, index) in sankyed.links"
@@ -47,17 +32,31 @@
         </title>
       </g>
     </g>
-    <g style="font: 10px sans-serif;">
-      <text
-        v-for="(node, index) in sankyed.nodes"
+    <g id="rects" stroke="#000">
+      <g
+        v-for="(item, index) in sankyed.nodes"
         :key="index"
-        :x="node.x0 < chartWidth / 2 ? node.x1 + 6 : node.x0 - 6"
-        :y="(node.y1 + node.y0) / 2"
-        dy="0.35em"
-        :text-anchor="node.x0 < chartWidth / 2 ? 'start' : 'end'"
+        @click="$emit('nodeClicked', item)"
+        @mouseover="mouseover(item)"
       >
-        {{ node.name }}
-      </text>
+        <rect
+          :id="'node-' + index"
+          :x="item.x0"
+          :width="item.x1 - item.x0"
+          :y="item.y0"
+          :height="item.y1 - item.y0"
+          :fill="color(item.name)"
+          class="rect"
+        ></rect>
+        <text
+          :x="item.x0 < chartWidth / 2 ? item.x1 + 6 : item.x0 - 6"
+          :y="(item.y1 + item.y0) / 2"
+          dy="0.35em"
+          :text-anchor="item.x0 < chartWidth / 2 ? 'start' : 'end'"
+        >
+          {{ item.name }}
+        </text>
+      </g>
     </g>
   </svg>
 </template>
@@ -164,11 +163,8 @@ export default {
       this.rectsGroup = d3.select('.rects')
       this.linksGroup = d3.select('.links')
     },
-    mousein: function(item) {
-      // eslint-disable-next-line no-console
-      console.log('OK!', item.index)
-
-      this.$emit('nodeHovered', item)
+    mouseover: function(item) {
+      this.$emit('nodeMouseover', item)
     }
   }
 }
