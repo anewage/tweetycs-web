@@ -8,6 +8,7 @@
     <g id="rects" stroke="#000">
       <rect
         v-for="(item, index) in sankyed.nodes"
+        :id="'node-' + index"
         :key="index"
         :x="item.x0"
         :width="item.x1 - item.x0"
@@ -16,6 +17,7 @@
         :fill="color(item.name)"
         class="rect"
         @click="$emit('nodeClicked', item)"
+        @mouseover="mousein(item)"
       ></rect>
     </g>
     <g id="links" fill="none" stroke-opacity="0.5">
@@ -161,6 +163,12 @@ export default {
       this.svg = d3.select('.sankey')
       this.rectsGroup = d3.select('.rects')
       this.linksGroup = d3.select('.links')
+    },
+    mousein: function(item) {
+      // eslint-disable-next-line no-console
+      console.log('OK!', item.index)
+
+      this.$emit('nodeHovered', item)
     }
   }
 }
