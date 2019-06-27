@@ -82,7 +82,7 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
-          @itemClick="updateTopic"
+          @itemClick="updateSecltedTopic"
         ></sankey-diagram-wrapper>
       </v-flex>
       <v-flex text-xs-center xs12>
@@ -324,6 +324,11 @@ export default {
           })
       } else if (this.comparisons.length > count) {
         this.comparisons.splice(count)
+      }
+    },
+    updateSecltedTopic: function(item) {
+      for (const comparison of this.comparisons) {
+        comparison.topic = item.id
       }
     }
   }
