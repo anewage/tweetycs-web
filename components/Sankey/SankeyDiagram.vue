@@ -49,13 +49,14 @@
           :y="item.y0"
           :height="item.y1 - item.y0"
           :fill="color(item.name)"
+          :stroke="color(item.name)"
           class="rect"
         ></rect>
         <text
           :x="item.x0 < chartWidth / 2 ? item.x1 + 6 : item.x0 - 6"
           :y="(item.y1 + item.y0) / 2"
-          dy="0.35em"
           :text-anchor="item.x0 < chartWidth / 2 ? 'start' : 'end'"
+          font-weight="100"
         >
           {{ item.name }}
         </text>
