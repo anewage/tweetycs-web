@@ -211,6 +211,7 @@ export default {
         el.classList.remove('highlighted')
         el.classList.remove('greyed')
       }
+      this.$emit('nodeMouseout', item)
     }
   }
 }

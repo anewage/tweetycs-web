@@ -82,7 +82,7 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
-          @topicSelected="updateTopic"
+          @itemClick="updateTopic"
         ></sankey-diagram-wrapper>
       </v-flex>
       <v-flex text-xs-center xs12>
