@@ -156,7 +156,7 @@ export default {
           divId: 'sankey-diagram-div',
           label: 'User Categories, Topics, and Content Theme',
           width: 600,
-          height: 450
+          height: 700
         },
         heatmap: {
           id: 'heatmap',
@@ -249,7 +249,7 @@ export default {
      * section of the page.
      */
     socket.on('server_response', msg => {
-      document.getElementById('log').innerText = msg.data
+      // document.getElementById('log').innerText = msg.data
     })
     /*
      * Handler for the "pong" message. When the pong is received, the

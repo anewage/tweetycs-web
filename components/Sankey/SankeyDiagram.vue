@@ -49,14 +49,14 @@
           :y="item.y0"
           :height="item.y1 - item.y0"
           :fill="color(item.name)"
-          :stroke="color(item.name)"
+          stroke="none"
           class="rect"
         ></rect>
         <text
           :x="item.x0 < chartWidth / 2 ? item.x1 + 6 : item.x0 - 6"
           :y="(item.y1 + item.y0) / 2"
           :text-anchor="item.x0 < chartWidth / 2 ? 'start' : 'end'"
-          font-weight="100"
+          style="font: 10px sans-serif;"
         >
           {{ item.name }}
         </text>
@@ -138,7 +138,7 @@ export default {
         .sankey()
         .nodeId(node => node.id)
         .nodeAlign(d3Sankey.sankeyJustify)
-        .nodeWidth(15)
+        .nodeWidth(20)
         .nodePadding(10)
         .extent([[1, 5], [this.chartWidth - 1, this.chartHeight - 5]])
       return sankey({
