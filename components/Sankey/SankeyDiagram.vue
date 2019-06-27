@@ -21,7 +21,8 @@
           <stop offset="100%" :stop-color="color(link.target.name)"></stop>
         </linearGradient>
         <path
-          class="path"
+          :id="specialID + '-path-' + index"
+          :class="'path ' + specialID + '-object'"
           :d="d(link)"
           :stroke="'url(#link-' + index + ')'"
           :stroke-width="Math.max(1, link.width)"
@@ -32,15 +33,17 @@
         </title>
       </g>
     </g>
-    <g id="rects" stroke="#000">
+    <g id="rects" class="rects" stroke="#000">
       <g
         v-for="(item, index) in sankyed.nodes"
+        :id="specialID + '-node-' + index"
         :key="index"
+        :class="'node ' + specialID + '-object'"
         @click="$emit('nodeClicked', item)"
         @mouseover="mouseover(item)"
+        @mouseout="mouseout(item)"
       >
         <rect
-          :id="'node-' + index"
           :x="item.x0"
           :width="item.x1 - item.x0"
           :y="item.y0"
@@ -108,6 +111,9 @@ export default {
     }
   },
   computed: {
+    specialID: function() {
+      return 'sankey-' + this.chartDomID
+    },
     chartLeft: function() {
       return this.padding.left
     },
@@ -164,13 +170,67 @@ export default {
       this.linksGroup = d3.select('.links')
     },
     mouseover: function(item) {
+      // Identify the nodes - paths and rects - that should be highlighted
+      const whiteList = []
+
+      // Select the paths that should be highlighted
+      for (const link of [...item.targetLinks, ...item.sourceLinks]) {
+        // The link itself
+        whiteList.push(
+          document.getElementById(this.specialID + '-path-' + link.index)
+        )
+        // Target and source nodes
+        whiteList.push(
+          document.getElementById(this.specialID + '-node-' + link.source.index)
+        )
+        whiteList.push(
+          document.getElementById(this.specialID + '-node-' + link.target.index)
+        )
+      }
+      whiteList.push(
+        document.getElementById(this.specialID + '-node-' + item.index)
+      )
+
+      // Add greyed class to all of objects
+      const elems = document.getElementsByClassName(this.specialID + '-object')
+      for (const el of elems) {
+        el.classList.remove('highlighted')
+        el.classList.add('greyed')
+      }
+
+      // Highlight the known elements
+      for (const elem of whiteList) {
+        elem.classList.remove('greyed')
+        elem.classList.add('highlighted')
+      }
       this.$emit('nodeMouseover', item)
+    },
+    mouseout: function(item) {
+      const elems = document.getElementsByClassName(this.specialID + '-object')
+      for (const el of elems) {
+        el.classList.remove('highlighted')
+        el.classList.remove('greyed')
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.svg >>> .greyed {
+  opacity: 0.2;
+  stroke-opacity: 0.2;
+}
+
+.svg >>> .highlighted {
+  opacity: 1;
+  stroke-opacity: unset;
+}
+
+.svg >>> .object {
+  transition: opacity 500ms;
+}
+
 .svg >>> .v-enter {
   opacity: 0;
 }

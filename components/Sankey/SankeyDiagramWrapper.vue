@@ -148,11 +148,15 @@ export default {
         nodes: [
           { id: 'user_categories', name: 'User Categories' },
           { id: 'topics', name: 'Topics' },
-          { id: 'content_themes', name: 'Content Themes' }
+          { id: 'content_themes', name: 'Content Themes' },
+          { id: 'sample1', name: 'Sample1' },
+          { id: 'sample2', name: 'Sample2' }
         ],
         links: [
           { source: 'user_categories', target: 'topics', value: 1 },
-          { source: 'topics', target: 'content_themes', value: 1 }
+          { source: 'topics', target: 'content_themes', value: 1 },
+          { source: 'topics', target: 'sample1', value: 1 },
+          { source: 'sample2', target: 'content_themes', value: 3 }
         ]
       }
       if (this.selectedMlMethod === '') return res
@@ -169,7 +173,7 @@ export default {
     },
     handleMouseover: function(data) {
       // eslint-disable-next-line no-console
-      console.log('mouseover')
+      // console.log('mouseover')
     }
   }
 }
