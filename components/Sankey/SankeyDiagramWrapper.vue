@@ -18,7 +18,7 @@
     <v-card-text>
       <div :id="divId">
         <sankey-diagram
-          :id="id"
+          :chart-dom-i-d="id"
           :width="width"
           :height="height"
           :dataset="sankeyData"
