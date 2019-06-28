@@ -12,7 +12,7 @@
         style="mix-blend-mode: multiply;"
       >
         <linearGradient
-          :id="'link-' + index"
+          :id="specialID + '-link-' + index"
           gradientUnits="userSpaceOnUse"
           :x1="link.source.x1"
           :x2="link.target.x0"
@@ -24,7 +24,7 @@
           :id="specialID + '-path-' + index"
           :class="'path ' + specialID + '-object'"
           :d="d(link)"
-          :stroke="'url(#link-' + index + ')'"
+          :stroke="'url(#' + specialID + '-link-' + index + ')'"
           :stroke-width="Math.max(1, link.width)"
         ></path>
         <title>
