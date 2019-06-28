@@ -269,7 +269,7 @@ export default {
      * section of the page.
      */
     socket.on('server_response', msg => {
-      document.getElementById('log').innerText = msg.data
+      // document.getElementById('log').innerText = msg.data
     })
     /*
      * Handler for the "pong" message. When the pong is received, the
