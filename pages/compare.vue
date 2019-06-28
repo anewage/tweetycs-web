@@ -336,14 +336,14 @@ export default {
     },
     applyHighlight: function(item) {
       for (const index of Object.keys(this.$refs)) {
-        const comp = this.$refs[index][0]
-        comp.applyHighlight(item)
+        const comps = this.$refs[index]
+        for (const comp of comps) comp.applyHighlight(item)
       }
     },
     removeHighlight: function(item) {
       for (const index of Object.keys(this.$refs)) {
-        const comp = this.$refs[index][0]
-        comp.removeHighlight(item)
+        const comps = this.$refs[index]
+        for (const comp of comps) comp.removeHighlight(item)
       }
     }
   }
