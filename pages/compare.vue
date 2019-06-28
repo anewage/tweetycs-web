@@ -73,6 +73,7 @@
       <v-flex text-xs-center xs12>
         <sankey-diagram-wrapper
           :id="charts.sankey.id + '-comparison-' + index"
+          :ref="'comparison-' + index"
           :div-id="charts.sankey.divId + '-comparison-' + index"
           :label="index + 1 + ' - ' + charts.sankey.label"
           :width="charts.sankey.width"
@@ -83,6 +84,8 @@
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
           @itemClick="updateSecltedTopic"
+          @itemMouseover="applyHighlight"
+          @itemMouseout="removeHighlight"
         ></sankey-diagram-wrapper>
       </v-flex>
       <v-flex text-xs-center xs12>
@@ -329,6 +332,18 @@ export default {
     updateSecltedTopic: function(item) {
       for (const comparison of this.comparisons) {
         comparison.topic = item.id
+      }
+    },
+    applyHighlight: function(item) {
+      for (const index of Object.keys(this.$refs)) {
+        const comp = this.$refs[index][0]
+        comp.applyHighlight(item)
+      }
+    },
+    removeHighlight: function(item) {
+      for (const index of Object.keys(this.$refs)) {
+        const comp = this.$refs[index][0]
+        comp.removeHighlight(item)
       }
     }
   }

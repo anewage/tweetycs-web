@@ -18,6 +18,7 @@
     <v-card-text>
       <div :id="divId">
         <sankey-diagram
+          ref="sankey"
           :chart-dom-i-d="id"
           :width="width"
           :height="height"
@@ -175,6 +176,12 @@ export default {
     },
     handleMouseout: function(data) {
       this.$emit('itemMouseout', data)
+    },
+    applyHighlight: function(data) {
+      this.$refs.sankey.mouseover(data, true)
+    },
+    removeHighlight: function(data) {
+      this.$refs.sankey.mouseout(data, true)
     }
   }
 }

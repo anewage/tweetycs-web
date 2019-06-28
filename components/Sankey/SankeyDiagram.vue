@@ -12,7 +12,7 @@
         style="mix-blend-mode: multiply;"
       >
         <linearGradient
-          :id="specialID + '-link-' + index"
+          :id="specialID + '-gradient-' + link.source.id + '-' + link.target.id"
           gradientUnits="userSpaceOnUse"
           :x1="link.source.x1"
           :x2="link.target.x0"
@@ -21,10 +21,18 @@
           <stop offset="100%" :stop-color="color(link.target.name)"></stop>
         </linearGradient>
         <path
-          :id="specialID + '-path-' + index"
+          :id="specialID + '-path-' + link.source.id + '-' + link.target.id"
           :class="'path ' + specialID + '-object'"
           :d="d(link)"
-          :stroke="'url(#' + specialID + '-link-' + index + ')'"
+          :stroke="
+            'url(#' +
+              specialID +
+              '-gradient-' +
+              link.source.id +
+              '-' +
+              link.target.id +
+              ')'
+          "
           :stroke-width="Math.max(1, link.width)"
         ></path>
         <title>
@@ -36,7 +44,7 @@
     <g id="rects" class="rects" stroke="#000">
       <g
         v-for="(item, index) in sankyed.nodes"
-        :id="specialID + '-node-' + index"
+        :id="specialID + '-node-' + item.id"
         :key="index"
         :class="'node ' + specialID + '-object'"
         @click="$emit('nodeClicked', item)"
@@ -170,7 +178,7 @@ export default {
       this.rectsGroup = d3.select('.rects')
       this.linksGroup = d3.select('.links')
     },
-    mouseover: function(item) {
+    mouseover: function(item, manual = false) {
       // Identify the nodes - paths and rects - that should be highlighted
       const whiteList = []
 
@@ -178,41 +186,49 @@ export default {
       for (const link of [...item.targetLinks, ...item.sourceLinks]) {
         // The link itself
         whiteList.push(
-          document.getElementById(this.specialID + '-path-' + link.index)
+          document.getElementById(
+            this.specialID + '-path-' + link.source.id + '-' + link.target.id
+          )
         )
         // Target and source nodes
         whiteList.push(
-          document.getElementById(this.specialID + '-node-' + link.source.index)
+          document.getElementById(this.specialID + '-node-' + link.source.id)
         )
         whiteList.push(
-          document.getElementById(this.specialID + '-node-' + link.target.index)
+          document.getElementById(this.specialID + '-node-' + link.target.id)
         )
       }
       whiteList.push(
-        document.getElementById(this.specialID + '-node-' + item.index)
+        document.getElementById(this.specialID + '-node-' + item.id)
       )
 
       // Add greyed class to all of objects
       const elems = document.getElementsByClassName(this.specialID + '-object')
       for (const el of elems) {
-        el.classList.remove('highlighted')
-        el.classList.add('greyed')
+        // Prevent error while brushing
+        if (el) {
+          el.classList.remove('highlighted')
+          el.classList.add('greyed')
+        }
       }
 
       // Highlight the known elements
       for (const elem of whiteList) {
-        elem.classList.remove('greyed')
-        elem.classList.add('highlighted')
+        // Prevent error while brushing
+        if (elem) {
+          elem.classList.remove('greyed')
+          elem.classList.add('highlighted')
+        }
       }
-      this.$emit('nodeMouseover', item)
+      if (!manual) this.$emit('nodeMouseover', item)
     },
-    mouseout: function(item) {
+    mouseout: function(item, manual = false) {
       const elems = document.getElementsByClassName(this.specialID + '-object')
       for (const el of elems) {
         el.classList.remove('highlighted')
         el.classList.remove('greyed')
       }
-      this.$emit('nodeMouseout', item)
+      if (!manual) this.$emit('nodeMouseout', item)
     }
   }
 }
