@@ -1,46 +1,46 @@
 <template>
-  <div :id="chartDomID">
-    <svg
-      :id="chartDomID + '-svg'"
-      :width="width"
-      :height="height"
-      class="svg scatterplot"
+  <svg
+    :id="chartDomID + '-svg'"
+    :width="width"
+    :height="height"
+    class="svg heatmap"
+  >
+    <transition-group
+      id="rects"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
     >
-      <transition-group
-        id="circles"
-        tag="g"
-        name="fade"
-        :duration="transitionDuration"
-      >
-        <circle
-          v-for="item in dataset"
-          :key="JSON.stringify(item)"
-          :cx="xScale(item.a)"
-          :cy="yScale(item.v)"
-          :r="4"
-          class="circle"
-        ></circle>
-      </transition-group>
-      <g
-        :class="'x-axis scatterplot-' + chartDomID + '-x-axis'"
-        :transform="'translate(0,' + chartBottom + ')'"
-      ></g>
-      <g
-        :class="'y-axis scatterplot-' + chartDomID + '-y-axis'"
-        :transform="'translate(' + chartLeft + ', 0)'"
-      ></g>
-    </svg>
-  </div>
+      <rect
+        v-for="item in dataset"
+        :key="JSON.stringify(item)"
+        :x="xScale(item.x)"
+        :y="yScale(item.y)"
+        :width="xScale.bandwidth()"
+        :height="yScale.bandwidth()"
+        :style="'fill: ' + colorScale(item.v) + ';'"
+        class="rect"
+      ></rect>
+    </transition-group>
+    <g
+      :class="'x-axis heatmap-' + chartDomID + '-x-axis'"
+      :transform="'translate(0,' + chartBottom + ')'"
+    ></g>
+    <g
+      :class="'y-axis heatmap-' + chartDomID + '-y-axis'"
+      :transform="'translate(' + chartLeft + ', 0)'"
+    ></g>
+  </svg>
 </template>
 
 <script>
 import * as d3 from 'd3'
 export default {
-  name: 'ScatterPlot',
+  name: 'HeatMap',
   props: {
     chartDomID: {
       type: String,
-      default: 'scatter-plot'
+      default: 'heat-map'
     },
     height: {
       type: Number,
@@ -56,13 +56,19 @@ export default {
         return []
       }
     },
+    colorRange: {
+      type: Array,
+      default: function() {
+        return ['#ffffff', '#69b3a2']
+      }
+    },
     padding: {
       type: Object,
       default: function() {
         return {
           top: 20,
           right: 20,
-          left: 35,
+          left: 150,
           bottom: 20
         }
       }
@@ -74,11 +80,11 @@ export default {
       circlesGroup: null,
       axes: {
         x: {
-          ticks: 10,
+          padding: 0.01,
           element: null
         },
         y: {
-          ticks: 10,
+          padding: 0.01,
           element: null
         }
       },
@@ -106,21 +112,22 @@ export default {
     },
     xScale: function() {
       return d3
-        .scaleLinear()
-        .domain([
-          d3.min(this.dataset, function(d) {
-            return d.a
-          }),
-          d3.max(this.dataset, function(d) {
-            return d.a
-          })
-        ])
+        .scaleBand()
+        .domain(this.dataset.map(d => d.x).sort())
         .range([this.chartLeft, this.chartRight])
-        .nice()
+        .padding(this.axes.x.padding)
     },
     yScale: function() {
       return d3
+        .scaleBand()
+        .domain(this.dataset.map(d => d.y).sort())
+        .range([this.chartBottom, this.chartTop])
+        .padding(this.axes.y.padding)
+    },
+    colorScale: function() {
+      return d3
         .scaleLinear()
+        .range(this.colorRange)
         .domain([
           d3.min(this.dataset, function(d) {
             return d.v
@@ -129,14 +136,12 @@ export default {
             return d.v
           })
         ])
-        .range([this.chartBottom, this.chartTop])
-        .nice()
     },
     xAxisFunction: function() {
-      return d3.axisBottom(this.xScale).ticks(this.axes.x.ticks)
+      return d3.axisBottom(this.xScale)
     },
     yAxisFunction: function() {
-      return d3.axisLeft(this.yScale).ticks(this.axes.y.ticks)
+      return d3.axisLeft(this.yScale)
     }
   },
   beforeUpdate() {
@@ -150,14 +155,10 @@ export default {
   methods: {
     setupSVG: function() {
       // Select the SVG element
-      this.svg = d3.select('.scatterplot')
-      this.circlesGroup = d3.select('#circles')
-      this.axes.x.element = d3.select(
-        '.scatterplot-' + this.chartDomID + '-x-axis'
-      )
-      this.axes.y.element = d3.select(
-        '.scatterplot-' + this.chartDomID + '-y-axis'
-      )
+      this.svg = d3.select('.heatmap')
+      this.circlesGroup = d3.select('#rects')
+      this.axes.x.element = d3.select('.heatmap-' + this.chartDomID + '-x-axis')
+      this.axes.y.element = d3.select('.heatmap-' + this.chartDomID + '-y-axis')
     },
     drawAxes: function() {
       // Draw X axis
@@ -170,10 +171,14 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .svg {
   /*background: lightgrey;*/
 }
+
+/*.x-axis >>> .tick > text {*/
+/*  transform: rotate(90deg);*/
+/*}*/
 
 .circle {
   transition: all 500ms;

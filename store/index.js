@@ -1,11 +1,39 @@
 export const state = () => ({
-  tweets: []
+  aggregatedTopics: {
+    group_topics: [],
+    theme_topics: []
+  },
+  aggregatedKeywords: {
+    themes: [],
+    groups: []
+  },
+  aggregatedUsers: [],
+  topics: {},
+  selectedMachineLearningMethod: '',
+  selectedSentimentAnalysisMethod: '',
+  selectedTopic: ''
 })
 
 export const mutations = {
-  addTweet(state, tweet) {
-    const limit = 100
-    if (state.tweets.length > limit) state.tweets = state.tweets.slice(-limit)
-    state.fetched.push(tweet)
+  updateAggregatedTopics(state, data) {
+    state.aggregatedTopics = data
+  },
+  updateAggregatedUsers(state, data) {
+    state.aggregatedUsers = data
+  },
+  updateAggregatedKeywords(state, data) {
+    state.aggregatedKeywords = data
+  },
+  updateSelectedMachineLearningMethod(state, data) {
+    state.selectedMachineLearningMethod = data
+  },
+  updateSelectedSentimentAnalysisMethod(state, data) {
+    state.selectedSentimentAnalysisMethod = data
+  },
+  updateSelectedTopic(state, data) {
+    state.selectedTopic = data
+  },
+  updateTopics(state, data) {
+    state.topics = data
   }
 }
