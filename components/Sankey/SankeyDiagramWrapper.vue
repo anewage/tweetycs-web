@@ -18,10 +18,14 @@
     <v-card-text>
       <div :id="divId">
         <sankey-diagram
-          :id="id"
+          ref="sankey"
+          :chart-dom-i-d="id"
           :width="width"
           :height="height"
           :dataset="sankeyData"
+          @nodeClicked="handleClick"
+          @nodeMouseover="handleMouseover"
+          @nodeMouseout="handleMouseout"
         />
       </div>
     </v-card-text>
@@ -146,17 +150,38 @@ export default {
         nodes: [
           { id: 'user_categories', name: 'User Categories' },
           { id: 'topics', name: 'Topics' },
-          { id: 'content_themes', name: 'Content Themes' }
+          { id: 'content_themes', name: 'Content Themes' },
+          { id: 'sample1', name: 'Sample1' },
+          { id: 'sample2', name: 'Sample2' }
         ],
         links: [
           { source: 'user_categories', target: 'topics', value: 1 },
-          { source: 'topics', target: 'content_themes', value: 1 }
+          { source: 'topics', target: 'content_themes', value: 1 },
+          { source: 'topics', target: 'sample1', value: 1 },
+          { source: 'sample2', target: 'content_themes', value: 3 }
         ]
       }
       if (this.selectedMlMethod === '') return res
       res.nodes = this.nodesList
       res.links = this.linksList
       return res
+    }
+  },
+  methods: {
+    handleClick: function(data) {
+      this.$emit('itemClick', data)
+    },
+    handleMouseover: function(data) {
+      this.$emit('itemMouseover', data)
+    },
+    handleMouseout: function(data) {
+      this.$emit('itemMouseout', data)
+    },
+    applyHighlight: function(data) {
+      this.$refs.sankey.mouseover(data, true)
+    },
+    removeHighlight: function(data) {
+      this.$refs.sankey.mouseout(data, true)
     }
   }
 }
