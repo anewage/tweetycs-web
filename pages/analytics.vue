@@ -74,6 +74,7 @@
         :selected-ml-method="selectedMachineLearningMethod"
         :topics="topics"
         :dataset="aggregatedTopics"
+        @itemClick="updateTopic"
       ></sankey-diagram-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md5>
@@ -101,6 +102,7 @@
         :height="charts.heatmap.height"
         :color="color"
         :flat="flat"
+        :selected-topic="selectedTopic"
         :dataset="aggregatedKeywords"
       ></heat-map-wrapper>
     </v-flex>
@@ -191,6 +193,14 @@ export default {
     topics() {
       return this.$store.state.topics
     },
+    selectedTopic: {
+      set(val) {
+        this.$store.commit('updateSelectedTopic', val)
+      },
+      get() {
+        return this.$store.state.selectedTopic
+      }
+    },
     selectedSentimentAnalysisMethod: {
       set(val) {
         this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
@@ -259,7 +269,7 @@ export default {
      * section of the page.
      */
     socket.on('server_response', msg => {
-      document.getElementById('log').innerText = msg.data
+      // document.getElementById('log').innerText = msg.data
     })
     /*
      * Handler for the "pong" message. When the pong is received, the
@@ -314,6 +324,9 @@ export default {
       this.charts.tweets.tweets = data.tweets
       this.charts.tweets.avgSentiment = data.y
       this.charts.tweets.influence = data.x
+    },
+    updateTopic: function(topic) {
+      this.selectedTopic = topic.id
     }
   }
 }

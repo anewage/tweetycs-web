@@ -73,6 +73,7 @@
       <v-flex text-xs-center xs12>
         <sankey-diagram-wrapper
           :id="charts.sankey.id + '-comparison-' + index"
+          :ref="'comparison-' + index"
           :div-id="charts.sankey.divId + '-comparison-' + index"
           :label="index + 1 + ' - ' + charts.sankey.label"
           :width="charts.sankey.width"
@@ -82,6 +83,9 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
+          @itemClick="updateSecltedTopic"
+          @itemMouseover="applyHighlight"
+          @itemMouseout="removeHighlight"
         ></sankey-diagram-wrapper>
       </v-flex>
       <v-flex text-xs-center xs12>
@@ -148,7 +152,7 @@ export default {
           divId: 'scatter-plot-div',
           label: 'User Influence Vs. Average Sentiment',
           width: 600,
-          height: 700
+          height: 300
         },
         sankey: {
           id: 'sankey-diagram',
@@ -162,7 +166,7 @@ export default {
           divId: 'heatmap-div',
           label: 'Hybrid Analysis',
           width: 600,
-          height: 500
+          height: 150
         },
         tweets: {
           user: {},
@@ -248,7 +252,7 @@ export default {
      * section of the page.
      */
     socket.on('server_response', msg => {
-      document.getElementById('log').innerText = msg.data
+      // document.getElementById('log').innerText = msg.data
     })
     /*
      * Handler for the "pong" message. When the pong is received, the
@@ -323,6 +327,23 @@ export default {
           })
       } else if (this.comparisons.length > count) {
         this.comparisons.splice(count)
+      }
+    },
+    updateSecltedTopic: function(item) {
+      for (const comparison of this.comparisons) {
+        comparison.topic = item.id
+      }
+    },
+    applyHighlight: function(item) {
+      for (const index of Object.keys(this.$refs)) {
+        const comps = this.$refs[index]
+        for (const comp of comps) comp.applyHighlight(item)
+      }
+    },
+    removeHighlight: function(item) {
+      for (const index of Object.keys(this.$refs)) {
+        const comps = this.$refs[index]
+        for (const comp of comps) comp.removeHighlight(item)
       }
     }
   }
