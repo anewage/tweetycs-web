@@ -6,11 +6,11 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
 
-WORKDIR /usr/src/app
+WORKDIR /app
 EXPOSE 3000
-COPY package.json yarn.lock /usr/src/app/
+COPY package.json yarn.lock /app/
 RUN yarn install --frozen-lockfile --non-interactive
 
-COPY . /usr/src/app
+COPY . /app/
 RUN yarn build
 CMD yarn start
