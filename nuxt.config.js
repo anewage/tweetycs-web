@@ -9,8 +9,8 @@ export default {
    *
    */
   server: {
-    port: process.env.NUXT_PORT,
-    host: process.env.NUXT_HOST
+    port: process.env.NUXT_PORT || process.env.PORT,
+    host: process.env.NUXT_HOST || process.env.HOST
   },
 
   /*
