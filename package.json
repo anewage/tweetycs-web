@@ -23,6 +23,7 @@
     "d3-sankey": "^0.12.1",
     "nuxt": "^2.8.1",
     "socket.io-client": "^2.2.0",
+    "stylus-loader": "^3.0.2",
     "vue-underscore": "^0.1.4",
     "vuetify": "^1.5.5",
     "vuetify-loader": "^1.2.1"
