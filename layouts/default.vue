@@ -74,6 +74,7 @@
             <strong>
               <a
                 href="http://insight.uwo.ca"
+                target="_blank"
                 style="color: #fff6f9; text-decoration: none;"
               >
                 Insight Lab @ Western </a
