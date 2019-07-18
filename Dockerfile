@@ -11,7 +11,6 @@ EXPOSE 3000
 COPY package.json yarn.lock /app/
 COPY . /app/
 
-RUN mv .env.example .env
 RUN yarn install --frozen-lockfile --non-interactive
 RUN yarn build
 CMD yarn start
