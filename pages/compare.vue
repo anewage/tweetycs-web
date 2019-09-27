@@ -35,17 +35,24 @@
                   indeterminate
                 ></v-progress-circular>
               </v-flex>
-              <v-flex v-if="mlMethods.length !== 0">
+              <v-flex v-if="mlMethods.length !== 0" xs6 class="ma-1">
                 <h4>Text Categorization Methods</h4>
-                <v-radio-group v-model="comparison.machineLearning" column>
-                  <v-radio
-                    v-for="method in mlMethods"
-                    :key="method.id + '-' + index"
-                    :label="method.title"
-                    :value="method.id"
-                    color="orange"
-                  ></v-radio>
-                </v-radio-group>
+                <v-select
+                  v-model="comparison.machineLearning"
+                  :items="mlMethods"
+                  item-text="title"
+                  item-value="id"
+                  label="Text Categorization Method"
+                ></v-select>
+                <!--                <v-radio-group v-model="comparison.machineLearning" column>-->
+                <!--                  <v-radio-->
+                <!--                    v-for="method in mlMethods"-->
+                <!--                    :key="method.id + '-' + index"-->
+                <!--                    :label="method.title"-->
+                <!--                    :value="method.id"-->
+                <!--                    color="orange"-->
+                <!--                  ></v-radio>-->
+                <!--                </v-radio-group>-->
               </v-flex>
               <v-flex v-if="analysisMethods.length === 0" text-xs-center>
                 <v-progress-circular
@@ -54,17 +61,24 @@
                   indeterminate
                 ></v-progress-circular>
               </v-flex>
-              <v-flex v-if="analysisMethods.length !== 0">
+              <v-flex v-if="analysisMethods.length !== 0" xs6>
                 <h4>Sentiment Analysis Methods</h4>
-                <v-radio-group v-model="comparison.analysis" column>
-                  <v-radio
-                    v-for="method in analysisMethods"
-                    :key="method.id + '-' + index"
-                    :label="method.title"
-                    :value="method.id"
-                    color="cyan"
-                  ></v-radio>
-                </v-radio-group>
+                <v-select
+                  v-model="comparison.analysis"
+                  :items="analysisMethods"
+                  item-text="title"
+                  item-value="id"
+                  label="Sentiment Analysis Methods"
+                ></v-select>
+                <!--                <v-radio-group v-model="comparison.analysis" column>-->
+                <!--                  <v-radio-->
+                <!--                    v-for="method in analysisMethods"-->
+                <!--                    :key="method.id + '-' + index"-->
+                <!--                    :label="method.title"-->
+                <!--                    :value="method.id"-->
+                <!--                    color="cyan"-->
+                <!--                  ></v-radio>-->
+                <!--                </v-radio-group>-->
               </v-flex>
             </v-layout>
           </v-card-actions>
@@ -83,7 +97,7 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
-          @itemClick="updateSecltedTopic"
+          @itemClick="updateSelectedTopic"
           @itemMouseover="applyHighlight"
           @itemMouseout="removeHighlight"
         ></sankey-diagram-wrapper>
@@ -141,6 +155,7 @@ export default {
   data() {
     return {
       flat: false,
+      selectedTopic: 'hiv',
       color: 'transparent',
       msg: '',
       temp: [],
@@ -323,15 +338,23 @@ export default {
           this.comparisons.push({
             analysis: '',
             machineLearning: '',
-            topic: 'hiv'
+            topic: this.selectedTopic
           })
       } else if (this.comparisons.length > count) {
         this.comparisons.splice(count)
       }
     },
-    updateSecltedTopic: function(item) {
-      for (const comparison of this.comparisons) {
-        comparison.topic = item.id
+    highlightTopic: function(item) {
+      if (Object.keys(this.topics).includes(item.id)) {
+        for (const comparison of this.comparisons) {
+          comparison.topic = item.id
+        }
+      }
+    },
+    updateSelectedTopic: function(item) {
+      if (Object.keys(this.topics).includes(item.id)) {
+        this.selectedTopic = item.id
+        this.highlightTopic(item)
       }
     },
     applyHighlight: function(item) {
@@ -339,12 +362,14 @@ export default {
         const comps = this.$refs[index]
         for (const comp of comps) comp.applyHighlight(item)
       }
+      this.highlightTopic(item)
     },
     removeHighlight: function(item) {
       for (const index of Object.keys(this.$refs)) {
         const comps = this.$refs[index]
         for (const comp of comps) comp.removeHighlight(item)
       }
+      this.highlightTopic({ id: this.selectedTopic })
     }
   }
 }
