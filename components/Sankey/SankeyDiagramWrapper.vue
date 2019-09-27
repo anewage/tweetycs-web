@@ -5,16 +5,16 @@
         {{ label }}
       </h2>
     </v-card-title>
-    <v-card-actions>
-      <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
-      </v-btn>
-    </v-card-actions>
-    <v-slide-y-transition>
-      <v-card-text v-show="meta.show">
-        {{ meta.info }}
-      </v-card-text>
-    </v-slide-y-transition>
+    <!--    <v-card-actions>-->
+    <!--      <v-btn icon @click="meta.show = !meta.show">-->
+    <!--        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>-->
+    <!--      </v-btn>-->
+    <!--    </v-card-actions>-->
+    <!--    <v-slide-y-transition>-->
+    <!--      <v-card-text v-show="meta.show">-->
+    <!--        {{ meta.info }}-->
+    <!--      </v-card-text>-->
+    <!--    </v-slide-y-transition>-->
     <v-card-text>
       <div :id="divId">
         <sankey-diagram
