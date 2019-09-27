@@ -159,8 +159,20 @@ export default {
       return name => color(name.replace(/ .*/, ''))
     },
     format: function() {
-      const f = d3.format(',.0f')
-      return d => f(d) + 'TWh'
+      // TODO
+      const f = d3.format('.0%')
+      return d => {
+        const num =
+          d /
+          this.sankyed.links
+            .map(l => l.value)
+            .reduce((sum, v) => {
+              return sum + v
+            })
+
+        return f(num)
+        // return f(d)
+      }
     },
     d: function() {
       return d3Sankey.sankeyLinkHorizontal()
