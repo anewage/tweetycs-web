@@ -198,26 +198,29 @@ export default {
     },
     selectedTopic: {
       set(val) {
-        this.$store.commit('updateSelectedTopic', val)
+        this.$store.commit('analytics/updateSelectedTopic', val)
       },
       get() {
-        return this.$store.state.selectedTopic
+        return this.$store.state.analytics.selectedTopic
       }
     },
     selectedSentimentAnalysisMethod: {
       set(val) {
-        this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
+        this.$store.commit(
+          'analytics/updateSelectedSentimentAnalysisMethod',
+          val
+        )
       },
       get() {
-        return this.$store.state.selectedSentimentAnalysisMethod
+        return this.$store.state.analytics.selectedSentimentAnalysisMethod
       }
     },
     selectedMachineLearningMethod: {
       set(val) {
-        this.$store.commit('updateSelectedMachineLearningMethod', val)
+        this.$store.commit('analytics/updateSelectedMachineLearningMethod', val)
       },
       get() {
-        return this.$store.state.selectedMachineLearningMethod
+        return this.$store.state.analytics.selectedMachineLearningMethod
       }
     },
     analysisMethods() {
