@@ -74,7 +74,9 @@
         :selected-ml-method="selectedMachineLearningMethod"
         :topics="topics"
         :dataset="aggregatedTopics"
-        @itemClick="updateTopic"
+        @itemClick="updateSelectedTopic"
+        @itemMouseover="applyHighlight"
+        @itemMouseout="removeHighlight"
       ></sankey-diagram-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md5>
@@ -102,7 +104,7 @@
         :height="charts.heatmap.height"
         :color="color"
         :flat="flat"
-        :selected-topic="selectedTopic"
+        :selected-topic="highlightedTopic"
         :dataset="aggregatedKeywords"
       ></heat-map-wrapper>
     </v-flex>
@@ -136,6 +138,7 @@ export default {
     return {
       flat: true,
       color: 'transparent',
+      highlightedTopic: 'hiv',
       msg: '',
       temp: [],
       // Charts and all of their configurations
@@ -325,8 +328,21 @@ export default {
       this.charts.tweets.avgSentiment = data.y
       this.charts.tweets.influence = data.x
     },
-    updateTopic: function(topic) {
-      this.selectedTopic = topic.id
+    // Just to be consistent with the page compare
+    highlightTopic: function(item) {
+      this.highlightedTopic = item.id
+    },
+    updateSelectedTopic: function(item) {
+      if (Object.keys(this.topics).includes(item.id)) {
+        this.selectedTopic = item.id
+        this.highlightTopic(item)
+      }
+    },
+    applyHighlight: function(item) {
+      this.highlightTopic(item)
+    },
+    removeHighlight: function(item) {
+      this.highlightTopic({ id: this.selectedTopic })
     }
   }
 }
