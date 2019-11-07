@@ -3,13 +3,14 @@
     <v-flex text-xs-center xs12 class="mt-5">
       <span>Number of Panels:</span>
       <v-slider
+        v-model="comparisonSlider"
         :tick-labels="[1, 2, 3, 4, 6, 12]"
         :max="6"
         :min="1"
         step="1"
         ticks="always"
         tick-size="1"
-        @change="changeComparisons"
+        @change="updateComparisons"
       ></v-slider>
     </v-flex>
     <v-flex
@@ -38,11 +39,12 @@
               <v-flex v-if="mlMethods.length !== 0" xs6 class="ma-1">
                 <h4>Text Categorization Methods</h4>
                 <v-select
-                  v-model="comparison.machineLearning"
+                  :value="comparison.machineLearning"
                   :items="mlMethods"
                   item-text="title"
                   item-value="id"
                   label="Text Categorization Method"
+                  @change="commitMLChange(index)"
                 ></v-select>
                 <!--                <v-radio-group v-model="comparison.machineLearning" column>-->
                 <!--                  <v-radio-->
@@ -159,7 +161,6 @@ export default {
       color: 'transparent',
       msg: '',
       temp: [],
-      comparisons: [{ analysis: '', machineLearning: '', topic: 'hiv' }],
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -214,6 +215,22 @@ export default {
     },
     topics() {
       return this.$store.state.topics
+    },
+    comparisonSlider: {
+      set(val) {
+        this.$store.commit('compare/setComparisonSlider', val)
+      },
+      get() {
+        return this.$store.state.compare.comparisonSlider
+      }
+    },
+    comparisons: {
+      set(val) {
+        this.$store.commit('compare/setComparisons', val)
+      },
+      get() {
+        return this.$store.state.compare.comparisons
+      }
     },
     analysisMethods() {
       return this.aggregatedUsers.map(cat => {
@@ -325,24 +342,17 @@ export default {
       this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
       this.$store.commit('updateTopics', msg.topics)
     },
+    commitMLChange: function(value) {
+      // TODO
+    },
     updateTweets: function(data) {
       this.charts.tweets.user = data.user
       this.charts.tweets.tweets = data.tweets
       this.charts.tweets.avgSentiment = data.y
       this.charts.tweets.influence = data.x
     },
-    changeComparisons: function(count) {
-      count = [1, 2, 3, 4, 6, 12][count - 1]
-      if (this.comparisons.length < count) {
-        for (let i = this.comparisons.length; i < count; i++)
-          this.comparisons.push({
-            analysis: '',
-            machineLearning: '',
-            topic: this.selectedTopic
-          })
-      } else if (this.comparisons.length > count) {
-        this.comparisons.splice(count)
-      }
+    updateComparisons: function(count) {
+      this.$store.commit('compare/updateComparisons', count)
     },
     highlightTopic: function(item) {
       if (Object.keys(this.topics).includes(item.id)) {
