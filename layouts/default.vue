@@ -89,6 +89,7 @@
 
 <script>
 export default {
+  name: 'LayoutDefault',
   data() {
     return {
       fluid: true,
@@ -110,6 +111,11 @@ export default {
           icon: 'dashboard',
           title: 'Compare',
           to: '/compare'
+        },
+        {
+          icon: 'chrome_reader_mode',
+          title: 'Shuffler',
+          to: '/shuffler'
         }
       ],
       miniVariant: false,
