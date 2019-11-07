@@ -1,3 +1,4 @@
+export const strict = false
 export const state = () => ({
   aggregatedTopics: {
     group_topics: [],

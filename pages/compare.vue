@@ -44,7 +44,7 @@
                   item-text="title"
                   item-value="id"
                   label="Text Categorization Method"
-                  @change="commitMLChange(index)"
+                  @change="commitMLChange.call(this, arguments[0], index)"
                 ></v-select>
                 <!--                <v-radio-group v-model="comparison.machineLearning" column>-->
                 <!--                  <v-radio-->
@@ -66,11 +66,14 @@
               <v-flex v-if="analysisMethods.length !== 0" xs6>
                 <h4>Sentiment Analysis Methods</h4>
                 <v-select
-                  v-model="comparison.analysis"
+                  :value="comparison.analysis"
                   :items="analysisMethods"
                   item-text="title"
                   item-value="id"
                   label="Sentiment Analysis Methods"
+                  @change="
+                    commitAnalysisMethodChange.call(this, arguments[0], index)
+                  "
                 ></v-select>
                 <!--                <v-radio-group v-model="comparison.analysis" column>-->
                 <!--                  <v-radio-->
@@ -342,8 +345,17 @@ export default {
       this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
       this.$store.commit('updateTopics', msg.topics)
     },
-    commitMLChange: function(value) {
-      // TODO
+    commitMLChange: function(MLid, index) {
+      this.$store.commit('compare/updateComparisonML', {
+        index: index,
+        value: MLid
+      })
+    },
+    commitAnalysisMethodChange: function(MLid, index) {
+      this.$store.commit('compare/updateComparisonAnalysis', {
+        index: index,
+        value: MLid
+      })
     },
     updateTweets: function(data) {
       this.charts.tweets.user = data.user

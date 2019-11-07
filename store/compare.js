@@ -1,3 +1,4 @@
+export const strict = false
 export const state = () => ({
   comparisonSlider: 1,
   comparisons: [{ analysis: '', machineLearning: '', topic: 'hiv' }]
@@ -22,5 +23,22 @@ export const mutations = {
     } else if (state.comparisons.length > count) {
       state.comparisons.splice(count)
     }
+  },
+  /**
+   *
+   * @param state
+   * @param payload: {index, MLid}
+   */
+  updateComparisonAnalysis(state, payload) {
+    if (payload.index <= state.comparisons.length)
+      state.comparisons[payload.index].analysis = payload.value
+  },
+  updateComparisonML(state, payload) {
+    if (payload.index <= state.comparisons.length)
+      state.comparisons[payload.index].machineLearning = payload.value
+  },
+  updateComparisonTopic(state, payload) {
+    if (payload.index <= state.comparisons.length)
+      state.comparisons[payload.index].topic = payload.value
   }
 }
