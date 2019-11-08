@@ -24,5 +24,8 @@ export const mutations = {
   },
   updateTopics(state, data) {
     state.topics = data
+  },
+  updateSelectedTopic(state, data) {
+    state.topics[data.channel] = data.keywords
   }
 }
