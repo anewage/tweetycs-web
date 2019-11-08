@@ -3,9 +3,9 @@
     <v-flex>
       <v-card
         hover
-        :color="tweet.selected ? 'blue lighten-4' : 'white'"
+        :color="selected ? 'blue lighten-4' : 'white'"
         style="flex: initial !important;"
-        min-width="300"
+        min-width="500"
         @click="clicked"
       >
         <v-card-text>
@@ -63,6 +63,10 @@ export default {
       type: Number,
       default: 0
     },
+    selected: {
+      type: Boolean,
+      default: false
+    },
     tweet: {
       type: Object,
       default: function() {
@@ -74,6 +78,7 @@ export default {
           retweet_count: 100,
           favorite_count: 100,
           possibly_sensitive: false,
+          selected: false,
           user: {
             name: 'John Doe',
             screen_name: 'JohnDoe',
