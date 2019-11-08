@@ -162,7 +162,10 @@ export default {
           user: item.user
         })
       }
-      return res
+      // Sort by x value
+      return res.sort((a, b) => {
+        return a.x > b.x ? 1 : -1
+      })
     }
   },
   methods: {
