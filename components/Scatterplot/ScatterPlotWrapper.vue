@@ -50,6 +50,7 @@
           :chart-dom-i-d="id"
           :width="width"
           :height="height"
+          :line="line"
           :axes-meta="axesMeta"
           :radius="radius"
           :color-range="colorRange"
@@ -117,6 +118,12 @@ export default {
       radius: 4,
       transform: d3.zoomIdentity,
       colorRange: ['#d4e3f4', '#14004f'],
+      line: {
+        show: false,
+        fill: 'none',
+        stroke: 'grey',
+        stroke_width: '1.0'
+      },
       meta: {
         show: false,
         info: 'Hello this is only a help box!'

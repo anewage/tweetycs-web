@@ -12,28 +12,6 @@
       :width="chartWidth"
       :height="chartHeight"
     ></rect>
-    <transition-group
-      :id="'circles-' + chartDomID"
-      tag="svg"
-      name="fade"
-      :x="chartLeft"
-      :y="chartTop"
-      :width="chartWidth"
-      :height="chartHeight"
-      :duration="transitionDuration"
-      :appear="true"
-    >
-      <circle
-        v-for="(item, index) in dataset"
-        :key="item.user.screen_name"
-        :cx="xScale(item[axesMeta.x.selector])"
-        :cy="yScale(item[axesMeta.y.selector])"
-        :r="radius"
-        :style="'fill: ' + colorScale(index) + ';'"
-        class="circle"
-        @click="$emit('circleClicked', item)"
-      ></circle>
-    </transition-group>
     <g
       :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
       :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
@@ -58,6 +36,37 @@
         {{ axesMeta.y.label }}
       </text>
     </g>
+    <transition-group
+      :id="'circles-' + chartDomID"
+      tag="svg"
+      name="fade"
+      :x="chartLeft"
+      :y="chartTop"
+      :width="chartWidth"
+      :height="chartHeight"
+      :duration="transitionDuration"
+      :appear="true"
+    >
+      <circle
+        v-for="(item, index) in dataset"
+        :key="item.user.screen_name"
+        :cx="xScale(item[axesMeta.x.selector])"
+        :cy="yScale(item[axesMeta.y.selector])"
+        :r="radius"
+        :style="'fill: ' + colorScale(index) + ';'"
+        class="circle"
+        @click="$emit('circleClicked', item)"
+      ></circle>
+    </transition-group>
+    <path
+      v-if="line.show"
+      class="line"
+      :fill="line.fill"
+      :stroke="line.stroke"
+      :stroke-width="line.stroke_width"
+      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
+      :d="linePath(dataset)"
+    ></path>
   </svg>
 </template>
 
@@ -77,6 +86,17 @@ export default {
     width: {
       type: Number,
       default: 0
+    },
+    line: {
+      type: Object,
+      default: function() {
+        return {
+          show: false,
+          fill: 'none',
+          stroke: 'grey',
+          stroke_width: '1.0'
+        }
+      }
     },
     axesMeta: {
       type: Object,
@@ -230,6 +250,18 @@ export default {
         .tickSize(-this.chartWidth)
         .ticks(this.axes.y.ticks)
       // return d3.axisLeft(this.yScale).tickSize(this.chartHeight)
+    },
+    linePath: function() {
+      const that = this
+      return d3
+        .line()
+        .curve(d3.curveNatural) // Just add that to have a curve instead of segments
+        .x(function(d) {
+          return that.xScale(d[that.axesMeta.x.selector])
+        })
+        .y(function(d) {
+          return that.yScale(d[that.axesMeta.y.selector])
+        })
     }
   },
   beforeUpdate() {
@@ -323,8 +355,9 @@ export default {
   fill: red;
 }
 
-.svg >>> .circle {
-  transition: opacity 1800ms, fill 1800ms, cy 1800ms;
-  -webkit-transition: opacity 1800ms, fill 1800ms, cy 1800ms;
+.svg >>> .circle,
+.svg >>> .line {
+  transition: all 0ms;
+  -webkit-transition: all 0ms;
 }
 </style>
