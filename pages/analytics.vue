@@ -336,7 +336,7 @@ export default {
       this.highlightedTopic = item.id
     },
     updateSelectedTopic: function(item) {
-      if (Object.keys(this.topics).includes(item.id)) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
         this.selectedTopic = item.id
         this.highlightTopic(item)
       }

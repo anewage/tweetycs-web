@@ -73,9 +73,9 @@ export default {
       default: 'CNN'
     },
     topics: {
-      type: Object,
+      type: Array,
       default: function() {
-        return {}
+        return []
       }
     },
     dataset: {
@@ -116,7 +116,7 @@ export default {
       const topics1 = new Set(this.groupsToTopics.map(it => it._id.topic))
       const topics2 = new Set(this.themesToTopics.map(it => it._id.topic))
       const nodes1 = [...new Set([...topics2, ...topics1])].map(node => {
-        return { id: node, name: that.topics[node].title }
+        return { id: node, name: that.topics.find(a => a.id === node).title }
       })
       const groups = new Set(this.groupsToTopics.map(it => it._id.group))
       const themes = new Set(this.themesToTopics.map(it => it._id.theme))

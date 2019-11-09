@@ -9,7 +9,7 @@ export const state = () => ({
     groups: []
   },
   aggregatedUsers: [],
-  topics: {}
+  topics: []
 })
 
 export const mutations = {
@@ -23,6 +23,14 @@ export const mutations = {
     state.aggregatedKeywords = data
   },
   updateTopics(state, data) {
+    // Sort keywords
+    for (const channel of data) {
+      channel.keywords = channel.keywords.sort()
+    }
+    // Sort channels
+    data = data.sort((a, b) => {
+      return a.id > b.id ? 1 : -1
+    })
     state.topics = data
   },
   updateSelectedTopic(state, data) {

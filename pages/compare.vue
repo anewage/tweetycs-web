@@ -367,14 +367,14 @@ export default {
       this.$store.commit('compare/updateComparisons', count)
     },
     highlightTopic: function(item) {
-      if (Object.keys(this.topics).includes(item.id)) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
         for (const comparison of this.comparisons) {
           comparison.topic = item.id
         }
       }
     },
     updateSelectedTopic: function(item) {
-      if (Object.keys(this.topics).includes(item.id)) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
         this.selectedTopic = item.id
         this.highlightTopic(item)
       }

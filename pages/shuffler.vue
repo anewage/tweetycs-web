@@ -179,11 +179,11 @@ export default {
   },
   computed: {
     items() {
-      const children = Object.keys(this.topics)
+      const children = this.topics
         .map(channel => ({
-          id: channel,
-          name: this.getName(channel),
-          children: this.getChildren(channel)
+          id: channel.id,
+          name: channel.title,
+          children: this.getChildren(channel.id)
         }))
         .sort((a, b) => {
           return a.name > b.name ? 1 : -1
@@ -200,13 +200,22 @@ export default {
       return this.items[0].children
     },
     selections() {
-      const selections = {}
+      const selections = []
       for (const elem of this.tree) {
         // element is a keyword belonging to a top-level channel
-        for (const channel of Object.keys(this.topics))
-          if (this.topics[channel].includes(elem)) {
-            if (!selections[channel]) selections[channel] = []
-            selections[channel].push(elem)
+        for (const channelObj of this.topics)
+          if (channelObj.keywords.includes(elem)) {
+            // If there does not exist any channel with the given id in selections
+            if (!selections.map(a => a.id).includes(channelObj.id))
+              selections.push({
+                id: channelObj.id,
+                title: channelObj.title,
+                keywords: []
+              })
+            // The selected keyword has already a channel
+            selections
+              .find(({ id }) => id === channelObj.id)
+              .keywords.push(elem)
           }
       }
       return selections
@@ -226,15 +235,15 @@ export default {
       this.temp_topic.keywords = []
     },
     selections(val, prev) {
-      socket.emit('update_topics', this.selections)
+      socket.emit('update_topics', val)
       // eslint-disable-next-line no-console
-      console.log('update req. sent', this.selections)
+      console.log('update req. sent', val)
     }
   },
   beforeMount() {
     const that = this
-    socket.on('topics_response', data => {
-      that.$store.commit('updateTopics', data)
+    socket.on('channels_response', data => {
+      that.$store.commit('update_channels', data)
       for (const key of Object.keys(data)) {
         that.tree.push(key)
         that.tree = [...that.tree, ...data[key]]
@@ -251,9 +260,12 @@ export default {
   methods: {
     getChildren(topic) {
       if (!topic || topic === '') return []
-      if (!Object.keys(this.topics).includes(topic)) return []
+      if (!this.topics.map(a => a.id).includes(topic)) return []
       const keywords = []
-      for (const keyword of this.topics[topic]) {
+      const foundTopic = this.topics.find(a => a.id === topic)
+      if (!foundTopic) return []
+      debugger
+      for (const keyword of foundTopic.keywords) {
         keywords.push({
           id: keyword,
           name: this.getName(keyword)
