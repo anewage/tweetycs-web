@@ -130,6 +130,10 @@
       </v-layout>
     </v-flex>
     <v-flex xs9>
+      <v-btn block flat color="error" dark @click="rawTweets = []">
+        Empty Results
+        <v-icon right>delete</v-icon>
+      </v-btn>
       <v-layout column justify-center fill-height>
         <v-flex style="overflow-x: auto;" grow>
           <v-layout row justify-start align-start>
