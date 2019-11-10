@@ -5,26 +5,6 @@
         {{ label }}
       </h2>
     </v-card-title>
-    <v-card-actions>
-      <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">Low Values:</span>
-      <input v-model="colorRange[0]" type="color" />
-
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">High Values:</span>
-      <input v-model="colorRange[1]" type="color" />
-      <v-spacer></v-spacer>
-    </v-card-actions>
-    <v-slide-y-transition>
-      <v-card-text v-show="meta.show">
-        {{ meta.info }}
-      </v-card-text>
-    </v-slide-y-transition>
     <v-card-text>
       <div :id="divId">
         <heat-map
@@ -36,6 +16,22 @@
         />
       </div>
     </v-card-text>
+    <v-card-actions>
+      <v-btn icon small @click="meta.show = !meta.show">
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
+      </v-btn>
+    </v-card-actions>
+    <v-slide-y-transition>
+      <v-card-actions v-show="meta.show">
+        <span class="caption theme--light">Low Values:</span>
+        <input v-model="colorRange[0]" type="color" />
+
+        <v-spacer></v-spacer>
+
+        <span class="caption theme--light">High Values:</span>
+        <input v-model="colorRange[1]" type="color" />
+      </v-card-actions>
+    </v-slide-y-transition>
   </v-card>
 </template>
 

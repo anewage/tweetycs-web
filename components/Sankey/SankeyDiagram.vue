@@ -159,9 +159,6 @@ export default {
         .scaleLinear()
         .domain([0, this.sankyed.nodes.length])
         .range([0, 1])
-      for (let i = 0; i < this.sankyed.nodes.length; i++)
-        // eslint-disable-next-line no-console
-        console.log(idToNumScale(i))
       const color = d3.scaleSequential(d3.interpolateTurbo)
       return id => {
         return color(
