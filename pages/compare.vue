@@ -310,8 +310,8 @@ export default {
   },
   mounted() {
     const that = this
-    this.resize()
     window.addEventListener('resize', this.resize)
+    this.resize()
 
     window.setInterval(() => {
       if (socket.connected) {
@@ -320,6 +320,9 @@ export default {
         socket.emit('client_ping')
       }
     }, 2000)
+  },
+  updated() {
+    this.resize()
   },
   methods: {
     resize: function() {
