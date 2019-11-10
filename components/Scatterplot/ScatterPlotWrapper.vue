@@ -5,45 +5,6 @@
         {{ label }}
       </h2>
     </v-card-title>
-    <v-card-actions>
-      <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
-      </v-btn>
-      <v-btn icon @click="reset">
-        <v-icon>refresh</v-icon>
-      </v-btn>
-
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">Old:</span>
-      <input v-model="colorRange[0]" type="color" />
-
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">Recent:</span>
-      <input v-model="colorRange[1]" type="color" />
-
-      <v-spacer></v-spacer>
-
-      <v-slider
-        v-model="radius"
-        hint="Circle size"
-        persistent-hint
-        thumb-label="always"
-        min="1"
-        max="20"
-        prepend-icon="remove_circle"
-        append-icon="add_circle"
-        @click:prepend="decrement"
-        @click:append="increment"
-      >
-      </v-slider>
-    </v-card-actions>
-    <v-slide-y-transition>
-      <v-card-text v-show="meta.show">
-        {{ meta.info }}
-      </v-card-text>
-    </v-slide-y-transition>
     <v-card-text>
       <div :id="divId">
         <scatter-plot
@@ -62,6 +23,44 @@
         />
       </div>
     </v-card-text>
+    <v-card-actions>
+      <v-btn icon small @click="meta.show = !meta.show">
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
+      </v-btn>
+    </v-card-actions>
+    <v-slide-y-transition>
+      <v-card-actions v-show="meta.show">
+        <v-btn icon small @click="reset">
+          <v-icon>refresh</v-icon>
+        </v-btn>
+
+        <v-spacer></v-spacer>
+
+        <span class="caption theme--light">Old:</span>
+        <input v-model="colorRange[0]" type="color" />
+
+        <v-spacer></v-spacer>
+
+        <span class="caption theme--light">Recent:</span>
+        <input v-model="colorRange[1]" type="color" />
+
+        <v-spacer></v-spacer>
+
+        <v-slider
+          v-model="radius"
+          hint="Circle size"
+          persistent-hint
+          thumb-label="always"
+          min="1"
+          max="20"
+          prepend-icon="remove_circle"
+          append-icon="add_circle"
+          @click:prepend="decrement"
+          @click:append="increment"
+        >
+        </v-slider>
+      </v-card-actions>
+    </v-slide-y-transition>
   </v-card>
 </template>
 
@@ -108,66 +107,104 @@ export default {
         return []
       }
     },
+    siftDataset: {
+      type: Boolean,
+      default: true
+    },
     selectedAnalysisMethod: {
       type: String,
       default: ''
+    },
+    axesMeta: {
+      type: Object,
+      default: function() {
+        return {
+          x: {
+            selector: 'x',
+            initialBound: [-1, 200],
+            scaleToContent: false,
+            zoomEnabled: true,
+            label: 'User Influence'
+          },
+          y: {
+            selector: 'y',
+            initialBound: [-1, 1],
+            scaleToContent: false,
+            zoomEnabled: false,
+            label: 'Average Sentiment'
+          }
+        }
+      }
+    },
+    colorRange: {
+      type: Array,
+      default: function() {
+        return ['#d4e3f4', '#14004f']
+      }
+    },
+    line: {
+      type: Object,
+      default: function() {
+        return {
+          show: false,
+          fill: 'none',
+          stroke: 'grey',
+          stroke_width: '1.0'
+        }
+      }
     }
   },
   data() {
     return {
       radius: 4,
       transform: d3.zoomIdentity,
-      colorRange: ['#d4e3f4', '#14004f'],
-      line: {
-        show: false,
-        fill: 'none',
-        stroke: 'grey',
-        stroke_width: '1.0'
-      },
       meta: {
         show: false,
         info: 'Hello this is only a help box!'
-      },
-      axesMeta: {
-        x: {
-          selector: 'x',
-          initialBound: [-1, 200],
-          scaleToContent: false,
-          zoomEnabled: true,
-          label: 'User Influence'
-        },
-        y: {
-          selector: 'y',
-          initialBound: [-1, 1],
-          scaleToContent: false,
-          zoomEnabled: false,
-          label: 'Average Sentiment'
-        }
       }
     }
   },
   computed: {
     scatterplotData() {
       const res = []
-      if (this.selectedAnalysisMethod === '') return res
-      const bucket = this.dataset.filter(
-        cat => cat._id === this.selectedAnalysisMethod
-      )[0]
-      for (const item of bucket.items) {
-        if (!item.user) continue
-        res.push({
-          // influence
-          x:
-            item.user.followers_count ||
-            0 / ((item.user.friends_count || 0) + 1),
+      if (this.siftDataset) {
+        // Sift the dataset by the selected analysis method
+        if (this.selectedAnalysisMethod === '') return res
+        const bucket = this.dataset.filter(
+          cat => cat._id === this.selectedAnalysisMethod
+        )[0]
 
-          // sentiment
-          y: item.avg_sentiment,
+        // Construct the individual items to be represented
+        for (const item of bucket.items) {
+          if (!item.user) continue
+          res.push({
+            // influence
+            x:
+              item.user.followers_count ||
+              0 / ((item.user.friends_count || 0) + 1),
 
-          // meta data
-          tweets: item.tweets,
-          user: item.user
-        })
+            // sentiment
+            y: item.avg_sentiment,
+
+            // meta data
+            tweets: item.tweets,
+            user: item.user
+          })
+        }
+      } else {
+        for (const tweet of this.dataset) {
+          // Calculate avg. sentiment for each tweet
+          let avgSentiment = 0
+          for (const sent of tweet.analysis) avgSentiment += sent.result
+          avgSentiment = avgSentiment / tweet.analysis.length
+
+          // Add the item
+          res.push({
+            ...tweet,
+            x: new Date(tweet.date),
+            y: avgSentiment
+          })
+        }
       }
       // Sort by x value
       return res.sort((a, b) => {

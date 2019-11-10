@@ -36,6 +36,15 @@
         {{ axesMeta.y.label }}
       </text>
     </g>
+    <path
+      v-if="line.show"
+      class="line"
+      :fill="line.fill"
+      :stroke="line.stroke"
+      :stroke-width="line.stroke_width"
+      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
+      :d="linePath(dataset)"
+    ></path>
     <transition-group
       :id="'circles-' + chartDomID"
       tag="svg"
@@ -58,15 +67,6 @@
         @click="$emit('circleClicked', item)"
       ></circle>
     </transition-group>
-    <path
-      v-if="line.show"
-      class="line"
-      :fill="line.fill"
-      :stroke="line.stroke"
-      :stroke-width="line.stroke_width"
-      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
-      :d="linePath(dataset)"
-    ></path>
   </svg>
 </template>
 
@@ -203,9 +203,13 @@ export default {
           return d[selector]
         })
       }
-      const x = d3
-        .scaleLinear()
-        .domain([min, max])
+      let x = d3.scaleLinear()
+      if (this.axesMeta.x.isTime) {
+        min = new Date(min)
+        max = new Date(max)
+        x = d3.scaleTime()
+      }
+      x.domain([min, max])
         .range([0, this.chartWidth])
         .nice()
       if (this.axesMeta.x.zoomEnabled) return this.transform.rescaleX(x)
@@ -255,7 +259,7 @@ export default {
       const that = this
       return d3
         .line()
-        .curve(d3.curveNatural) // Just add that to have a curve instead of segments
+        .curve(d3.curveBasisOpen) // Just add that to have a curve instead of segments
         .x(function(d) {
           return that.xScale(d[that.axesMeta.x.selector])
         })
