@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout row>
     <v-flex xs3 grow>
-      <v-layout column align-space-between justify-start fill-height>
+      <v-layout column align-space-between justify-start fill-height wrap>
         <v-flex md3>
           <v-card flat>
             <v-toolbar card color="grey lighten-3">
@@ -109,7 +109,9 @@
 
             <v-layout>
               <v-flex>
-                <v-card-text>
+                <v-card-text
+                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
+                >
                   <v-treeview
                     v-model="tree"
                     :items="items"
@@ -141,11 +143,23 @@
             </v-flex>
           </v-layout>
         </v-flex>
-        <v-flex grow class="yellow">
+        <v-flex grow text-xs-center>
           {{ JSON.stringify(selectedTweet) }}
         </v-flex>
-        <v-flex grow class="teal">
-          Sentiment chart
+        <v-divider></v-divider>
+        <v-flex :id="charts.scatterplot.divId" grow text-xs-center>
+          <scatter-plot-wrapper
+            :id="charts.scatterplot.id"
+            :div-id="charts.scatterplot.divId"
+            :label="charts.scatterplot.label"
+            :width="charts.scatterplot.width"
+            :height="charts.scatterplot.height"
+            :axes-meta="charts.scatterplot.axesMeta"
+            :line="charts.scatterplot.line"
+            :sift-dataset="false"
+            :dataset="tweets"
+            :toolbox="false"
+          ></scatter-plot-wrapper>
         </v-flex>
       </v-layout>
     </v-flex>
@@ -156,10 +170,12 @@
 /* eslint-disable dot-notation */
 import Tweets from '../components/Twitter/Tweets'
 import socket from '../lib/socket.io'
+import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 export default {
   name: 'PageShuffler',
   components: {
-    tweets: Tweets
+    tweets: Tweets,
+    'scatter-plot-wrapper': ScatterPlotWrapper
   },
   data() {
     return {
@@ -169,12 +185,46 @@ export default {
         keywords: []
       },
       tree: [],
-      //
       selectedTopics: [],
       search: null,
       search2: null,
       selectedTweet: {},
-      tweets: []
+      charts: {
+        scatterplot: {
+          id: 'scatter-plot',
+          divId: 'scatter-plot-div',
+          label: 'Tweet Sentiments',
+          width: 700,
+          height: 500,
+          line: {
+            show: true,
+            fill: 'none',
+            stroke: 'grey',
+            stroke_width: '1.0'
+          },
+          axesMeta: {
+            x: {
+              selector: 'x',
+              // Starting from 5 minues earlier 5 minues from now
+              initialBound: [
+                Date.now() - 1 * 5 * 60 * 1000,
+                Date.now() + 1 * 5 * 60 * 1000
+              ],
+              scaleToContent: false,
+              zoomEnabled: true,
+              label: 'Time',
+              isTime: true
+            },
+            y: {
+              selector: 'y',
+              initialBound: [-1, 1],
+              scaleToContent: false,
+              zoomEnabled: true,
+              label: 'Average Sentiment'
+            }
+          }
+        }
+      }
     }
   },
   computed: {
@@ -195,6 +245,19 @@ export default {
           children
         }
       ]
+    },
+    tweets() {
+      return this.rawTweets
+        .map(tw => {
+          return {
+            ...tw,
+            date: new Date(tw.created_at).getTime(),
+            selected: false
+          }
+        })
+        .sort((a, b) => {
+          return a.date > b.date ? 1 : -1
+        })
     },
     channels() {
       return this.items[0].children
@@ -227,6 +290,14 @@ export default {
       get() {
         return this.$store.state.topics
       }
+    },
+    rawTweets: {
+      set(val) {
+        this.$store.commit('updateRawTweets', val)
+      },
+      get() {
+        return this.$store.state.rawTweets
+      }
     }
   },
   watch: {
@@ -235,36 +306,43 @@ export default {
       this.temp_topic.keywords = []
     },
     selections(val, prev) {
-      socket.emit('update_topics', val)
-      // eslint-disable-next-line no-console
-      console.log('update req. sent', val)
+      socket.emit('update_channels', val)
     }
   },
   beforeMount() {
     const that = this
     socket.on('channels_response', data => {
-      that.$store.commit('update_channels', data)
-      for (const key of Object.keys(data)) {
-        that.tree.push(key)
-        that.tree = [...that.tree, ...data[key]]
+      that.$store.commit('updateTopics', data)
+      for (const chan of data) {
+        that.tree.push(chan.id)
+        that.tree = [...that.tree, ...chan.keywords]
       }
     })
     socket.on('connect', data => {
-      // eslint-disable-next-line no-console
       socket.emit('topics_request')
     })
     socket.on('tweets', data => {
-      that.tweets = [...that.tweets, ...data.tweets]
+      that.$store.commit('addToRawTweets', data)
     })
   },
+  mounted() {
+    window.addEventListener('resize', this.resize)
+    this.resize()
+  },
+  updated() {
+    this.resize()
+  },
   methods: {
+    resize: function() {
+      const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
+      this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+    },
     getChildren(topic) {
       if (!topic || topic === '') return []
       if (!this.topics.map(a => a.id).includes(topic)) return []
       const keywords = []
       const foundTopic = this.topics.find(a => a.id === topic)
       if (!foundTopic) return []
-      debugger
       for (const keyword of foundTopic.keywords) {
         keywords.push({
           id: keyword,

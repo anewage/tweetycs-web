@@ -9,7 +9,8 @@ export const state = () => ({
     groups: []
   },
   aggregatedUsers: [],
-  topics: []
+  topics: [],
+  rawTweets: []
 })
 
 export const mutations = {
@@ -34,6 +35,29 @@ export const mutations = {
     state.topics = data
   },
   updateSelectedTopic(state, data) {
-    state.topics[data.channel] = data.keywords
+    // If the topic already exists
+    if (state.topics.includes(a => a.id === data.channel))
+      state.topics.find(a => a.id === data.channel).keywords = data.keywords
+    // otherwise
+    else
+      state.topics.push({
+        id: data.channel.toLowerCase(),
+        title: data.channel,
+        keywords: data.keywords
+      })
+  },
+  updateRawTweets(state, data) {
+    state.rawTweets = data
+  },
+  addToRawTweets(state, data) {
+    // Make sure tweets are unique
+    const unique = data.tweets
+      .map(e => e.id)
+      // store the keys of the unique objects
+      .map((e, i, final) => final.indexOf(e) === i && i)
+      // eliminate the dead keys & store unique objects
+      .filter(e => data.tweets[e])
+      .map(e => data.tweets[e])
+    state.rawTweets = [...state.rawTweets, ...unique]
   }
 }
