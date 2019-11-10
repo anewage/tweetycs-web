@@ -136,12 +136,6 @@ export default {
         }
       }
     },
-    colorRange: {
-      type: Array,
-      default: function() {
-        return ['#d4e3f4', '#14004f']
-      }
-    },
     line: {
       type: Object,
       default: function() {
@@ -158,6 +152,7 @@ export default {
     return {
       radius: 4,
       transform: d3.zoomIdentity,
+      colorRange: ['#d4e3f4', '#14004f'],
       meta: {
         show: false,
         info: 'Hello this is only a help box!'

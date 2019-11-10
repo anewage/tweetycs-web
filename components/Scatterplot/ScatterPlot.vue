@@ -58,7 +58,7 @@
     >
       <circle
         v-for="(item, index) in dataset"
-        :key="item.user.screen_name"
+        :key="index"
         :cx="xScale(item[axesMeta.x.selector])"
         :cy="yScale(item[axesMeta.y.selector])"
         :r="radius"
@@ -169,7 +169,7 @@ export default {
         }
       },
       zoom: null,
-      transitionDuration: 2000
+      transitionDuration: 200
     }
   },
   computed: {
@@ -259,7 +259,7 @@ export default {
       const that = this
       return d3
         .line()
-        .curve(d3.curveBasisOpen) // Just add that to have a curve instead of segments
+        .curve(d3.curveLinear) // Just add that to have a curve instead of segments
         .x(function(d) {
           return that.xScale(d[that.axesMeta.x.selector])
         })
