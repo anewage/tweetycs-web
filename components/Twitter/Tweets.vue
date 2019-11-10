@@ -12,7 +12,7 @@
           <div class="title">
             {{ tweet.text }}
           </div>
-          <span class="caption">{{ tweet.created_at }}</span>
+          <span class="caption">{{ new Date(tweet.created_at) }}</span>
 
           <v-spacer></v-spacer>
           <span v-if="tweet.possibly_sensitive" class="red--text ml-4">
