@@ -139,7 +139,7 @@
       <v-layout column justify-center fill-height>
         <v-flex style="overflow-x: auto;" grow>
           <v-layout row justify-start align-start>
-            <v-flex v-for="(tweet, i) in tweets" :key="i">
+            <v-flex v-for="(tweet, i) in filteredTweets" :key="i">
               <tweets
                 :tweet="tweet"
                 :selected="tweet.selected"
@@ -163,7 +163,7 @@
             :axes-meta="charts.scatterplot.axesMeta"
             :line="charts.scatterplot.line"
             :sift-dataset="false"
-            :dataset="tweets"
+            :dataset="filteredTweets"
             :toolbox="false"
           ></scatter-plot-wrapper>
         </v-flex>
@@ -234,6 +234,16 @@ export default {
     }
   },
   computed: {
+    filteredTweets() {
+      let res = []
+      for (const kw of this.treeViewSelections) {
+        const tweets = this.tweets.filter(t => t.keywords.includes(kw))
+        // eslint-disable-next-line no-console
+        // console.log('Tweets:', kw, tweets)
+        res = [...res, ...tweets]
+      }
+      return res
+    },
     items() {
       const that = this
       const children = this.topics
@@ -247,7 +257,7 @@ export default {
         })
       return [
         {
-          id: 1,
+          id: '1',
           name: 'All Topics',
           children
         }
