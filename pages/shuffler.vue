@@ -228,6 +228,7 @@
             :height="charts.scatterplot.height"
             :axes-meta="charts.scatterplot.axesMeta"
             :line="charts.scatterplot.line"
+            :selected-data="selectedTweet"
             :sift-dataset="false"
             :dataset="filteredTweets"
             :toolbox="false"

@@ -67,7 +67,7 @@
           :r="radius"
           :style="'fill: ' + colorScale(index) + ';'"
           class="circle"
-          @click="$emit('circleClicked', item)"
+          @click="ev => clicked.call({}, ev, item)"
           @mouseover="ev => highlight.call({}, ev, item)"
           @mouseleave="dim"
         ></circle>
@@ -76,13 +76,13 @@
     <div
       :id="chartDomID + '-tooltip'"
       class="tooltip"
-      style="position: fixed; opacity: 0; z-index: 999;"
+      style="position: fixed; opacity: 0; z-index: 999; overflow: auto;"
     >
-      <v-card color="black" dark width="100" height="100">
+      <v-sheet class="d-flex" color="black" dark width="100" height="100">
         <v-card-text>
-          Hello!
+          {{ selectedData }}
         </v-card-text>
-      </v-card>
+      </v-sheet>
     </div>
   </div>
 </template>
@@ -148,6 +148,12 @@ export default {
     },
     dataset: {
       type: Array,
+      default: function() {
+        return []
+      }
+    },
+    selectedData: {
+      type: Object,
       default: function() {
         return []
       }
@@ -333,20 +339,36 @@ export default {
       // reset the zoom
       if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
     },
+    clicked: function(ev, item) {
+      this.tooltip
+        .transition()
+        .duration(200)
+        .style('opacity', 0.9)
+        .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+        .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+      if (this.tooltip.attr('persist') === '0')
+        this.tooltip.attr('persist', '1')
+      else if (this.tooltip.attr('persist') === '1')
+        this.tooltip.attr('persist', '0')
+      debugger
+      this.$emit('circleClicked', item)
+    },
     highlight: function(ev, item) {
       this.tooltip
         .transition()
         .duration(200)
         .style('opacity', 0.9)
-        .style('left', ev.target.getBoundingClientRect().x + 14 + 'px')
-        .style('top', ev.target.getBoundingClientRect().y + 14 + 'px')
+        .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+        .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+      this.tooltip.attr('persist', '0')
       this.$emit('highlight', ev)
     },
-    dim: function(item) {
-      this.tooltip
-        .transition()
-        .duration(500)
-        .style('opacity', 0)
+    dim: function(ev, item) {
+      if (this.tooltip.attr('persist') === '0')
+        this.tooltip
+          .transition()
+          .duration(500)
+          .style('opacity', 0)
       this.$emit('dim', item)
     }
   }

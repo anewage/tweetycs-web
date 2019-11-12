@@ -18,6 +18,7 @@
           :transform="transform"
           :scale-to-content="false"
           :dataset="scatterplotData"
+          :selected-data="selectedData"
           @zoomed="zoomed"
           @circleClicked="circleClicked"
         />
@@ -100,6 +101,12 @@ export default {
     label: {
       type: String,
       default: 'This Amazing Scatter Plot'
+    },
+    selectedData: {
+      type: Object,
+      default: function() {
+        return {}
+      }
     },
     dataset: {
       type: Array,
