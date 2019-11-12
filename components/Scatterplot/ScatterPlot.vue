@@ -69,7 +69,7 @@
           class="circle"
           @click="ev => clicked.call({}, ev, item)"
           @mouseover="ev => highlight.call({}, ev, item)"
-          @mouseleave="dim"
+          @mouseleave="ev => dim.call({}, ev, item)"
         ></circle>
       </transition-group>
     </svg>
@@ -78,9 +78,18 @@
       class="tooltip"
       style="position: fixed; opacity: 0; z-index: 999; overflow: auto;"
     >
-      <v-sheet class="d-flex" color="black" dark width="100" height="100">
+      <v-sheet class="d-flex" color="black" dark>
         <v-card-text>
-          {{ selectedData }}
+          <v-data-table
+            :headers="selectedTweetAnalysisHeaders"
+            :items="highlightedData.analysis"
+            hide-actions
+          >
+            <template v-slot:items="props">
+              <td>{{ props.item.title }}</td>
+              <td>{{ +props.item.result.toPrecision(4) }}</td>
+            </template>
+          </v-data-table>
         </v-card-text>
       </v-sheet>
     </div>
@@ -182,6 +191,7 @@ export default {
       tooltip: null,
       circlesGroup: null,
       view: null,
+      highlightedData: {},
       axes: {
         x: {
           ticks: 10,
@@ -197,6 +207,22 @@ export default {
     }
   },
   computed: {
+    selectedTweetAnalysisHeaders() {
+      return [
+        {
+          text: 'Analysis Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'Sentiment',
+          align: 'left',
+          sortable: true,
+          value: 'result'
+        }
+      ]
+    },
     chartLeft: function() {
       return this.padding.left
     },
@@ -340,6 +366,7 @@ export default {
       if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
     },
     clicked: function(ev, item) {
+      this.highlightedData = item
       this.tooltip
         .transition()
         .duration(200)
@@ -354,6 +381,7 @@ export default {
       this.$emit('circleClicked', item)
     },
     highlight: function(ev, item) {
+      this.highlightedData = item
       this.tooltip
         .transition()
         .duration(200)
@@ -361,14 +389,23 @@ export default {
         .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
         .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
       this.tooltip.attr('persist', '0')
+      ev.target.setAttribute('stroke', 'orange')
+      ev.target.setAttribute('stroke-width', '2')
       this.$emit('highlight', ev)
     },
     dim: function(ev, item) {
-      if (this.tooltip.attr('persist') === '0')
+      if (this.tooltip.attr('persist') === '0') {
+        if (item.selected) ev.target.setAttribute('stroke', 'red')
+        else {
+          ev.target.setAttribute('stroke', '')
+          ev.target.setAttribute('stroke-width', '0')
+        }
         this.tooltip
           .transition()
           .duration(500)
           .style('opacity', 0)
+        this.highlightedData = {}
+      }
       this.$emit('dim', item)
     }
   }

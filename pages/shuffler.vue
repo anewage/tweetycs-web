@@ -232,6 +232,11 @@
             :sift-dataset="false"
             :dataset="filteredTweets"
             :toolbox="false"
+            @circleClicked="
+              data => {
+                selectedTweet = data
+              }
+            "
           ></scatter-plot-wrapper>
         </v-flex>
         <v-divider></v-divider>
