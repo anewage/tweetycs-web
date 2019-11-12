@@ -1,73 +1,90 @@
 <template>
-  <svg
-    :id="chartDomID + '-svg'"
-    :width="width"
-    :height="height"
-    :class="'svg scatterplot-' + chartDomID"
-  >
-    <rect
-      :class="'view view-' + chartDomID"
-      :x="chartLeft"
-      :y="chartTop"
-      :width="chartWidth"
-      :height="chartHeight"
-    ></rect>
-    <g
-      :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
-      :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
+  <div>
+    <svg
+      :id="chartDomID + '-svg'"
+      :width="width"
+      :height="height"
+      :class="'svg scatterplot-' + chartDomID"
     >
-      <text
-        class="label"
-        :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
+      <rect
+        :class="'view view-' + chartDomID"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+      ></rect>
+      <g
+        :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
+        :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
       >
-        {{ axesMeta.x.label }}
-      </text>
-    </g>
-    <g
-      :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
-      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
-    >
-      <text
-        class="label"
-        :transform="
-          'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-25)'
-        "
+        <text
+          class="label"
+          :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
+        >
+          {{ axesMeta.x.label }}
+        </text>
+      </g>
+      <g
+        :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
+        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
       >
-        {{ axesMeta.y.label }}
-      </text>
-    </g>
-    <path
-      v-if="line.show"
-      class="line"
-      :fill="line.fill"
-      :stroke="line.stroke"
-      :stroke-width="line.stroke_width"
-      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
-      :d="linePath(dataset)"
-    ></path>
-    <transition-group
-      :id="'circles-' + chartDomID"
-      tag="svg"
-      name="fade"
-      :x="chartLeft"
-      :y="chartTop"
-      :width="chartWidth"
-      :height="chartHeight"
-      :duration="transitionDuration"
-      :appear="true"
+        <text
+          class="label"
+          :transform="
+            'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-25)'
+          "
+        >
+          {{ axesMeta.y.label }}
+        </text>
+      </g>
+      <path
+        v-if="line.show"
+        class="line"
+        :fill="line.fill"
+        :stroke="line.stroke"
+        :stroke-width="line.stroke_width"
+        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
+        :d="linePath(dataset)"
+      ></path>
+      <transition-group
+        :id="'circles-' + chartDomID"
+        tag="svg"
+        name="fade"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+        :duration="transitionDuration"
+        :appear="true"
+      >
+        <circle
+          v-for="(item, index) in dataset"
+          :key="item.id_str"
+          :cx="xScale(item[axesMeta.x.selector])"
+          :cy="yScale(item[axesMeta.y.selector])"
+          :stroke="item.selected ? 'red' : ''"
+          :stroke-width="item.selected ? '2' : '0'"
+          :r="radius"
+          :style="'fill: ' + colorScale(index) + ';'"
+          class="circle"
+          @click="$emit('circleClicked', item)"
+          @mouseover="ev => highlight.call({}, ev, item)"
+          @mouseleave="dim"
+        ></circle>
+      </transition-group>
+    </svg>
+    <div
+      :id="chartDomID + '-tooltip'"
+      class="tooltip"
+      style="position: fixed; opacity: 0; z-index: 999;"
     >
-      <circle
-        v-for="(item, index) in dataset"
-        :key="item.id_str"
-        :cx="xScale(item[axesMeta.x.selector])"
-        :cy="yScale(item[axesMeta.y.selector])"
-        :r="radius"
-        :style="'fill: ' + colorScale(index) + ';'"
-        class="circle"
-        @click="$emit('circleClicked', item)"
-      ></circle>
-    </transition-group>
-  </svg>
+      <v-card color="black" dark width="100" height="100">
+        <v-card-text>
+          Hello!
+        </v-card-text>
+      </v-card>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -156,6 +173,7 @@ export default {
   data() {
     return {
       svg: null,
+      tooltip: null,
       circlesGroup: null,
       view: null,
       axes: {
@@ -283,6 +301,7 @@ export default {
     setupSVG: function() {
       // Select the SVG element
       this.svg = d3.select('.scatterplot-' + this.chartDomID)
+      this.tooltip = d3.select('#' + this.chartDomID + '-tooltip')
       this.circlesGroup = d3.select('#circles-' + this.chartDomID)
       this.view = d3.select('.view-' + this.chartDomID)
       this.axes.x.element = d3.select(
@@ -313,6 +332,22 @@ export default {
     resetZoom: function() {
       // reset the zoom
       if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
+    },
+    highlight: function(ev, item) {
+      this.tooltip
+        .transition()
+        .duration(200)
+        .style('opacity', 0.9)
+        .style('left', ev.target.getBoundingClientRect().x + 14 + 'px')
+        .style('top', ev.target.getBoundingClientRect().y + 14 + 'px')
+      this.$emit('highlight', ev)
+    },
+    dim: function(item) {
+      this.tooltip
+        .transition()
+        .duration(500)
+        .style('opacity', 0)
+      this.$emit('dim', item)
     }
   }
 }

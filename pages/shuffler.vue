@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout row>
-    <v-flex xs3 grow>
+    <v-flex xs3 shrink>
       <v-layout column align-space-between justify-start fill-height wrap>
         <v-flex md3>
           <v-card flat>
@@ -102,7 +102,7 @@
               <!--                  </v-card-actions>-->
               <!--                </v-card>-->
               <!--              </v-dialog>-->
-              <v-btn flat icon color="red" @click="treeViewSelections = []">
+              <v-btn flat icon color="red" @click="topicsTreeSelections = []">
                 <v-icon>replay</v-icon>
               </v-btn>
             </v-toolbar>
@@ -113,11 +113,80 @@
                   style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
                 >
                   <v-treeview
-                    v-model="treeViewSelections"
-                    :items="items"
+                    v-model="topicsTreeSelections"
+                    :items="topicItems"
                     selected-color="indigo"
                     activatable
-                    hoverable
+                    multiple-active
+                    open-on-click
+                    selectable
+                    expand-icon="expand_more"
+                  >
+                  </v-treeview>
+                </v-card-text>
+              </v-flex>
+            </v-layout>
+          </v-card>
+          <v-card flat>
+            <v-toolbar card color="grey lighten-3">
+              <v-icon>class</v-icon>
+              <v-toolbar-title>Sources</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                flat
+                icon
+                color="red"
+                @click="userGroupsTreeSelections = []"
+              >
+                <v-icon>replay</v-icon>
+              </v-btn>
+            </v-toolbar>
+
+            <v-layout>
+              <v-flex>
+                <v-card-text
+                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
+                >
+                  <v-treeview
+                    v-model="userGroupsTreeSelections"
+                    :items="userGroupItems"
+                    selected-color="indigo"
+                    activatable
+                    multiple-active
+                    open-on-click
+                    selectable
+                    expand-icon="expand_more"
+                  >
+                  </v-treeview>
+                </v-card-text>
+              </v-flex>
+            </v-layout>
+          </v-card>
+          <v-card flat>
+            <v-toolbar card color="grey lighten-3">
+              <v-icon>class</v-icon>
+              <v-toolbar-title>Content Themes</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                flat
+                icon
+                color="red"
+                @click="contentThemeTreeSelections = []"
+              >
+                <v-icon>replay</v-icon>
+              </v-btn>
+            </v-toolbar>
+
+            <v-layout>
+              <v-flex>
+                <v-card-text
+                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
+                >
+                  <v-treeview
+                    v-model="contentThemeTreeSelections"
+                    :items="contentThemeItems"
+                    selected-color="indigo"
+                    activatable
                     multiple-active
                     open-on-click
                     selectable
@@ -132,12 +201,12 @@
       </v-layout>
     </v-flex>
     <v-flex xs9>
-      <v-btn block flat color="error" dark @click="rawTweets = []">
-        Empty Results
-        <v-icon right>delete</v-icon>
-      </v-btn>
+      <!--      <v-btn block flat color="error" dark @click="rawTweets = []">-->
+      <!--        Empty Results-->
+      <!--        <v-icon right>delete</v-icon>-->
+      <!--      </v-btn>-->
       <v-layout column justify-center fill-height>
-        <v-flex style="overflow-x: auto;" grow>
+        <v-flex style="overflow-x: auto;" shrink>
           <v-layout row justify-start align-start>
             <v-flex v-for="(tweet, i) in filteredTweets" :key="i">
               <tweets
@@ -148,9 +217,6 @@
               ></tweets>
             </v-flex>
           </v-layout>
-        </v-flex>
-        <v-flex grow text-xs-center>
-          {{ JSON.stringify(selectedTweet) }}
         </v-flex>
         <v-divider></v-divider>
         <v-flex :id="charts.scatterplot.divId" grow text-xs-center>
@@ -166,6 +232,98 @@
             :dataset="filteredTweets"
             :toolbox="false"
           ></scatter-plot-wrapper>
+        </v-flex>
+        <v-divider></v-divider>
+        <v-flex grow>
+          <v-layout row wrap>
+            <v-flex xs6>
+              <v-card
+                v-show="selectedTweet && Object.keys(selectedTweet).length > 0"
+                flat
+              >
+                <v-card-text>
+                  <v-data-table
+                    :headers="selectedTweetCategorizationHeaders"
+                    :items="selectedTweet.labels"
+                    hide-actions
+                  >
+                    <template v-slot:items="props">
+                      <!--                    <td>-->
+                      <!--                      <v-edit-dialog-->
+                      <!--                        :return-value.sync="props.item.name"-->
+                      <!--                        lazy-->
+                      <!--                        @save="save"-->
+                      <!--                        @cancel="cancel"-->
+                      <!--                        @open="open"-->
+                      <!--                        @close="close"-->
+                      <!--                      > {{ props.item.name }}-->
+                      <!--                        <template v-slot:input>-->
+                      <!--                          <v-text-field-->
+                      <!--                            v-model="props.item.name"-->
+                      <!--                            :rules="[max25chars]"-->
+                      <!--                            label="Edit"-->
+                      <!--                            single-line-->
+                      <!--                            counter-->
+                      <!--                          ></v-text-field>-->
+                      <!--                        </template>-->
+                      <!--                      </v-edit-dialog>-->
+                      <!--                    </td>-->
+                      <td>{{ props.item.title }}</td>
+                      <td>{{ props.item.result.group }}</td>
+                      <td>{{ props.item.result.theme }}</td>
+                      <!--                    <td class="text-xs-right">-->
+                      <!--                      <v-edit-dialog-->
+                      <!--                        :return-value.sync="props.item.iron"-->
+                      <!--                        large-->
+                      <!--                        lazy-->
+                      <!--                        persistent-->
+                      <!--                        @save="save"-->
+                      <!--                        @cancel="cancel"-->
+                      <!--                        @open="open"-->
+                      <!--                        @close="close"-->
+                      <!--                      >-->
+                      <!--                        <div>{{ props.item.iron }}</div>-->
+                      <!--                        <template v-slot:input>-->
+                      <!--                          <div class="mt-3 title">Update Iron</div>-->
+                      <!--                        </template>-->
+                      <!--                        <template v-slot:input>-->
+                      <!--                          <v-text-field-->
+                      <!--                            v-model="props.item.iron"-->
+                      <!--                            :rules="[max25chars]"-->
+                      <!--                            label="Edit"-->
+                      <!--                            single-line-->
+                      <!--                            counter-->
+                      <!--                            autofocus-->
+                      <!--                          ></v-text-field>-->
+                      <!--                        </template>-->
+                      <!--                      </v-edit-dialog>-->
+                      <!--                    </td>-->
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-flex>
+            <v-divider vertical></v-divider>
+            <v-flex xs5>
+              <v-card
+                v-show="selectedTweet && Object.keys(selectedTweet).length > 0"
+                flat
+              >
+                <v-card-text>
+                  <v-data-table
+                    :headers="selectedTweetAnalysisHeaders"
+                    :items="selectedTweet.analysis"
+                    hide-actions
+                  >
+                    <template v-slot:items="props">
+                      <td>{{ props.item.title }}</td>
+                      <td>{{ +props.item.result.toPrecision(4) }}</td>
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-flex>
+          </v-layout>
         </v-flex>
       </v-layout>
     </v-flex>
@@ -190,7 +348,9 @@ export default {
       //   channel: '',
       //   keywords: []
       // },
-      treeViewSelections: [],
+      topicsTreeSelections: [],
+      contentThemeTreeSelections: [],
+      userGroupsTreeSelections: [],
       // selectedTopics: [],
       // search: null,
       // search2: null,
@@ -201,7 +361,7 @@ export default {
           divId: 'scatter-plot-div',
           label: 'Tweet Sentiments',
           width: 700,
-          height: 500,
+          height: 300,
           line: {
             show: true,
             fill: 'none',
@@ -236,20 +396,29 @@ export default {
   computed: {
     filteredTweets() {
       let res = []
-      for (const kw of this.treeViewSelections) {
+      for (const kw of this.topicsTreeSelections) {
         const tweets = this.tweets.filter(t => t.keywords.includes(kw))
         // eslint-disable-next-line no-console
         // console.log('Tweets:', kw, tweets)
         res = [...res, ...tweets]
       }
-      return res
+      return res.sort((a, b) => {
+        return a.date > b.date ? 1 : -1
+      })
     },
-    items() {
+    userGroupItems() {
+      // this.tweets().map(tw => tw.labels[i].result.group)
+      return []
+    },
+    contentThemeItems() {
+      return []
+    },
+    topicItems() {
       const that = this
       const children = this.topics
         .map(channel => ({
           id: channel.id + '-channel',
-          name: channel.title,
+          name: that.getName(channel.id),
           children: that.getChildren(channel.id)
         }))
         .sort((a, b) => {
@@ -273,7 +442,8 @@ export default {
       return uniques
         .map(tw => {
           let flag = false
-          if (that.selectedTweet) flag = that.selectedTweet.id_str === tw.id_str
+          if (that.selectedTweet && Object.keys(that.selectedTweet).length > 0)
+            flag = that.selectedTweet.id_str === tw.id_str
           return {
             ...tw,
             date: new Date(tw.created_at).getTime(),
@@ -283,6 +453,44 @@ export default {
         .sort((a, b) => {
           return a.date > b.date ? 1 : -1
         })
+    },
+    selectedTweetCategorizationHeaders() {
+      return [
+        {
+          text: 'Labeling Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'User Group',
+          align: 'left',
+          sortable: true,
+          value: 'result.group'
+        },
+        {
+          text: 'Content Theme',
+          align: 'left',
+          sortable: true,
+          value: 'result.theme'
+        }
+      ]
+    },
+    selectedTweetAnalysisHeaders() {
+      return [
+        {
+          text: 'Analysis Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'Sentiment',
+          align: 'left',
+          sortable: true,
+          value: 'result'
+        }
+      ]
     },
     topics: {
       set(val) {
@@ -315,8 +523,11 @@ export default {
     socket.on('channels_response', data => {
       that.$store.commit('updateTopics', data)
       for (const chan of data) {
-        that.treeViewSelections.push(chan.id + '-channel')
-        that.treeViewSelections = [...that.treeViewSelections, ...chan.keywords]
+        that.topicsTreeSelections.push(chan.id + '-channel')
+        that.topicsTreeSelections = [
+          ...that.topicsTreeSelections,
+          ...chan.keywords
+        ]
       }
     })
     socket.on('connect', data => {
@@ -369,7 +580,7 @@ export default {
       this.selectedTweet = tweet
     },
     unsetDetails: function(tweet) {
-      this.selectedTweet = undefined
+      this.selectedTweet = {}
     }
   }
 }

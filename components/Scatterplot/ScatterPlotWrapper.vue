@@ -150,7 +150,7 @@ export default {
   },
   data() {
     return {
-      radius: 4,
+      radius: 7,
       transform: d3.zoomIdentity,
       colorRange: ['#d4e3f4', '#14004f'],
       meta: {
@@ -180,7 +180,8 @@ export default {
 
             // sentiment
             y: item.avg_sentiment,
-
+            // id
+            id_str: item.user.id_str,
             // meta data
             tweets: item.tweets,
             user: item.user
