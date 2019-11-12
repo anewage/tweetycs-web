@@ -8,101 +8,101 @@
               <v-icon>class</v-icon>
               <v-toolbar-title>Topics</v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="600px">
-                <template v-slot:activator="{ on }">
-                  <v-btn flat icon color="primary" v-on="on">
-                    <v-icon>edit</v-icon>
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="headline">Edit/Add Topic</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-container grid-list-md>
-                      <v-layout wrap>
-                        <v-flex xs12>
-                          <v-combobox
-                            v-model="temp_topic.channel"
-                            :items="channels"
-                            item-text="name"
-                            item-value="id"
-                            :return-object="false"
-                            :search-input.sync="search"
-                            label="Topic*"
-                            hint="Select an existing topic or add a new one."
-                            persistent-hint
-                          >
-                            <template v-slot:no-data>
-                              <v-list-tile>
-                                <v-list-tile-content>
-                                  <v-list-tile-title>
-                                    No results matching "<strong>{{
-                                      search
-                                    }}</strong>
-                                    ". Press <kbd>enter</kbd> to create a new
-                                    one
-                                  </v-list-tile-title>
-                                </v-list-tile-content>
-                              </v-list-tile>
-                            </template>
-                          </v-combobox>
-                        </v-flex>
-                        <v-flex xs12>
-                          <v-combobox
-                            v-model="temp_topic.keywords"
-                            :items="getChildren(temp_topic.channel)"
-                            :value="getChildren(temp_topic.channel)"
-                            item-text="name"
-                            item-value="id"
-                            :return-object="false"
-                            :search-input.sync="search2"
-                            label="Keyword(s)"
-                            hint="Add new keywords"
-                            multiple
-                            persistent-hint
-                            chips
-                            deletable-chips
-                          >
-                            <template v-slot:no-data>
-                              <v-list-tile>
-                                <v-list-tile-content>
-                                  <v-list-tile-title>
-                                    No results matching "<strong>{{
-                                      search2
-                                    }}</strong>
-                                    ". Press <kbd>enter</kbd> to create a new
-                                    one
-                                  </v-list-tile-title>
-                                </v-list-tile-content>
-                              </v-list-tile>
-                            </template>
-                          </v-combobox>
-                        </v-flex>
-                      </v-layout>
-                    </v-container>
-                    <small>*indicates required field</small>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      flat
-                      @click="closeDialog(false)"
-                    >
-                      Close
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      flat
-                      @click="closeDialog(true)"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-btn flat icon color="red" @click="tree = []">
+              <!--              <v-dialog v-model="dialog" max-width="600px">-->
+              <!--                <template v-slot:activator="{ on }">-->
+              <!--                  <v-btn flat icon color="primary" v-on="on">-->
+              <!--                    <v-icon>edit</v-icon>-->
+              <!--                  </v-btn>-->
+              <!--                </template>-->
+              <!--                <v-card>-->
+              <!--                  <v-card-title>-->
+              <!--                    <span class="headline">Edit/Add Topic</span>-->
+              <!--                  </v-card-title>-->
+              <!--                  <v-card-text>-->
+              <!--                    <v-container grid-list-md>-->
+              <!--                      <v-layout wrap>-->
+              <!--                        <v-flex xs12>-->
+              <!--                          <v-combobox-->
+              <!--                            v-model="temp_topic.channel"-->
+              <!--                            :items="channels"-->
+              <!--                            item-text="name"-->
+              <!--                            item-value="id"-->
+              <!--                            :return-object="false"-->
+              <!--                            :search-input.sync="search"-->
+              <!--                            label="Topic*"-->
+              <!--                            hint="Select an existing topic or add a new one."-->
+              <!--                            persistent-hint-->
+              <!--                          >-->
+              <!--                            <template v-slot:no-data>-->
+              <!--                              <v-list-tile>-->
+              <!--                                <v-list-tile-content>-->
+              <!--                                  <v-list-tile-title>-->
+              <!--                                    No results matching "<strong>{{-->
+              <!--                                      search-->
+              <!--                                    }}</strong>-->
+              <!--                                    ". Press <kbd>enter</kbd> to create a new-->
+              <!--                                    one-->
+              <!--                                  </v-list-tile-title>-->
+              <!--                                </v-list-tile-content>-->
+              <!--                              </v-list-tile>-->
+              <!--                            </template>-->
+              <!--                          </v-combobox>-->
+              <!--                        </v-flex>-->
+              <!--                        <v-flex xs12>-->
+              <!--                          <v-combobox-->
+              <!--                            v-model="temp_topic.keywords"-->
+              <!--                            :items="getChildren(temp_topic.channel)"-->
+              <!--                            :value="getChildren(temp_topic.channel)"-->
+              <!--                            item-text="name"-->
+              <!--                            item-value="id"-->
+              <!--                            :return-object="false"-->
+              <!--                            :search-input.sync="search2"-->
+              <!--                            label="Keyword(s)"-->
+              <!--                            hint="Add new keywords"-->
+              <!--                            multiple-->
+              <!--                            persistent-hint-->
+              <!--                            chips-->
+              <!--                            deletable-chips-->
+              <!--                          >-->
+              <!--                            <template v-slot:no-data>-->
+              <!--                              <v-list-tile>-->
+              <!--                                <v-list-tile-content>-->
+              <!--                                  <v-list-tile-title>-->
+              <!--                                    No results matching "<strong>{{-->
+              <!--                                      search2-->
+              <!--                                    }}</strong>-->
+              <!--                                    ". Press <kbd>enter</kbd> to create a new-->
+              <!--                                    one-->
+              <!--                                  </v-list-tile-title>-->
+              <!--                                </v-list-tile-content>-->
+              <!--                              </v-list-tile>-->
+              <!--                            </template>-->
+              <!--                          </v-combobox>-->
+              <!--                        </v-flex>-->
+              <!--                      </v-layout>-->
+              <!--                    </v-container>-->
+              <!--                    <small>*indicates required field</small>-->
+              <!--                  </v-card-text>-->
+              <!--                  <v-card-actions>-->
+              <!--                    <v-spacer></v-spacer>-->
+              <!--                    <v-btn-->
+              <!--                      color="blue darken-1"-->
+              <!--                      flat-->
+              <!--                      @click="closeDialog(false)"-->
+              <!--                    >-->
+              <!--                      Close-->
+              <!--                    </v-btn>-->
+              <!--                    <v-btn-->
+              <!--                      color="blue darken-1"-->
+              <!--                      flat-->
+              <!--                      @click="closeDialog(true)"-->
+              <!--                    >-->
+              <!--                      Save-->
+              <!--                    </v-btn>-->
+              <!--                  </v-card-actions>-->
+              <!--                </v-card>-->
+              <!--              </v-dialog>-->
+              <v-btn flat icon color="red" @click="treeViewSelections = []">
                 <v-icon>replay</v-icon>
               </v-btn>
             </v-toolbar>
@@ -113,10 +113,12 @@
                   style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
                 >
                   <v-treeview
-                    v-model="tree"
+                    v-model="treeViewSelections"
                     :items="items"
-                    activatable
                     selected-color="indigo"
+                    activatable
+                    hoverable
+                    multiple-active
                     open-on-click
                     selectable
                     expand-icon="expand_more"
@@ -184,14 +186,14 @@ export default {
   data() {
     return {
       dialog: false,
-      temp_topic: {
-        channel: '',
-        keywords: []
-      },
-      tree: [],
-      selectedTopics: [],
-      search: null,
-      search2: null,
+      // temp_topic: {
+      //   channel: '',
+      //   keywords: []
+      // },
+      treeViewSelections: [],
+      // selectedTopics: [],
+      // search: null,
+      // search2: null,
       selectedTweet: {},
       charts: {
         scatterplot: {
@@ -233,11 +235,12 @@ export default {
   },
   computed: {
     items() {
+      const that = this
       const children = this.topics
         .map(channel => ({
-          id: channel.id,
+          id: channel.id + '-channel',
           name: channel.title,
-          children: this.getChildren(channel.id)
+          children: that.getChildren(channel.id)
         }))
         .sort((a, b) => {
           return a.name > b.name ? 1 : -1
@@ -251,41 +254,25 @@ export default {
       ]
     },
     tweets() {
-      return this.rawTweets
+      const that = this
+      const uniques = []
+      for (const tweet of this.rawTweets) {
+        if (!uniques.map(a => a.id_str).includes(tweet.id_str))
+          uniques.push(tweet)
+      }
+      return uniques
         .map(tw => {
+          let flag = false
+          if (that.selectedTweet) flag = that.selectedTweet.id_str === tw.id_str
           return {
             ...tw,
             date: new Date(tw.created_at).getTime(),
-            selected: false
+            selected: flag
           }
         })
         .sort((a, b) => {
           return a.date > b.date ? 1 : -1
         })
-    },
-    channels() {
-      return this.items[0].children
-    },
-    selections() {
-      const selections = []
-      for (const elem of this.tree) {
-        // element is a keyword belonging to a top-level channel
-        for (const channelObj of this.topics)
-          if (channelObj.keywords.includes(elem)) {
-            // If there does not exist any channel with the given id in selections
-            if (!selections.map(a => a.id).includes(channelObj.id))
-              selections.push({
-                id: channelObj.id,
-                title: channelObj.title,
-                keywords: []
-              })
-            // The selected keyword has already a channel
-            selections
-              .find(({ id }) => id === channelObj.id)
-              .keywords.push(elem)
-          }
-      }
-      return selections
     },
     topics: {
       set(val) {
@@ -305,28 +292,28 @@ export default {
     }
   },
   watch: {
-    dialog(val, prev) {
-      this.temp_topic.channel = ''
-      this.temp_topic.keywords = []
-    },
-    selections(val, prev) {
-      socket.emit('update_channels', val)
-    }
+    // dialog(val, prev) {
+    //   this.temp_topic.channel = ''
+    //   this.temp_topic.keywords = []
+    // },
+    // selections(val, prev) {
+    // socket.emit('update_channels', val)
+    // }
   },
   beforeMount() {
     const that = this
     socket.on('channels_response', data => {
       that.$store.commit('updateTopics', data)
       for (const chan of data) {
-        that.tree.push(chan.id)
-        that.tree = [...that.tree, ...chan.keywords]
+        that.treeViewSelections.push(chan.id + '-channel')
+        that.treeViewSelections = [...that.treeViewSelections, ...chan.keywords]
       }
     })
     socket.on('connect', data => {
       socket.emit('topics_request')
     })
     socket.on('tweets', data => {
-      that.$store.commit('addToRawTweets', data)
+      that.$store.commit('addToRawTweets', data.tweets)
     })
   },
   mounted() {
@@ -354,28 +341,25 @@ export default {
         })
       }
       return keywords.sort((a, b) => {
-        return a.name > b.name ? 1 : -1
+        return a.id > b.id ? 1 : -1
       })
     },
-    closeDialog(save) {
-      if (save)
-        this.$store.commit('updateSelectedTopic', {
-          channel: this.temp_topic.channel,
-          keywords: this.temp_topic.keywords
-        })
-      this.dialog = false
-    },
+    // closeDialog(save) {
+    //   if (save)
+    //     this.$store.commit('updateSelectedTopic', {
+    //       channel: this.temp_topic.channel,
+    //       keywords: this.temp_topic.keywords
+    //     })
+    //   this.dialog = false
+    // },
     getName(name) {
       return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
     },
     setDetails: function(tweet) {
       this.selectedTweet = tweet
-      for (const t of this.tweets) t['selected'] = false
-      tweet['selected'] = true
     },
     unsetDetails: function(tweet) {
-      this.selectedTweet = {}
-      for (const t of this.tweets) t['selected'] = false
+      this.selectedTweet = undefined
     }
   }
 }

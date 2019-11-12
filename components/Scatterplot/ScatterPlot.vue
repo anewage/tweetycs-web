@@ -58,7 +58,7 @@
     >
       <circle
         v-for="(item, index) in dataset"
-        :key="index"
+        :key="item.id_str"
         :cx="xScale(item[axesMeta.x.selector])"
         :cy="yScale(item[axesMeta.y.selector])"
         :r="radius"

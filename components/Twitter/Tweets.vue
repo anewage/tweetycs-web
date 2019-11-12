@@ -9,8 +9,8 @@
         @click="clicked"
       >
         <v-card-text>
-          <div class="title">
-            {{ tweet.text }}
+          <div class="body-2">
+            {{ tweet.original_text }}
           </div>
           <span class="caption">{{ new Date(tweet.created_at) }}</span>
 
@@ -105,6 +105,7 @@ export default {
   data() {
     return {}
   },
+  computed: {},
   methods: {
     clicked: function() {
       // eslint-disable-next-line no-console

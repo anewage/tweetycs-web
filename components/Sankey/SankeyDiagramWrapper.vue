@@ -119,7 +119,7 @@ export default {
       const nodes1 = [...new Set([...topics2, ...topics1])].map(node => {
         return {
           id: node,
-          name: that.topics.find(a => a.id === node).title,
+          name: that.getName(node),
           type: 'topic'
         }
       })

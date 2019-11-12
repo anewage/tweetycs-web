@@ -50,14 +50,6 @@ export const mutations = {
     state.rawTweets = data
   },
   addToRawTweets(state, data) {
-    // Make sure tweets are unique
-    const unique = data.tweets
-      .map(e => e.id)
-      // store the keys of the unique objects
-      .map((e, i, final) => final.indexOf(e) === i && i)
-      // eliminate the dead keys & store unique objects
-      .filter(e => data.tweets[e])
-      .map(e => data.tweets[e])
-    state.rawTweets = [...state.rawTweets, ...unique]
+    state.rawTweets = [...state.rawTweets, ...data]
   }
 }

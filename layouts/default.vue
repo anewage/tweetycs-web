@@ -69,19 +69,19 @@
         >
           {{ link.title }}
         </v-btn>
-        <v-flex primary lighten-2 py-1 text-xs-center white--text xs12>
-          <span class="caption">
-            <strong>
-              <a
-                href="http://insight.uwo.ca"
-                target="_blank"
-                style="color: #fff6f9; text-decoration: none;"
-              >
-                Insight Lab @ Western </a
-              >— </strong
-            >&copy; {{ new Date().getFullYear() }}</span
-          >
-        </v-flex>
+        <!--        <v-flex primary lighten-2 py-1 text-xs-center white&#45;&#45;text xs12>-->
+        <!--          <span class="caption">-->
+        <!--            <strong>-->
+        <!--              <a-->
+        <!--                href="http://insight.uwo.ca"-->
+        <!--                target="_blank"-->
+        <!--                style="color: #fff6f9; text-decoration: none;"-->
+        <!--              >-->
+        <!--                Insight Lab @ Western </a-->
+        <!--              >— </strong-->
+        <!--            >&copy; {{ new Date().getFullYear() }}</span-->
+        <!--          >-->
+        <!--        </v-flex>-->
       </v-layout>
     </v-footer>
   </v-app>
