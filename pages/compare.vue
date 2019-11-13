@@ -145,8 +145,7 @@
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
-import socket from '../lib/socket.io'
-import TweetsWrapper from '../components/Twitter/TweetsWrapper'
+import TweetsWrapper from '../components/Twitter/UserProfile'
 
 export default {
   name: 'PageCompare',
@@ -271,55 +270,9 @@ export default {
       return avg
     }
   },
-  beforeMount() {
-    const that = this
-    /*
-     * Event handler for new connections.
-     * The callback function is invoked when a connection with the server is established.
-     */
-    socket.on('connect', () => {
-      socket.emit('client_event', { data: "I'm connected!" })
-    })
-    /*
-     * Event handler for server sent data.
-     * The callback function is invoked whenever the server emits data
-     * to the client. The data is then displayed in the "Received"
-     * section of the page.
-     */
-    socket.on('server_response', msg => {
-      // document.getElementById('log').innerText = msg.data
-    })
-    /*
-     * Handler for the "pong" message. When the pong is received, the
-     * time from the ping is stored, and the average of the last 30
-     * samples is average and displayed.
-     */
-    socket.on('server_pong', () => {
-      that.pingPong.end = new Date().getTime()
-      that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
-      // Keep last 30 samples
-      if (that.pingPong.history.length > 30) that.pingPong.history.splice(-30)
-      that.pingPong.busy = false
-    })
-    /*
-     * Store the incoming data
-     */
-    socket.on('bulk-update', msg => {
-      that.commitUpdates(msg)
-    })
-  },
   mounted() {
-    const that = this
     window.addEventListener('resize', this.resize)
     this.resize()
-
-    window.setInterval(() => {
-      if (socket.connected) {
-        that.pingPong.busy = true
-        that.pingPong.start = new Date().getTime()
-        socket.emit('client_ping')
-      }
-    }, 2000)
   },
   updated() {
     this.resize()
@@ -340,13 +293,6 @@ export default {
         this.charts.heatmap.width = heatDiv.clientWidth - 5
         this.charts.sankey.width = sankeyDiv.clientWidth - 5
       }
-    },
-    commitUpdates: function(msg) {
-      // Store the changes
-      this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
-      this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
-      this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
-      this.$store.commit('updateTopics', msg.topics)
     },
     commitMLChange: function(MLid, index) {
       this.$store.commit('compare/updateComparisonML', {

@@ -88,6 +88,7 @@
 </template>
 
 <script>
+import socket from '../lib/socket.io'
 export default {
   name: 'LayoutDefault',
   data() {
@@ -121,7 +122,93 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Tweetycs'
+      title: 'Tweetycs',
+      // Data required for connection metrics
+      pingPong: {
+        start: 0,
+        end: 0,
+        busy: false,
+        history: []
+      }
+    }
+  },
+  computed: {
+    /*
+     * Current delay in ms
+     */
+    delay() {
+      if (this.pingPong.busy)
+        if (this.pingPong.history.length > 0)
+          return this.pingPong.history[this.pingPong.history.length - 1]
+        else return 0
+      return this.pingPong.end - this.pingPong.start
+    },
+    /*
+     * Current average delay in ms
+     */
+    avgDelay() {
+      let avg = 0
+      for (const num of this.pingPong.history) avg += num
+      avg = (10 * avg) / (this.pingPong.history.length * 10)
+      return avg
+    }
+  },
+  mounted() {
+    const that = this
+    window.setInterval(() => {
+      if (socket.connected) {
+        that.pingPong.busy = true
+        that.pingPong.start = new Date().getTime()
+        socket.emit('client_ping')
+      }
+    }, 2000)
+    /*
+     * Event handler for new connections.
+     * The callback function is invoked when a connection with the server is established.
+     */
+    socket.on('connect', () => {
+      socket.emit('client_event', { data: "I'm connected!" })
+      socket.emit('initial_data_request', {})
+    })
+
+    /*
+     * Event handler for server sent data.
+     * The callback function is invoked whenever the server emits data
+     * to the client. The data is then displayed in the "Received"
+     * section of the page.
+     */
+    socket.on('server_response', msg => {
+      // document.getElementById('log').innerText = msg.data
+    })
+    /*
+     * Handler for the "pong" message. When the pong is received, the
+     * time from the ping is stored, and the average of the last 30
+     * samples is average and displayed.
+     */
+    socket.on('server_pong', () => {
+      that.pingPong.end = new Date().getTime()
+      that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
+      // Keep last 30 samples
+      if (that.pingPong.history.length > 30) that.pingPong.history.splice(-30)
+      that.pingPong.busy = false
+    })
+    /*
+     * Store the incoming data
+     */
+    socket.on('bulk-update', msg => {
+      that.commitUpdates(msg)
+    })
+  },
+  methods: {
+    commitUpdates: function(msg) {
+      // eslint-disable-next-line no-console
+      console.log('commiting bulk update')
+      // Store the changes
+      this.$store.commit('updateTopics', msg.topics)
+      this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
+      this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
+      this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
+      this.$store.commit('addToRawTweets', msg.tweets)
     }
   }
 }

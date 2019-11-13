@@ -10,7 +10,8 @@ export const state = () => ({
   },
   aggregatedUsers: [],
   topics: [],
-  rawTweets: []
+  rawTweets: [],
+  limit: 200
 })
 
 export const mutations = {
@@ -51,5 +52,7 @@ export const mutations = {
   },
   addToRawTweets(state, data) {
     state.rawTweets = [...state.rawTweets, ...data]
+    if (state.rawTweets.length > state.limit)
+      state.rawTweets.splice(-state.limit)
   }
 }

@@ -8,17 +8,6 @@
         min-width="500"
         @click="clicked"
       >
-        <v-card-text>
-          <div class="body-2">
-            {{ tweet.original_text }}
-          </div>
-          <span class="caption">{{ new Date(tweet.created_at) }}</span>
-
-          <v-spacer></v-spacer>
-          <span v-if="tweet.possibly_sensitive" class="red--text ml-4">
-            Possibly Sensitive
-          </span>
-        </v-card-text>
         <v-card-actions>
           <v-list-tile class="grow">
             <v-list-tile-avatar>
@@ -34,9 +23,21 @@
             <v-list-tile-content>
               <v-list-tile-title>{{ tweet.user.name }}</v-list-tile-title>
               <v-list-tile-sub-title class="tiny">
-                @{{ tweet.user.screen_name }}
+                <a
+                  style="text-decoration: none;"
+                  :href="'https://twitter.com/' + tweet.user.screen_name"
+                  target="_blank"
+                >
+                  @{{ tweet.user.screen_name }}
+                </a>
               </v-list-tile-sub-title>
             </v-list-tile-content>
+
+            <v-spacer></v-spacer>
+            <span v-if="tweet.possibly_sensitive" class="red--text">
+              Possibly Sensitive
+            </span>
+            <v-spacer></v-spacer>
 
             <v-layout align-center justify-end>
               <v-icon class="mr-1" small>favorite</v-icon>
@@ -46,6 +47,10 @@
             </v-layout>
           </v-list-tile>
         </v-card-actions>
+        <v-card-text>
+          <div class="body-2" v-html="decoratedText"></div>
+          <span class="caption">{{ new Date(tweet.created_at) }}</span>
+        </v-card-text>
       </v-card>
     </v-flex>
   </v-layout>
@@ -105,7 +110,48 @@ export default {
   data() {
     return {}
   },
-  computed: {},
+  computed: {
+    decoratedText: function() {
+      const text = this.tweet.original_text
+      return (
+        text
+          .replace(/RT/g, '<b>RT</b>')
+          // Links
+          .replace(
+            /(https:\/\/)?(http:\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g,
+            (matched, index, original) => {
+              return (
+                '<a style="text-decoration: none;" href="' +
+                matched +
+                '" target="_blank">' +
+                matched +
+                '</a>'
+              )
+            }
+          )
+          // Mentions
+          .replace(/(@[A-z])\w+/g, (matched, index, original) => {
+            return (
+              '<a style="text-decoration: none;" href="https://twitter.com/' +
+              matched +
+              '" target="_blank">' +
+              matched +
+              '</a>'
+            )
+          })
+          // Hashtags
+          .replace(/(#[A-z])\w+/g, (matched, index, original) => {
+            return (
+              '<a style="text-decoration: none;" href="https://twitter.com/search?q=%23' +
+              matched +
+              '" target="_blank">' +
+              matched +
+              '</a>'
+            )
+          })
+      )
+    }
+  },
   methods: {
     clicked: function() {
       // eslint-disable-next-line no-console

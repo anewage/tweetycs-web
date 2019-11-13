@@ -338,8 +338,7 @@
 
 <script>
 /* eslint-disable dot-notation */
-import Tweets from '../components/Twitter/Tweets'
-import socket from '../lib/socket.io'
+import Tweets from '../components/Twitter/Tweet'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 export default {
   name: 'PageShuffler',
@@ -377,9 +376,9 @@ export default {
           axesMeta: {
             x: {
               selector: 'x',
-              // Starting from 5 minues earlier 5 minues from now
+              // Starting from 24 hours earlier 5 minues from now
               initialBound: [
-                Date.now() - 1 * 5 * 60 * 1000,
+                Date.now() - 24 * 60 * 60 * 1000,
                 Date.now() + 1 * 5 * 60 * 1000
               ],
               scaleToContent: false,
@@ -391,7 +390,7 @@ export default {
               selector: 'y',
               initialBound: [-1, 1],
               scaleToContent: false,
-              zoomEnabled: true,
+              zoomEnabled: false,
               label: 'Average Sentiment'
             }
           }
@@ -407,6 +406,7 @@ export default {
         // eslint-disable-next-line no-console
         // console.log('Tweets:', kw, tweets)
         res = [...res, ...tweets]
+        debugger
       }
       return res.sort((a, b) => {
         return a.date > b.date ? 1 : -1
@@ -524,25 +524,6 @@ export default {
     // socket.emit('update_channels', val)
     // }
   },
-  beforeMount() {
-    const that = this
-    socket.on('channels_response', data => {
-      that.$store.commit('updateTopics', data)
-      for (const chan of data) {
-        that.topicsTreeSelections.push(chan.id + '-channel')
-        that.topicsTreeSelections = [
-          ...that.topicsTreeSelections,
-          ...chan.keywords
-        ]
-      }
-    })
-    socket.on('connect', data => {
-      socket.emit('topics_request')
-    })
-    socket.on('tweets', data => {
-      that.$store.commit('addToRawTweets', data.tweets)
-    })
-  },
   mounted() {
     window.addEventListener('resize', this.resize)
     this.resize()
@@ -563,7 +544,7 @@ export default {
       if (!foundTopic) return []
       for (const keyword of foundTopic.keywords) {
         keywords.push({
-          id: keyword,
+          id: keyword.toLowerCase(),
           name: this.getName(keyword)
         })
       }
