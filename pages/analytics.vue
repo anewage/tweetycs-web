@@ -82,7 +82,7 @@
         @circleClicked="updateTweets"
       ></scatter-plot-wrapper>
     </v-flex>
-    <v-flex text-xs-center xs12 md9>
+    <v-flex text-xs-center xs12 md8>
       <heat-map-wrapper
         :id="charts.heatmap.id"
         :div-id="charts.heatmap.divId"
@@ -97,22 +97,27 @@
         :dataset="aggregatedKeywords"
       ></heat-map-wrapper>
     </v-flex>
-    <v-flex text-xs-center xs12 md3>
-      <tweets-wrapper
-        :config="charts.tweets"
-        :color="color"
-        :flat="flat"
-      ></tweets-wrapper>
+    <v-flex text-xs-center xs12 md4>
+      <!--   TODO: make it transparent   -->
+      <time-line
+        id="bbcpersian"
+        source-type="profile"
+        :options="{ tweetLimit: '10', transparent: true }"
+      ></time-line>
+      <moment id="1184228339738759168"></moment>
+      <div>
+        <!--        <Tweet :id="'1129378242283098112'"></Tweet>-->
+      </div>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
-// import { _ } from 'vue-underscore'
+// eslint-disable-next-line no-unused-vars
+import { Tweet, Moment, Timeline } from 'vue-tweet-embed'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
-import TweetsWrapper from '../components/Twitter/UserProfile'
 
 export default {
   name: 'PageAnalytics',
@@ -120,7 +125,18 @@ export default {
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
     'scatter-plot-wrapper': ScatterPlotWrapper,
     'heat-map-wrapper': HeatMapWrapper,
-    'tweets-wrapper': TweetsWrapper
+    'time-line': Timeline,
+    // eslint-disable-next-line vue/no-unused-components
+    Tweet: Tweet,
+    // eslint-disable-next-line vue/no-unused-components
+    Moment: Moment
+  },
+  head() {
+    return {
+      script: [
+        { src: 'https://platform.twitter.com/widgets.js', charset: 'utf-8' }
+      ]
+    }
   },
   data() {
     return {

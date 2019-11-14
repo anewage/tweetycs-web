@@ -48,6 +48,7 @@
           </v-list-tile>
         </v-card-actions>
         <v-card-text>
+          <!--  eslint-disable-next-line vue/no-v-html-->
           <div class="body-2" v-html="decoratedText"></div>
           <span class="caption">{{ new Date(tweet.created_at) }}</span>
         </v-card-text>

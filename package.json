@@ -24,6 +24,7 @@
     "nuxt": "^2.9.2",
     "socket.io-client": "^2.2.0",
     "stylus-loader": "^3.0.2",
+    "vue-tweet-embed": "^2.4.0",
     "vue-underscore": "^0.1.4",
     "vuetify": "^1.5.18",
     "vuetify-loader": "^1.2.1"

@@ -141,20 +141,16 @@
 </template>
 
 <script>
-// import { _ } from 'vue-underscore'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
-import TweetsWrapper from '../components/Twitter/UserProfile'
 
 export default {
   name: 'PageCompare',
   components: {
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
     'scatter-plot-wrapper': ScatterPlotWrapper,
-    'heat-map-wrapper': HeatMapWrapper,
-    // eslint-disable-next-line vue/no-unused-components
-    'tweets-wrapper': TweetsWrapper
+    'heat-map-wrapper': HeatMapWrapper
   },
   data() {
     return {
