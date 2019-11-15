@@ -99,44 +99,25 @@
     </v-flex>
     <v-flex text-xs-center xs12 md4>
       <!--   TODO: make it transparent   -->
-      <time-line
-        id="bbcpersian"
-        source-type="profile"
-        :options="{ tweetLimit: '10', transparent: true }"
-      ></time-line>
-      <moment id="1184228339738759168"></moment>
-      <div>
-        <!--        <Tweet :id="'1129378242283098112'"></Tweet>-->
-      </div>
+      <user-profile :username="selectedUser.screen_name"></user-profile>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
 // eslint-disable-next-line no-unused-vars
-import { Tweet, Moment, Timeline } from 'vue-tweet-embed'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
+import UserProfile from '../components/Twitter/UserProfile'
 
 export default {
   name: 'PageAnalytics',
   components: {
+    UserProfile,
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
     'scatter-plot-wrapper': ScatterPlotWrapper,
-    'heat-map-wrapper': HeatMapWrapper,
-    'time-line': Timeline,
-    // eslint-disable-next-line vue/no-unused-components
-    Tweet: Tweet,
-    // eslint-disable-next-line vue/no-unused-components
-    Moment: Moment
-  },
-  head() {
-    return {
-      script: [
-        { src: 'https://platform.twitter.com/widgets.js', charset: 'utf-8' }
-      ]
-    }
+    'heat-map-wrapper': HeatMapWrapper
   },
   data() {
     return {
@@ -145,6 +126,7 @@ export default {
       highlightedTopic: 'hiv',
       msg: '',
       temp: [],
+      selectedUser: { screen_name: 'bbcpersian' },
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -167,12 +149,6 @@ export default {
           label: 'Hybrid Analysis',
           width: 600,
           height: 500
-        },
-        tweets: {
-          user: {},
-          tweets: [],
-          avgSentiment: 0,
-          influence: 0
         }
       }
     }
@@ -240,6 +216,10 @@ export default {
   mounted() {
     this.resize()
     window.addEventListener('resize', this.resize)
+    // this.$nextTick(() => {
+    //   debugger
+    //
+    // })
   },
   methods: {
     resize: function() {
@@ -258,10 +238,7 @@ export default {
     //   this.$store.commit('updateTopics', msg.topics)
     // },
     updateTweets: function(data) {
-      this.charts.tweets.user = data.user
-      this.charts.tweets.tweets = data.tweets
-      this.charts.tweets.avgSentiment = data.y
-      this.charts.tweets.influence = data.x
+      this.selectedUser = data.user
     },
     // Just to be consistent with the page compare
     highlightTopic: function(item) {

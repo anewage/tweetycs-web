@@ -209,12 +209,13 @@
         <v-flex style="overflow-x: auto;" shrink>
           <v-layout row justify-start align-start>
             <v-flex v-for="(tweet, i) in filteredTweets" :key="i">
-              <tweets
+              <tweet
                 :tweet="tweet"
                 :selected="tweet.selected"
                 @selected="setDetails"
                 @deselected="unsetDetails"
-              ></tweets>
+              ></tweet>
+              <!--              <test-tweet :id-str="tweet.id_str"></test-tweet>-->
             </v-flex>
           </v-layout>
         </v-flex>
@@ -338,12 +339,15 @@
 
 <script>
 /* eslint-disable dot-notation */
-import Tweets from '../components/Twitter/Tweet'
+import Tweet from '../components/Twitter/Tweet'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
+import TestTweet from '../components/Twitter/TestTweet'
 export default {
   name: 'PageShuffler',
   components: {
-    tweets: Tweets,
+    // eslint-disable-next-line vue/no-unused-components
+    TestTweet,
+    tweet: Tweet,
     'scatter-plot-wrapper': ScatterPlotWrapper
   },
   data() {
@@ -406,7 +410,6 @@ export default {
         // eslint-disable-next-line no-console
         // console.log('Tweets:', kw, tweets)
         res = [...res, ...tweets]
-        debugger
       }
       return res.sort((a, b) => {
         return a.date > b.date ? 1 : -1
