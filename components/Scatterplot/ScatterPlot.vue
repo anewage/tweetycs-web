@@ -79,18 +79,16 @@
       style="position: fixed; opacity: 0; z-index: 999; overflow: auto;"
     >
       <v-sheet class="d-flex" color="black" dark>
-        <v-card-text>
-          <v-data-table
-            :headers="selectedTweetAnalysisHeaders"
-            :items="highlightedData.analysis"
-            hide-actions
-          >
-            <template v-slot:items="props">
-              <td>{{ props.item.title }}</td>
-              <td>{{ +props.item.result.toPrecision(4) }}</td>
-            </template>
-          </v-data-table>
-        </v-card-text>
+        <v-data-table
+          :headers="selectedTweetAnalysisHeaders"
+          :items="highlightedData.analysis"
+          hide-actions
+        >
+          <template v-slot:items="props">
+            <td>{{ props.item.title }}</td>
+            <td>{{ +props.item.result.toPrecision(4) }}</td>
+          </template>
+        </v-data-table>
       </v-sheet>
     </div>
   </div>
@@ -377,7 +375,6 @@ export default {
         this.tooltip.attr('persist', '1')
       else if (this.tooltip.attr('persist') === '1')
         this.tooltip.attr('persist', '0')
-      debugger
       this.$emit('circleClicked', item)
     },
     highlight: function(ev, item) {
