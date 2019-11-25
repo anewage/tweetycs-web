@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout row text-xs-left>
     <v-flex>
       <v-card
@@ -37,6 +37,12 @@
             <span v-if="tweet.possibly_sensitive" class="red--text">
               Possibly Sensitive
             </span>
+            <span
+              v-if="tweet.labels.find(a => a.id === 'custom')"
+              class="red--text"
+            >
+              Custom!
+            </span>
             <v-spacer></v-spacer>
 
             <v-layout align-center justify-end>
@@ -51,6 +57,49 @@
           <!--  eslint-disable-next-line vue/no-v-html-->
           <div class="body-2" v-html="decoratedText"></div>
           <span class="caption">{{ new Date(tweet.created_at) }}</span>
+          <v-dialog v-model="dialog" max-width="600px">
+            <template v-slot:activator="{ on }">
+              <v-btn flat fab icon small color="red" v-on="on">
+                <v-icon>edit</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="headline">Edit Tweet Labeling</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout row wrap>
+                    <!--  eslint-disable-next-line vue/no-v-html-->
+                    <v-flex xs12 v-html="decoratedText"></v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        v-model="customGroup"
+                        label="User Group"
+                        clearable
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        v-model="customTheme"
+                        label="Content Theme"
+                        clearable
+                      ></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat @click="closeDialog(false)">
+                  Close
+                </v-btn>
+                <v-btn color="blue darken-1" flat @click="closeDialog(true)">
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-card-text>
       </v-card>
     </v-flex>
@@ -109,12 +158,45 @@ export default {
     }
   },
   data() {
-    return {}
+    return {
+      dialog: false,
+      tempGroup: '',
+      tempTheme: ''
+    }
   },
   computed: {
+    customGroup: {
+      get: function() {
+        const label = this.tweet.labels.find(t => t.id === 'custom')
+        let group = this.tempGroup
+        if (label) group = label.result.group
+        return group
+      },
+      set: function(val) {
+        this.tempGroup = val
+      }
+    },
+    customTheme: {
+      get: function() {
+        const label = this.tweet.labels.find(t => t.id === 'custom')
+        let theme = this.tempTheme
+        if (label) theme = label.result.theme
+        return theme
+      },
+      set: function(val) {
+        this.tempTheme = val
+      }
+    },
     decoratedText: function() {
-      const text = this.tweet.original_text
+      let text = this.tweet.original_text
+      for (const kw of this.tweet.keywords) {
+        const regEx = new RegExp(kw, 'ig')
+        text = text.replace(regEx, (matched, index, original) => {
+          return '<mark>' + matched + '</mark>'
+        })
+      }
       return (
+        '<p>' +
         text
           .replace(/RT/g, '<b>RT</b>')
           // Links
@@ -149,7 +231,8 @@ export default {
               matched +
               '</a>'
             )
-          })
+          }) +
+        '</p>'
       )
     }
   },
@@ -159,6 +242,18 @@ export default {
       console.log(this.tweet.user.name)
       if (this.tweet.selected) this.$emit('deselected', this.tweet)
       else this.$emit('selected', this.tweet)
+    },
+    closeDialog(save) {
+      debugger
+      if (save)
+        this.$emit('customLabelTweet', {
+          tweet: this.tweet,
+          group: this.tempGroup,
+          theme: this.tempTheme
+        })
+      this.dialog = false
+      // eslint-disable-next-line no-console
+      console.log(this.tweet.text, this.customGroup, this.customTheme)
     }
   }
 }

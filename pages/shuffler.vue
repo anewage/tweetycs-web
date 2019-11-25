@@ -2,7 +2,7 @@
   <v-layout row>
     <v-flex xs3 shrink>
       <v-layout column align-space-between justify-start fill-height wrap>
-        <v-flex md3>
+        <v-flex>
           <v-card flat>
             <v-toolbar card color="grey lighten-3">
               <v-icon>class</v-icon>
@@ -112,6 +112,13 @@
                 <v-card-text
                   style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
                 >
+                  <!--                  <sunburst-wrapper-->
+                  <!--                    :id="charts.sunburst.id"-->
+                  <!--                    :div-id="charts.sunburst.divId"-->
+                  <!--                    :width="charts.sunburst.width"-->
+                  <!--                    :height="charts.sunburst.height"-->
+                  <!--                    :dataset="topicItems"-->
+                  <!--                  ></sunburst-wrapper>-->
                   <v-treeview
                     v-model="topicsTreeSelections"
                     :items="topicItems"
@@ -127,76 +134,76 @@
               </v-flex>
             </v-layout>
           </v-card>
-          <v-card flat>
-            <v-toolbar card color="grey lighten-3">
-              <v-icon>class</v-icon>
-              <v-toolbar-title>Sources</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn
-                flat
-                icon
-                color="red"
-                @click="userGroupsTreeSelections = []"
-              >
-                <v-icon>replay</v-icon>
-              </v-btn>
-            </v-toolbar>
+          <!--          <v-card flat>-->
+          <!--            <v-toolbar card color="grey lighten-3">-->
+          <!--              <v-icon>class</v-icon>-->
+          <!--              <v-toolbar-title>Sources</v-toolbar-title>-->
+          <!--              <v-spacer></v-spacer>-->
+          <!--              <v-btn-->
+          <!--                flat-->
+          <!--                icon-->
+          <!--                color="red"-->
+          <!--                @click="userGroupsTreeSelections = []"-->
+          <!--              >-->
+          <!--                <v-icon>replay</v-icon>-->
+          <!--              </v-btn>-->
+          <!--            </v-toolbar>-->
 
-            <v-layout>
-              <v-flex>
-                <v-card-text
-                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
-                >
-                  <v-treeview
-                    v-model="userGroupsTreeSelections"
-                    :items="userGroupItems"
-                    selected-color="indigo"
-                    activatable
-                    multiple-active
-                    open-on-click
-                    selectable
-                    expand-icon="expand_more"
-                  >
-                  </v-treeview>
-                </v-card-text>
-              </v-flex>
-            </v-layout>
-          </v-card>
-          <v-card flat>
-            <v-toolbar card color="grey lighten-3">
-              <v-icon>class</v-icon>
-              <v-toolbar-title>Content Themes</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn
-                flat
-                icon
-                color="red"
-                @click="contentThemeTreeSelections = []"
-              >
-                <v-icon>replay</v-icon>
-              </v-btn>
-            </v-toolbar>
+          <!--            <v-layout>-->
+          <!--              <v-flex>-->
+          <!--                <v-card-text-->
+          <!--                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"-->
+          <!--                >-->
+          <!--                  <v-treeview-->
+          <!--                    v-model="userGroupsTreeSelections"-->
+          <!--                    :items="userGroupItems"-->
+          <!--                    selected-color="indigo"-->
+          <!--                    activatable-->
+          <!--                    multiple-active-->
+          <!--                    open-on-click-->
+          <!--                    selectable-->
+          <!--                    expand-icon="expand_more"-->
+          <!--                  >-->
+          <!--                  </v-treeview>-->
+          <!--                </v-card-text>-->
+          <!--              </v-flex>-->
+          <!--            </v-layout>-->
+          <!--          </v-card>-->
+          <!--          <v-card flat>-->
+          <!--            <v-toolbar card color="grey lighten-3">-->
+          <!--              <v-icon>class</v-icon>-->
+          <!--              <v-toolbar-title>Content Themes</v-toolbar-title>-->
+          <!--              <v-spacer></v-spacer>-->
+          <!--              <v-btn-->
+          <!--                flat-->
+          <!--                icon-->
+          <!--                color="red"-->
+          <!--                @click="contentThemeTreeSelections = []"-->
+          <!--              >-->
+          <!--                <v-icon>replay</v-icon>-->
+          <!--              </v-btn>-->
+          <!--            </v-toolbar>-->
 
-            <v-layout>
-              <v-flex>
-                <v-card-text
-                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
-                >
-                  <v-treeview
-                    v-model="contentThemeTreeSelections"
-                    :items="contentThemeItems"
-                    selected-color="indigo"
-                    activatable
-                    multiple-active
-                    open-on-click
-                    selectable
-                    expand-icon="expand_more"
-                  >
-                  </v-treeview>
-                </v-card-text>
-              </v-flex>
-            </v-layout>
-          </v-card>
+          <!--            <v-layout>-->
+          <!--              <v-flex>-->
+          <!--                <v-card-text-->
+          <!--                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"-->
+          <!--                >-->
+          <!--                  <v-treeview-->
+          <!--                    v-model="contentThemeTreeSelections"-->
+          <!--                    :items="contentThemeItems"-->
+          <!--                    selected-color="indigo"-->
+          <!--                    activatable-->
+          <!--                    multiple-active-->
+          <!--                    open-on-click-->
+          <!--                    selectable-->
+          <!--                    expand-icon="expand_more"-->
+          <!--                  >-->
+          <!--                  </v-treeview>-->
+          <!--                </v-card-text>-->
+          <!--              </v-flex>-->
+          <!--            </v-layout>-->
+          <!--          </v-card>-->
         </v-flex>
       </v-layout>
     </v-flex>
@@ -214,6 +221,7 @@
                 :selected="tweet.selected"
                 @selected="setDetails"
                 @deselected="unsetDetails"
+                @customLabelTweet="updateTweet"
               ></tweet>
               <!--              <test-tweet :id-str="tweet.id_str"></test-tweet>-->
             </v-flex>
@@ -240,98 +248,6 @@
             "
           ></scatter-plot-wrapper>
         </v-flex>
-        <v-divider></v-divider>
-        <v-flex grow>
-          <v-layout row wrap>
-            <v-flex xs6>
-              <v-card
-                v-show="selectedTweet && Object.keys(selectedTweet).length > 0"
-                flat
-              >
-                <v-card-text>
-                  <v-data-table
-                    :headers="selectedTweetCategorizationHeaders"
-                    :items="selectedTweet.labels"
-                    hide-actions
-                  >
-                    <template v-slot:items="props">
-                      <!--                    <td>-->
-                      <!--                      <v-edit-dialog-->
-                      <!--                        :return-value.sync="props.item.name"-->
-                      <!--                        lazy-->
-                      <!--                        @save="save"-->
-                      <!--                        @cancel="cancel"-->
-                      <!--                        @open="open"-->
-                      <!--                        @close="close"-->
-                      <!--                      > {{ props.item.name }}-->
-                      <!--                        <template v-slot:input>-->
-                      <!--                          <v-text-field-->
-                      <!--                            v-model="props.item.name"-->
-                      <!--                            :rules="[max25chars]"-->
-                      <!--                            label="Edit"-->
-                      <!--                            single-line-->
-                      <!--                            counter-->
-                      <!--                          ></v-text-field>-->
-                      <!--                        </template>-->
-                      <!--                      </v-edit-dialog>-->
-                      <!--                    </td>-->
-                      <td>{{ props.item.title }}</td>
-                      <td>{{ props.item.result.group }}</td>
-                      <td>{{ props.item.result.theme }}</td>
-                      <!--                    <td class="text-xs-right">-->
-                      <!--                      <v-edit-dialog-->
-                      <!--                        :return-value.sync="props.item.iron"-->
-                      <!--                        large-->
-                      <!--                        lazy-->
-                      <!--                        persistent-->
-                      <!--                        @save="save"-->
-                      <!--                        @cancel="cancel"-->
-                      <!--                        @open="open"-->
-                      <!--                        @close="close"-->
-                      <!--                      >-->
-                      <!--                        <div>{{ props.item.iron }}</div>-->
-                      <!--                        <template v-slot:input>-->
-                      <!--                          <div class="mt-3 title">Update Iron</div>-->
-                      <!--                        </template>-->
-                      <!--                        <template v-slot:input>-->
-                      <!--                          <v-text-field-->
-                      <!--                            v-model="props.item.iron"-->
-                      <!--                            :rules="[max25chars]"-->
-                      <!--                            label="Edit"-->
-                      <!--                            single-line-->
-                      <!--                            counter-->
-                      <!--                            autofocus-->
-                      <!--                          ></v-text-field>-->
-                      <!--                        </template>-->
-                      <!--                      </v-edit-dialog>-->
-                      <!--                    </td>-->
-                    </template>
-                  </v-data-table>
-                </v-card-text>
-              </v-card>
-            </v-flex>
-            <v-divider vertical></v-divider>
-            <v-flex xs5>
-              <v-card
-                v-show="selectedTweet && Object.keys(selectedTweet).length > 0"
-                flat
-              >
-                <v-card-text>
-                  <v-data-table
-                    :headers="selectedTweetAnalysisHeaders"
-                    :items="selectedTweet.analysis"
-                    hide-actions
-                  >
-                    <template v-slot:items="props">
-                      <td>{{ props.item.title }}</td>
-                      <td>{{ +props.item.result.toPrecision(4) }}</td>
-                    </template>
-                  </v-data-table>
-                </v-card-text>
-              </v-card>
-            </v-flex>
-          </v-layout>
-        </v-flex>
       </v-layout>
     </v-flex>
   </v-layout>
@@ -339,12 +255,16 @@
 
 <script>
 /* eslint-disable dot-notation */
+import socket from '../lib/socket.io'
 import Tweet from '../components/Twitter/Tweet'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import TestTweet from '../components/Twitter/TestTweet'
+import SunburstWrapper from '../components/Sunburst/SunburstWrapper'
 export default {
   name: 'PageShuffler',
   components: {
+    // eslint-disable-next-line vue/no-unused-components
+    SunburstWrapper,
     // eslint-disable-next-line vue/no-unused-components
     TestTweet,
     tweet: Tweet,
@@ -398,6 +318,12 @@ export default {
               label: 'Average Sentiment'
             }
           }
+        },
+        sunburst: {
+          id: 'sunburst',
+          divId: 'sunburst-div',
+          width: 300,
+          height: 300
         }
       }
     }
@@ -537,7 +463,12 @@ export default {
   methods: {
     resize: function() {
       const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
-      this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      const sunburstDiv = document.getElementById(this.charts.sunburst.divId)
+      if (scatterDiv) this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      if (sunburstDiv) {
+        this.charts.sunburst.width = sunburstDiv.clientWidth - 5
+        this.charts.sunburst.height = sunburstDiv.clientWidth - 5
+      }
     },
     getChildren(topic) {
       if (!topic || topic === '') return []
@@ -571,6 +502,24 @@ export default {
     },
     unsetDetails: function(tweet) {
       this.selectedTweet = {}
+    },
+    updateTweet: function(data) {
+      socket.emit('update_labeling', data)
+      // eslint-disable-next-line no-console
+      console.log('emitted', data)
+      const tweet = data.tweet
+      const label = tweet.labels.find(a => a.id === 'custom')
+      if (label) {
+        label.result.group = data.group
+        label.result.theme = data.theme
+      } else
+        tweet.labels.push({
+          id: 'custom',
+          result: {
+            group: data.group,
+            theme: data.theme
+          }
+        })
     }
   }
 }

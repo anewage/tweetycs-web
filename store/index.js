@@ -11,7 +11,7 @@ export const state = () => ({
   aggregatedUsers: [],
   topics: [],
   rawTweets: [],
-  limit: 200
+  limit: 400
 })
 
 export const mutations = {
