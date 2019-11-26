@@ -247,13 +247,10 @@ export default {
   },
   methods: {
     clicked: function() {
-      // eslint-disable-next-line no-console
-      console.log(this.tweet.user.name)
       if (this.tweet.selected) this.$emit('deselected', this.tweet)
       else this.$emit('selected', this.tweet)
     },
     closeDialog(save) {
-      debugger
       if (save)
         this.$emit('customLabelTweet', {
           tweet: this.tweet,

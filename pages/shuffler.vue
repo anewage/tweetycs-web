@@ -227,6 +227,9 @@
                 )
               "
               :title="channel"
+              @setDetails="setDetails"
+              @unsetDetails="unsetDetails"
+              @updateTweet="updateTweet"
             ></tweet-collection>
             <!--            <v-flex v-for="(tweet, i) in filteredTweets" :key="i">-->
             <!--              <tweet-->
@@ -521,6 +524,8 @@ export default {
       return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
     },
     setDetails: function(tweet) {
+      // eslint-disable-next-line no-console
+      console.log(tweet.text)
       this.selectedTweet = tweet
     },
     unsetDetails: function(tweet) {
