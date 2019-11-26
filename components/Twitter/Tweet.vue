@@ -5,7 +5,7 @@
         hover
         :color="selected ? 'blue lighten-4' : 'white'"
         style="flex: initial !important;"
-        min-width="500"
+        width="350"
         @click="clicked"
       >
         <v-card-actions>
@@ -20,8 +20,8 @@
               </v-icon>
             </v-list-tile-avatar>
 
-            <v-list-tile-content>
-              <v-list-tile-title>{{ tweet.user.name }}</v-list-tile-title>
+            <v-list-tile-content style="overflow: hidden">
+              <v-list-tile-title>{{ nicename }}</v-list-tile-title>
               <v-list-tile-sub-title class="tiny">
                 <a
                   style="text-decoration: none;"
@@ -56,7 +56,7 @@
         <v-card-text>
           <!--  eslint-disable-next-line vue/no-v-html-->
           <div class="body-2" v-html="decoratedText"></div>
-          <span class="caption">{{ new Date(tweet.created_at) }}</span>
+          <span class="caption">{{ niceDate }}</span>
           <v-dialog v-model="dialog" max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn flat fab icon small color="red" v-on="on">
@@ -165,6 +165,15 @@ export default {
     }
   },
   computed: {
+    niceDate() {
+      const date = new Date(this.tweet.created_at)
+      return date
+    },
+    nicename() {
+      if (this.tweet.user.name.length > 22)
+        return this.tweet.user.name.slice(0, 22)
+      return this.tweet.user.name
+    },
     customGroup: {
       get: function() {
         const label = this.tweet.labels.find(t => t.id === 'custom')

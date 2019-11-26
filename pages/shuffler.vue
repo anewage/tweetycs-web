@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout row>
-    <v-flex xs3 shrink>
+    <v-flex xs2 shrink>
       <v-layout column align-space-between justify-start fill-height wrap>
         <v-flex>
           <v-card flat>
@@ -207,24 +207,37 @@
         </v-flex>
       </v-layout>
     </v-flex>
-    <v-flex xs9>
+    <v-flex xs10>
       <!--      <v-btn block flat color="error" dark @click="rawTweets = []">-->
       <!--        Empty Results-->
       <!--        <v-icon right>delete</v-icon>-->
       <!--      </v-btn>-->
       <v-layout column justify-center fill-height>
-        <v-flex style="overflow-x: auto;" shrink>
-          <v-layout row justify-start align-start>
-            <v-flex v-for="(tweet, i) in filteredTweets" :key="i">
-              <tweet
-                :tweet="tweet"
-                :selected="tweet.selected"
-                @selected="setDetails"
-                @deselected="unsetDetails"
-                @customLabelTweet="updateTweet"
-              ></tweet>
-              <!--              <test-tweet :id-str="tweet.id_str"></test-tweet>-->
-            </v-flex>
+        <v-flex
+          style="overflow-x: auto; overflow-y: hidden; height: 60vh"
+          shrink
+        >
+          <v-layout row>
+            <tweet-collection
+              v-for="(channel, index) in selectedChannels"
+              :key="'channel-' + index + '-' + channel"
+              :tweets="
+                filteredTweets.filter(a =>
+                  Object.keys(a.topics).includes(channel)
+                )
+              "
+              :title="channel"
+            ></tweet-collection>
+            <!--            <v-flex v-for="(tweet, i) in filteredTweets" :key="i">-->
+            <!--              <tweet-->
+            <!--                :tweet="tweet"-->
+            <!--                :selected="tweet.selected"-->
+            <!--                @selected="setDetails"-->
+            <!--                @deselected="unsetDetails"-->
+            <!--                @customLabelTweet="updateTweet"-->
+            <!--              ></tweet>-->
+            <!--              &lt;!&ndash;              <test-tweet :id-str="tweet.id_str"></test-tweet>&ndash;&gt;-->
+            <!--            </v-flex>-->
           </v-layout>
         </v-flex>
         <v-divider></v-divider>
@@ -260,14 +273,20 @@ import Tweet from '../components/Twitter/Tweet'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import TestTweet from '../components/Twitter/TestTweet'
 import SunburstWrapper from '../components/Sunburst/SunburstWrapper'
+import TweetCollection from '../components/Twitter/TweetCollection'
 export default {
   name: 'PageShuffler',
+  // layout: 'shuffler',
   components: {
+    // eslint-disable-next-line vue/no-unused-components
+    TweetCollection,
     // eslint-disable-next-line vue/no-unused-components
     SunburstWrapper,
     // eslint-disable-next-line vue/no-unused-components
     TestTweet,
+    // eslint-disable-next-line vue/no-unused-components
     tweet: Tweet,
+    // eslint-disable-next-line vue/no-unused-components
     'scatter-plot-wrapper': ScatterPlotWrapper
   },
   data() {
@@ -290,7 +309,7 @@ export default {
           divId: 'scatter-plot-div',
           label: 'Tweet Sentiments',
           width: 700,
-          height: 300,
+          height: 200,
           line: {
             show: true,
             fill: 'none',
@@ -337,9 +356,13 @@ export default {
         // console.log('Tweets:', kw, tweets)
         res = [...res, ...tweets]
       }
-      return res.sort((a, b) => {
-        return a.date > b.date ? 1 : -1
-      })
+      return res
+    },
+    selectedChannels() {
+      const res = []
+      for (const item of this.filteredTweets.map(a => Object.keys(a.topics)))
+        for (const topic of item) if (!res.includes(topic)) res.push(topic)
+      return res
     },
     userGroupItems() {
       // this.tweets().map(tw => tw.labels[i].result.group)

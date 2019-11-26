@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-card :color="color" :flat="flat">
-    <v-card-title>
+    <v-card-title v-if="showMeta">
       <h2>
         {{ label }}
       </h2>
@@ -121,6 +121,10 @@ export default {
     selectedAnalysisMethod: {
       type: String,
       default: ''
+    },
+    showMeta: {
+      type: Boolean,
+      default: false
     },
     axesMeta: {
       type: Object,
