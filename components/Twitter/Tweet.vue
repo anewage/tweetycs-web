@@ -4,7 +4,7 @@
       <v-card
         hover
         :color="selected ? 'blue lighten-4' : 'white'"
-        style="flex: initial !important;"
+        style="flex: initial !important; overflow: hidden;"
         width="350"
         @click="clicked"
       >
@@ -167,7 +167,7 @@ export default {
   computed: {
     niceDate() {
       const date = new Date(this.tweet.created_at)
-      return date
+      return date.toLocaleString()
     },
     nicename() {
       if (this.tweet.user.name.length > 22)
