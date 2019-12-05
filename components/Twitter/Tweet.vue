@@ -4,7 +4,7 @@
       <v-card
         hover
         class="`elevation-${hover ? 12 : 2}`"
-        :color="selected ? 'blue lighten-5' : 'white'"
+        :color="!contextMenu && selected ? 'blue lighten-5' : 'white'"
         style="flex: initial !important; overflow: hidden;"
       >
         <v-card-actions>
@@ -45,7 +45,7 @@
           </v-list-tile>
           <v-spacer></v-spacer>
           <span class="caption">{{ niceDate }}</span>
-          <v-btn flat fab icon small @click="clicked">
+          <v-btn v-if="!contextMenu" flat fab icon small @click="clicked">
             <v-icon color="indigo">
               {{ tweet.selected ? 'remove_circle' : 'add_circle' }}
             </v-icon>
@@ -176,6 +176,10 @@
 export default {
   name: 'Tweet',
   props: {
+    contextMenu: {
+      type: Boolean,
+      default: false
+    },
     avgSentiment: {
       type: Number,
       default: 0

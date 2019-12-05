@@ -47,20 +47,29 @@
             <v-expand-transition>
               <div
                 v-if="disconnected"
-                class="d-flex transition-fast-in-fast-out grey darken-2 v-card--reveal--disconnected display-3 white--text"
+                class="d-flex text-xs-center transition-fast-in-fast-out grey darken-2 v-card--reveal--disconnected display-3 white--text"
                 style="height: 100%;"
               >
                 Disconnected
               </div>
               <div
-                v-if="hover && !disconnected"
+                v-else-if="
+                  selectedScenario && selectedScenario.id !== scenario.id
+                "
+                class="d-flex text-xs-center transition-fast-in-fast-out grey darken-2 v-card--reveal--disconnected display-3 white--text"
+                style="height: 100%;"
+              >
+                Another scenario is selected...
+              </div>
+              <div
+                v-else-if="hover"
                 :class="
-                  'd-flex transition-fast-in-fast-out darken-2 v-card--reveal display-3 white--text ' +
+                  'd-flex text-xs-center transition-fast-in-fast-out darken-2 v-card--reveal display-3 white--text ' +
                     scenario.color
                 "
                 style="height: 100%;"
               >
-                Start
+                {{ scenario.consuming ? 'Pause' : 'Start' }}
               </div>
             </v-expand-transition>
           </v-img>
@@ -73,12 +82,15 @@
               large
               right
               top
-              :disabled="disconnected"
+              :disabled="
+                disconnected ||
+                  (selectedScenario && selectedScenario.id !== scenario.id)
+              "
               :loading="disconnected"
-              @click="toggleConsuming(scenario)"
+              @click.stop="toggleConsuming(scenario)"
             >
               <v-icon>
-                {{ scenario.started ? 'pause' : 'power_settings_new' }}
+                {{ scenario.consuming ? 'pause' : 'power_settings_new' }}
               </v-icon>
             </v-btn>
             <div class="font-weight-light grey--text title mb-2">
@@ -113,11 +125,14 @@ export default {
   computed: {
     scenarios: {
       set(val) {
-        this.$store.commit('setscenarios', val)
+        this.$store.commit('updateScenarios', val)
       },
       get() {
         return this.$store.state.scenarios
       }
+    },
+    selectedScenario() {
+      return this.scenarios.find(a => a.consuming)
     }
   },
   beforeMount() {
@@ -134,13 +149,23 @@ export default {
   },
   methods: {
     toggleConsuming: function(scenario) {
-      if (scenario.started) {
-        scenario.started = false
+      if (scenario.consuming) {
+        this.$store.commit('updateConsumingScenario', {
+          id: scenario.id,
+          flag: false
+        })
         socket.emit('pause_consuming')
       }
-      // Was not already consuming streams or consuming another stream
-      if (!scenario.started) {
-        scenario.started = true
+      // Was not already consuming streams or was consuming another stream
+      else {
+        this.$store.commit('reset')
+        this.$store.commit('analytics/reset')
+        this.$store.commit('compare/reset')
+        this.$store.commit('shuffler/reset')
+        this.$store.commit('updateConsumingScenario', {
+          id: scenario.id,
+          flag: true
+        })
         socket.emit('pause_consuming')
         socket.emit('update_channels', scenario.channels)
         socket.emit('initial_data_request', {})

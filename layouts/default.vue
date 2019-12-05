@@ -40,6 +40,10 @@
       <v-btn v-if="disconnected" icon :loading="disconnected" disabled>
         <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
       </v-btn>
+      <v-btn v-if="selectedScenario" round flat disabled>
+        <v-icon>play_arrow</v-icon>
+        {{ selectedScenario.title }}
+      </v-btn>
       <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
     </v-toolbar>
     <v-content>
@@ -153,6 +157,9 @@ export default {
       for (const num of this.pingPong.history) avg += num
       avg = (10 * avg) / (this.pingPong.history.length * 10)
       return avg
+    },
+    selectedScenario() {
+      return this.$store.state.scenarios.find(a => a.consuming)
     }
   },
   mounted() {
@@ -171,7 +178,7 @@ export default {
     socket.on('connect', () => {
       this.disconnected = socket.disconnected
       socket.emit('client_event', { data: "I'm connected!" })
-      socket.emit('initial_data_request', {})
+      // socket.emit('initial_data_request', {})
     })
 
     socket.on('reconnecting', data => {

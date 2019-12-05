@@ -73,7 +73,7 @@
 <script>
 import * as d3 from 'd3'
 export default {
-  name: 'HeatMap',
+  name: 'ContextMap',
   props: {
     chartDomID: {
       type: String,

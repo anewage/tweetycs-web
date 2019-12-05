@@ -1,10 +1,22 @@
 export const strict = false
+function initialState() {
+  return {
+    comparisonSlider: 1,
+    comparisons: [{ analysis: '', machineLearning: '', topic: '' }]
+  }
+}
 export const state = () => ({
   comparisonSlider: 1,
   comparisons: [{ analysis: '', machineLearning: '', topic: '' }]
 })
 
 export const mutations = {
+  reset(state) {
+    const initial = initialState()
+    Object.keys(initial).forEach(key => {
+      state[key] = initial[key]
+    })
+  },
   setComparisonSlider(state, value) {
     state.comparisonSlider = value
   },

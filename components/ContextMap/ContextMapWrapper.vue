@@ -23,7 +23,7 @@
 <script>
 import ContextMap from './ContextMap'
 export default {
-  name: 'HeatMapWrapper',
+  name: 'ContextMapWrapper',
   components: {
     'context-map': ContextMap
   },

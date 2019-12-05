@@ -266,7 +266,6 @@
             :height="charts.contextMap.height"
             :topics="topics.map(a => a.id).sort()"
             :tweets="selectedTweets"
-            :color="color"
             :flat="flat"
             @topicSelected="topicSelected"
             @tweetClicked="toggleTweetExamMenu"
@@ -280,7 +279,11 @@
               :key="'examMenu-' + index"
               xs3
             >
-              <tweet :tweet="tweet" :selected="tweet.selected"></tweet>
+              <tweet
+                :tweet="tweet"
+                :selected="tweet.selected"
+                :context-menu="true"
+              ></tweet>
             </v-flex>
           </v-layout>
         </v-flex>
@@ -343,6 +346,7 @@ export default {
   data() {
     return {
       dialog: false,
+      flat: true,
       contentThemeTreeSelections: [],
       userGroupsTreeSelections: [],
       selectedTweets: [],

@@ -241,9 +241,9 @@ export default {
       const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
       const heatDiv = document.getElementById(this.charts.heatmap.divId)
       const sankeyDiv = document.getElementById(this.charts.sankey.divId)
-      this.charts.scatterplot.width = scatterDiv.clientWidth - 5
-      this.charts.heatmap.width = heatDiv.clientWidth - 5
-      this.charts.sankey.width = sankeyDiv.clientWidth - 5
+      if (scatterDiv) this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      if (heatDiv) this.charts.heatmap.width = heatDiv.clientWidth - 5
+      if (sankeyDiv) this.charts.sankey.width = sankeyDiv.clientWidth - 5
     },
     // commitUpdates: function(msg) {
     //   // Store the changes
