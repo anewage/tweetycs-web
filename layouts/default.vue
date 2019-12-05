@@ -36,10 +36,11 @@
       <!--        <v-icon>remove</v-icon>-->
       <!--      </v-btn>-->
       <v-toolbar-title v-text="title" />
-      <!--      <v-spacer />-->
-      <!--      <v-btn icon @click.stop="rightDrawer = !rightDrawer">-->
-      <!--        <v-icon>menu</v-icon>-->
-      <!--      </v-btn>-->
+      <v-spacer />
+      <v-btn v-if="disconnected" icon :loading="disconnected" disabled>
+        <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
+      </v-btn>
+      <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
     </v-toolbar>
     <v-content>
       <v-container :fluid="fluid">
@@ -94,8 +95,9 @@ export default {
   data() {
     return {
       fluid: true,
+      disconnected: socket.disconnected,
       clipped: true,
-      drawer: false,
+      drawer: true,
       fixed: false,
       items: [
         {
@@ -119,7 +121,7 @@ export default {
           to: '/shuffler'
         }
       ],
-      miniVariant: false,
+      miniVariant: true,
       right: true,
       rightDrawer: false,
       title: 'Tweetycs',
@@ -167,8 +169,15 @@ export default {
      * The callback function is invoked when a connection with the server is established.
      */
     socket.on('connect', () => {
+      this.disconnected = socket.disconnected
       socket.emit('client_event', { data: "I'm connected!" })
       socket.emit('initial_data_request', {})
+    })
+
+    socket.on('reconnecting', data => {
+      // eslint-disable-next-line no-console
+      console.log(data)
+      this.disconnected = socket.disconnected
     })
 
     /*

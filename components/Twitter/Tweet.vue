@@ -3,26 +3,29 @@
     <v-flex>
       <v-card
         hover
-        :color="selected ? 'blue lighten-4' : 'white'"
+        class="`elevation-${hover ? 12 : 2}`"
+        :color="selected ? 'blue lighten-5' : 'white'"
         style="flex: initial !important; overflow: hidden;"
-        width="350"
-        @click="clicked"
       >
         <v-card-actions>
-          <v-list-tile class="grow">
+          <v-list-tile class="grow" style="max-width: 70%;">
             <v-list-tile-avatar>
               <v-img
                 class="elevation-6"
                 :src="tweet.user.profile_image_url_https || '/person.png'"
               ></v-img>
-              <v-icon v-if="tweet.user.verified" color="primary">
+              <v-icon
+                v-if="tweet.user.verified"
+                color="primary"
+                class="subheading"
+              >
                 check
               </v-icon>
             </v-list-tile-avatar>
 
-            <v-list-tile-content style="overflow: hidden">
-              <v-list-tile-title>{{ nicename }}</v-list-tile-title>
-              <v-list-tile-sub-title class="tiny">
+            <v-list-tile-content style="margin-left: -4px;">
+              <v-list-tile-title>{{ tweet.user.name }}</v-list-tile-title>
+              <v-list-tile-sub-title class="caption">
                 <a
                   style="text-decoration: none;"
                   :href="'https://twitter.com/' + tweet.user.screen_name"
@@ -32,31 +35,21 @@
                 </a>
               </v-list-tile-sub-title>
             </v-list-tile-content>
-
-            <v-spacer></v-spacer>
-            <span v-if="tweet.possibly_sensitive" class="red--text">
-              Possibly Sensitive
-            </span>
-            <span
-              v-if="tweet.labels.find(a => a.id === 'custom')"
-              class="red--text"
-            >
-              Custom!
-            </span>
-            <v-spacer></v-spacer>
-
-            <v-layout align-center justify-end>
-              <v-icon class="mr-1" small>favorite</v-icon>
-              <span class="subheading mr-2">{{ tweet.favorite_count }}</span>
-              <v-icon class="mr-1" small>share</v-icon>
-              <span class="subheading">{{ tweet.retweet_count }}</span>
-            </v-layout>
+            <!--            <v-spacer></v-spacer>-->
+            <!--            <v-layout align-center justify-end>-->
+            <!--              <v-icon class="mr-1" small>favorite</v-icon>-->
+            <!--              <span class="subheading mr-2">{{ tweet.favorite_count }}</span>-->
+            <!--              <v-icon class="mr-1" small>share</v-icon>-->
+            <!--              <span class="subheading">{{ tweet.retweet_count }}</span>-->
+            <!--            </v-layout>-->
           </v-list-tile>
-        </v-card-actions>
-        <v-card-text>
-          <!--  eslint-disable-next-line vue/no-v-html-->
-          <div class="body-2" v-html="decoratedText"></div>
+          <v-spacer></v-spacer>
           <span class="caption">{{ niceDate }}</span>
+          <v-btn flat fab icon small @click="clicked">
+            <v-icon color="indigo">
+              {{ tweet.selected ? 'remove_circle' : 'add_circle' }}
+            </v-icon>
+          </v-btn>
           <v-dialog v-model="dialog" max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn flat fab icon small color="red" v-on="on">
@@ -100,6 +93,79 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <v-btn flat fab icon small @click="expand = !expand">
+            <v-icon>{{ expand ? 'menu' : 'menu_open' }}</v-icon>
+          </v-btn>
+        </v-card-actions>
+        <v-card-text>
+          <v-layout row wrap>
+            <v-flex v-show="expand" xs12 class="transition-ease-in-out">
+              <v-tabs v-model="active" centered grow slider-color="grey">
+                <v-tab ripple>
+                  <v-icon>emoji_emotions</v-icon>
+                </v-tab>
+                <v-tab ripple>
+                  <v-icon>speaker_notes</v-icon>
+                </v-tab>
+                <v-tab-item>
+                  <div
+                    v-for="label in sortedAnalysis"
+                    :key="label.id"
+                    class="text-xs-center"
+                  >
+                    <span>{{ label.id }}: </span>
+                    <v-chip
+                      :color="label.result > 0 ? 'green' : 'orange'"
+                      outline
+                    >
+                      <v-avatar style="margin-right: 0px;">
+                        <v-icon>
+                          {{ label.result > 0 ? 'mood' : 'mood_bad' }}
+                        </v-icon>
+                      </v-avatar>
+                      <strong>{{ (+label.result).toPrecision(2) }}</strong>
+                    </v-chip>
+                    <v-divider></v-divider>
+                  </div>
+                </v-tab-item>
+                <v-tab-item>
+                  <div
+                    v-for="label in sortedLabels"
+                    :key="label.id"
+                    class="text-xs-center"
+                  >
+                    <span>{{ label.id }}: </span> <br />
+                    <v-chip color="indigo" outline>
+                      <v-avatar style="margin-right: 0px;">
+                        <v-icon>account_circle</v-icon>
+                      </v-avatar>
+                      <strong>{{ label.result.group }}</strong>
+                    </v-chip>
+                    <v-chip color="green" outline>
+                      <v-avatar style="margin-right: 0px;">
+                        <v-icon>label</v-icon>
+                      </v-avatar>
+                      <strong>{{ label.result.theme }}</strong>
+                    </v-chip>
+                    <v-divider></v-divider>
+                  </div>
+                </v-tab-item>
+              </v-tabs>
+            </v-flex>
+            <v-flex xs12>
+              <span v-if="tweet.possibly_sensitive" class="red--text caption">
+                Possibly Sensitive
+              </span>
+              <!--  eslint-disable-next-line vue/no-v-html-->
+              <div class="body-2" v-html="decoratedText"></div>
+              <span
+                v-if="tweet.labels.find(a => a.id === 'custom')"
+                class="red--text"
+              >
+                Custom!
+              </span>
+            </v-flex>
+          </v-layout>
         </v-card-text>
       </v-card>
     </v-flex>
@@ -161,18 +227,70 @@ export default {
     return {
       dialog: false,
       tempGroup: '',
-      tempTheme: ''
+      tempTheme: '',
+      expand: false,
+      active: 0
     }
   },
   computed: {
+    sortedLabels() {
+      return this.tweet.labels
+    },
+    sortedAnalysis() {
+      return this.tweet.analysis
+    },
+    selectedTweetCategorizationHeaders() {
+      return [
+        {
+          text: 'Labeling Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'User Group',
+          align: 'left',
+          sortable: true,
+          value: 'result.group'
+        },
+        {
+          text: 'Content Theme',
+          align: 'left',
+          sortable: true,
+          value: 'result.theme'
+        }
+      ]
+    },
+    selectedTweetAnalysisHeaders() {
+      return [
+        {
+          text: 'Analysis Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'Sentiment',
+          align: 'left',
+          sortable: true,
+          value: 'result'
+        }
+      ]
+    },
     niceDate() {
       const date = new Date(this.tweet.created_at)
-      return date.toLocaleString()
-    },
-    nicename() {
-      if (this.tweet.user.name.length > 22)
-        return this.tweet.user.name.slice(0, 22)
-      return this.tweet.user.name
+      const now = new Date()
+      const diff = now.getTime() - date.getTime()
+      const secs = diff / 1000
+      const mins = diff / (1000 * 60)
+      const hours = diff / (1000 * 60 * 60)
+      const days = diff / (1000 * 60 * 60 * 24)
+      const weeks = diff / (1000 * 60 * 60 * 24 * 7)
+      if (weeks > 1) return ~~weeks + 'w'
+      else if (days > 1) return ~~days + 'd'
+      else if (hours > 1) return ~~hours + 'h'
+      else if (mins > 1) return ~~mins + 'm'
+      else return ~~secs + 's'
     },
     customGroup: {
       get: function() {
@@ -265,4 +383,10 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.boxed {
+  border-style: solid;
+  border-width: thin;
+  border-color: #cecece;
+}
+</style>

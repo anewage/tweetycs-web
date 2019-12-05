@@ -1,9 +1,12 @@
 <template>
   <v-card :color="color" :flat="flat">
     <v-card-title>
-      <h2>
+      <h3>
         {{ label }}
-      </h2>
+        (<mark>{{ selectedTopic }}</mark>
+        <mark>{{ selectedAnalysisMethod }}</mark
+        >)
+      </h3>
     </v-card-title>
     <v-card-text>
       <div :id="divId">
@@ -95,7 +98,7 @@ export default {
   },
   data() {
     return {
-      colorRange: ['#ffffff', '#69b3a2'],
+      colorRange: ['#d7ffdb', '#006c03'],
       meta: {
         show: false,
         info: 'Hello this is only a help box!'
@@ -122,7 +125,7 @@ export default {
         for (const kw of it._id.keywords) {
           final.push({
             x: kw,
-            y: 'Content Theme: ' + it._id.theme,
+            y: 'Theme: ' + it._id.theme,
             v: it.avgSentiment,
             sort: 1
           })
@@ -139,13 +142,15 @@ export default {
         for (const kw of it._id.keywords) {
           final.push({
             x: kw,
-            y: 'Contributor Category: ' + it._id.group,
+            y: 'Group: ' + it._id.group,
             v: it.avgSentiment,
             sort: 0
           })
         }
       }
-      return final
+      return final.sort((a, b) => {
+        return a.sort > b.sort ? 1 : -1
+      })
     }
   }
 }

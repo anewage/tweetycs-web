@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
     <svg
       :id="chartDomID + '-svg'"
@@ -6,6 +6,23 @@
       :height="height"
       :class="'svg scatterplot-' + chartDomID"
     >
+      <defs>
+        <pattern
+          v-for="(item, index) in dataset"
+          :id="item.user.screen_name"
+          :key="index + '-' + item.user.screen_name + '-image'"
+          patternContentUnits="objectBoundingBox"
+          height="100%"
+          width="100%"
+        >
+          <image
+            width="1"
+            height="1"
+            preserveAspectRatio="none"
+            :xlink:href="item.user.profile_image_url_https"
+          ></image>
+        </pattern>
+      </defs>
       <rect
         :class="'view view-' + chartDomID"
         :x="chartLeft"
@@ -48,7 +65,7 @@
       ></path>
       <transition-group
         :id="'circles-' + chartDomID"
-        tag="svg"
+        tag="g"
         name="fade"
         :x="chartLeft"
         :y="chartTop"
@@ -59,13 +76,14 @@
       >
         <circle
           v-for="(item, index) in dataset"
-          :key="item.id_str"
+          :id="'svg_circle_' + item.user.screen_name"
+          :key="item.id_str + index"
           :cx="xScale(item[axesMeta.x.selector])"
           :cy="yScale(item[axesMeta.y.selector])"
-          :stroke="item.selected ? 'red' : ''"
-          :stroke-width="item.selected ? '2' : '0'"
+          :stroke="item.highlighted ? 'gray' : item.selected ? 'red' : ''"
+          :stroke-width="item.selected || item.highlighted ? '3' : '0'"
           :r="radius"
-          :style="'fill: ' + colorScale(index) + ';'"
+          :fill="'url(#' + item.user.screen_name + ')'"
           class="circle"
           @click="ev => clicked.call({}, ev, item)"
           @mouseover="ev => highlight.call({}, ev, item)"
@@ -74,6 +92,7 @@
       </transition-group>
     </svg>
     <div
+      v-if="contextMenu"
       :id="chartDomID + '-tooltip'"
       class="tooltip"
       style="position: fixed; opacity: 0; z-index: 999; overflow: auto;"
@@ -96,9 +115,16 @@
 
 <script>
 import * as d3 from 'd3'
+import TweetCollection from '../Twitter/TweetCollection'
 export default {
   name: 'ScatterPlot',
+  // eslint-disable-next-line vue/no-unused-components
+  components: { TweetCollection },
   props: {
+    contextMenu: {
+      type: Boolean,
+      default: false
+    },
     chartDomID: {
       type: String,
       default: 'scatter-plot'
@@ -131,21 +157,23 @@ export default {
             initialBound: [-1, 200],
             scaleToContent: true,
             zoomEnabled: true,
-            label: 'User Influence'
+            label: 'User Influence',
+            show: true
           },
           y: {
             selector: 'y',
             initialBound: [-1, 1],
             scaleToContent: false,
             zoomEnabled: true,
-            label: 'Average Sentiment'
+            label: 'Average Sentiment',
+            show: true
           }
         }
       }
     },
     radius: {
       type: Number,
-      default: 4
+      default: 24
     },
     colorRange: {
       type: Array,
@@ -364,44 +392,52 @@ export default {
       if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
     },
     clicked: function(ev, item) {
-      this.highlightedData = item
-      this.tooltip
-        .transition()
-        .duration(200)
-        .style('opacity', 0.9)
-        .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
-        .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
-      if (this.tooltip.attr('persist') === '0')
-        this.tooltip.attr('persist', '1')
-      else if (this.tooltip.attr('persist') === '1')
-        this.tooltip.attr('persist', '0')
+      item.selected = !item.selected
+      // ev.target.setAttribute('stroke', 'red')
+      // ev.target.setAttribute('stroke-width', '3')
+
+      // this.highlightedData = item
+      // this.tooltip
+      //   .transition()
+      //   .duration(200)
+      //   .style('opacity', 0.9)
+      //   .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+      //   .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+      // if (this.tooltip.attr('persist') === '0')
+      //   this.tooltip.attr('persist', '1')
+      // else if (this.tooltip.attr('persist') === '1')
+      //   this.tooltip.attr('persist', '0')
       this.$emit('circleClicked', item)
     },
     highlight: function(ev, item) {
+      item.highlighted = true
       this.highlightedData = item
-      this.tooltip
-        .transition()
-        .duration(200)
-        .style('opacity', 0.9)
-        .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
-        .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
-      this.tooltip.attr('persist', '0')
-      ev.target.setAttribute('stroke', 'orange')
-      ev.target.setAttribute('stroke-width', '2')
+      if (this.contextMenu) {
+        this.tooltip
+          .transition()
+          .duration(200)
+          .style('opacity', 0.9)
+          .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+          .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+        this.tooltip.attr('persist', '0')
+      }
       this.$emit('highlight', ev)
     },
     dim: function(ev, item) {
-      if (this.tooltip.attr('persist') === '0') {
-        if (item.selected) ev.target.setAttribute('stroke', 'red')
-        else {
-          ev.target.setAttribute('stroke', '')
-          ev.target.setAttribute('stroke-width', '0')
+      item.highlighted = false
+      if (this.contextMenu) {
+        if (this.tooltip.attr('persist') === '0') {
+          if (item.selected) ev.target.setAttribute('stroke', 'red')
+          else {
+            ev.target.setAttribute('stroke', '')
+            ev.target.setAttribute('stroke-width', '0')
+          }
+          this.tooltip
+            .transition()
+            .duration(500)
+            .style('opacity', 0)
+          this.highlightedData = {}
         }
-        this.tooltip
-          .transition()
-          .duration(500)
-          .style('opacity', 0)
-        this.highlightedData = {}
       }
       this.$emit('dim', item)
     }
@@ -454,5 +490,18 @@ export default {
 .svg >>> .line {
   transition: all 0ms;
   -webkit-transition: all 0ms;
+}
+
+.fade-enter-active {
+  fill: green;
+}
+
+.fade-leave-active {
+  fill: brown;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -59,7 +59,7 @@ export default {
     colorRange: {
       type: Array,
       default: function() {
-        return ['#ffffff', '#69b3a2']
+        return ['#d7ffdb', '#006c03']
       }
     },
     padding: {
@@ -69,7 +69,7 @@ export default {
           top: 20,
           right: 20,
           left: 150,
-          bottom: 20
+          bottom: 150
         }
       }
     }
@@ -162,10 +162,20 @@ export default {
     },
     drawAxes: function() {
       // Draw X axis
-      this.axes.x.element.call(this.xAxisFunction)
+      this.axes.x.element
+        .call(this.xAxisFunction)
+        .selectAll('text')
+        .attr('class', 'body-2')
+        .attr('dx', '-0.8em')
+        .attr('dy', '-0.35em')
+        .attr('transform', 'rotate(-90)')
+        .style('text-anchor', 'end')
 
       // Draw Y axis
-      this.axes.y.element.call(this.yAxisFunction)
+      this.axes.y.element
+        .call(this.yAxisFunction)
+        .selectAll('text')
+        .attr('class', 'body-2')
     }
   }
 }
@@ -176,9 +186,10 @@ export default {
   /*background: lightgrey;*/
 }
 
-/*.x-axis >>> .tick > text {*/
-/*  transform: rotate(90deg);*/
-/*}*/
+.x-axis >>> .tick,
+.y-axis >>> .tick {
+  font-family: 'Roboto', sans-serif;
+}
 
 .circle {
   transition: all 500ms;

@@ -64,7 +64,7 @@
           :x="item.x0 < chartWidth / 2 ? item.x1 + 6 : item.x0 - 6"
           :y="(item.y1 + item.y0) / 2"
           :text-anchor="item.x0 < chartWidth / 2 ? 'start' : 'end'"
-          style="font: 10px sans-serif;"
+          class="body-1"
         >
           {{ item.name }}
         </text>

@@ -1,9 +1,11 @@
 <template>
   <v-card :color="color" :flat="flat">
     <v-card-title>
-      <h2>
+      <h3>
         {{ label }}
-      </h2>
+        (<mark>{{ selectedMlMethod }}</mark
+        >)
+      </h3>
     </v-card-title>
     <!--    <v-card-actions>-->
     <!--      <v-btn icon @click="meta.show = !meta.show">-->

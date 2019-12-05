@@ -1,9 +1,9 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-card :color="color" :flat="flat">
     <v-card-title v-if="showMeta">
-      <h2>
+      <h3>
         {{ label }}
-      </h2>
+      </h3>
     </v-card-title>
     <v-card-text>
       <div :id="divId">
@@ -161,7 +161,7 @@ export default {
   },
   data() {
     return {
-      radius: 7,
+      radius: 25,
       transform: d3.zoomIdentity,
       colorRange: ['#d4e3f4', '#14004f'],
       meta: {

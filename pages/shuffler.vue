@@ -1,12 +1,22 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout row>
-    <v-flex xs2 shrink>
+    <v-flex :xs2="!minimizeTopics" :xs1="minimizeTopics" shrink>
       <v-layout column align-space-between justify-start fill-height wrap>
         <v-flex>
           <v-card flat>
             <v-toolbar card color="grey lighten-3">
-              <v-icon>class</v-icon>
-              <v-toolbar-title>Topics</v-toolbar-title>
+              <v-btn
+                :color="minimizeTopics ? 'grey' : 'indigo'"
+                icon
+                flat
+                dark
+                @click="minimizeTopics = !minimizeTopics"
+              >
+                <v-icon>
+                  {{ `chevron_${minimizeTopics ? 'right' : 'left'}` }}
+                </v-icon>
+              </v-btn>
+              <v-toolbar-title v-if="!minimizeTopics">Topics</v-toolbar-title>
               <v-spacer></v-spacer>
               <!--              <v-dialog v-model="dialog" max-width="600px">-->
               <!--                <template v-slot:activator="{ on }">-->
@@ -109,18 +119,10 @@
 
             <v-layout>
               <v-flex>
-                <v-card-text
-                  style="overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;"
-                >
-                  <!--                  <sunburst-wrapper-->
-                  <!--                    :id="charts.sunburst.id"-->
-                  <!--                    :div-id="charts.sunburst.divId"-->
-                  <!--                    :width="charts.sunburst.width"-->
-                  <!--                    :height="charts.sunburst.height"-->
-                  <!--                    :dataset="topicItems"-->
-                  <!--                  ></sunburst-wrapper>-->
+                <v-card-text class="text-truncate">
                   <v-treeview
                     v-model="topicsTreeSelections"
+                    class="text-truncate"
                     :items="topicItems"
                     selected-color="indigo"
                     activatable
@@ -207,19 +209,31 @@
         </v-flex>
       </v-layout>
     </v-flex>
-    <v-flex xs10>
+    <v-flex :xs10="!minimizeTopics" :xs11="minimizeTopics">
       <!--      <v-btn block flat color="error" dark @click="rawTweets = []">-->
       <!--        Empty Results-->
       <!--        <v-icon right>delete</v-icon>-->
       <!--      </v-btn>-->
       <v-layout column justify-center fill-height>
-        <v-flex
-          style="overflow-x: auto; overflow-y: hidden; height: 60vh"
-          shrink
-        >
+        <v-flex id="topics-columns" class="smooth-scroll" grow>
           <v-layout row>
+            <v-flex v-if="selectedChannels.length === 0" style="height: 55vh;">
+              <v-layout
+                column
+                justify-center
+                align-center
+                text-xs-center
+                fill-height
+              >
+                <h3 class="display-2 grey--text">
+                  Please select some topics or keywords...
+                </h3>
+                <v-btn loading disabled icon></v-btn>
+              </v-layout>
+            </v-flex>
             <tweet-collection
               v-for="(channel, index) in selectedChannels"
+              :id="'column-' + channel"
               :key="'channel-' + index + '-' + channel"
               :tweets="
                 filteredTweets.filter(a =>
@@ -227,8 +241,8 @@
                 )
               "
               :title="channel"
-              @setDetails="setDetails"
-              @unsetDetails="unsetDetails"
+              @tweetSelect="tweetSelect"
+              @tweetDeselect="tweetDeselect"
               @updateTweet="updateTweet"
             ></tweet-collection>
             <!--            <v-flex v-for="(tweet, i) in filteredTweets" :key="i">-->
@@ -243,76 +257,103 @@
             <!--            </v-flex>-->
           </v-layout>
         </v-flex>
-        <v-divider></v-divider>
-        <v-flex :id="charts.scatterplot.divId" grow text-xs-center>
-          <scatter-plot-wrapper
-            :id="charts.scatterplot.id"
-            :div-id="charts.scatterplot.divId"
-            :label="charts.scatterplot.label"
-            :width="charts.scatterplot.width"
-            :height="charts.scatterplot.height"
-            :axes-meta="charts.scatterplot.axesMeta"
-            :line="charts.scatterplot.line"
-            :selected-data="selectedTweet"
-            :sift-dataset="false"
-            :dataset="filteredTweets"
-            :toolbox="false"
-            @circleClicked="
-              data => {
-                selectedTweet = data
-              }
-            "
-          ></scatter-plot-wrapper>
+        <v-flex :id="charts.contextMap.divId" grow text-xs-center>
+          <context-map-wrapper
+            :id="charts.contextMap.id"
+            :div-id="charts.contextMap.divId"
+            :label="charts.contextMap.label"
+            :width="charts.contextMap.width"
+            :height="charts.contextMap.height"
+            :topics="topics.map(a => a.id).sort()"
+            :tweets="selectedTweets"
+            :color="color"
+            :flat="flat"
+            @topicSelected="topicSelected"
+            @tweetClicked="toggleTweetExamMenu"
+          ></context-map-wrapper>
         </v-flex>
+        <v-divider></v-divider>
+        <v-flex>
+          <v-layout row>
+            <v-flex
+              v-for="(tweet, index) in examMenu"
+              :key="'examMenu-' + index"
+              xs3
+            >
+              <tweet :tweet="tweet" :selected="tweet.selected"></tweet>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+        <!--        <v-flex :id="charts.scatterplot.divId" grow text-xs-center>-->
+        <!--          <sunburst-wrapper-->
+        <!--            :id="charts.sunburst.id"-->
+        <!--            :div-id="charts.sunburst.divId"-->
+        <!--            :width="charts.sunburst.width"-->
+        <!--            :height="charts.sunburst.height"-->
+        <!--            :dataset="topicItems"-->
+        <!--          ></sunburst-wrapper>-->
+        <!--          <scatter-plot-wrapper-->
+        <!--            :id="charts.scatterplot.id"-->
+        <!--            :div-id="charts.scatterplot.divId"-->
+        <!--            :label="charts.scatterplot.label"-->
+        <!--            :width="charts.scatterplot.width"-->
+        <!--            :height="charts.scatterplot.height"-->
+        <!--            :axes-meta="charts.scatterplot.axesMeta"-->
+        <!--            :line="charts.scatterplot.line"-->
+        <!--            :selected-data="selectedTweet"-->
+        <!--            :sift-dataset="false"-->
+        <!--            :dataset="filteredTweets"-->
+        <!--            :toolbox="false"-->
+        <!--            @circleClicked="-->
+        <!--              data => {-->
+        <!--                selectedTweet = data-->
+        <!--              }-->
+        <!--            "-->
+        <!--          ></scatter-plot-wrapper>-->
+        <!--          <v-data-table-->
+        <!--            :headers="selectedTweetCategorizationHeaders"-->
+        <!--            :items="selectedTweet.labels"-->
+        <!--            hide-actions-->
+        <!--          >-->
+        <!--            <template v-slot:items="props">-->
+        <!--              <td>{{ props.item.id }}</td>-->
+        <!--              <td>{{ props.item.result.group }}</td>-->
+        <!--              <td>{{ props.item.result.theme }}</td>-->
+        <!--            </template>-->
+        <!--          </v-data-table>-->
+        <!--        </v-flex>-->
       </v-layout>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
-/* eslint-disable dot-notation */
 import socket from '../lib/socket.io'
-import Tweet from '../components/Twitter/Tweet'
-import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
-import TestTweet from '../components/Twitter/TestTweet'
-import SunburstWrapper from '../components/Sunburst/SunburstWrapper'
 import TweetCollection from '../components/Twitter/TweetCollection'
+import ContextMapWrapper from '../components/ContextMap/ContextMapWrapper'
+import Tweet from '../components/Twitter/Tweet'
 export default {
   name: 'PageShuffler',
   // layout: 'shuffler',
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     TweetCollection,
-    // eslint-disable-next-line vue/no-unused-components
-    SunburstWrapper,
-    // eslint-disable-next-line vue/no-unused-components
-    TestTweet,
-    // eslint-disable-next-line vue/no-unused-components
-    tweet: Tweet,
-    // eslint-disable-next-line vue/no-unused-components
-    'scatter-plot-wrapper': ScatterPlotWrapper
+    'context-map-wrapper': ContextMapWrapper,
+    tweet: Tweet
   },
   data() {
     return {
       dialog: false,
-      // temp_topic: {
-      //   channel: '',
-      //   keywords: []
-      // },
-      topicsTreeSelections: [],
       contentThemeTreeSelections: [],
       userGroupsTreeSelections: [],
-      // selectedTopics: [],
-      // search: null,
-      // search2: null,
-      selectedTweet: {},
+      selectedTweets: [],
+      examMenu: [],
       charts: {
-        scatterplot: {
+        contextMap: {
           id: 'scatter-plot',
           divId: 'scatter-plot-div',
-          label: 'Tweet Sentiments',
+          label: 'Context Menu',
           width: 700,
-          height: 200,
+          height: 300,
           line: {
             show: true,
             fill: 'none',
@@ -330,14 +371,16 @@ export default {
               scaleToContent: false,
               zoomEnabled: true,
               label: 'Time',
-              isTime: true
+              isTime: true,
+              show: false
             },
             y: {
               selector: 'y',
               initialBound: [-1, 1],
               scaleToContent: false,
               zoomEnabled: false,
-              label: 'Average Sentiment'
+              label: 'Average Sentiment',
+              show: false
             }
           }
         },
@@ -351,12 +394,41 @@ export default {
     }
   },
   computed: {
+    target() {
+      return channel => {
+        const id = 'column-' + channel
+        if (document.getElementById(id)) return '#' + id
+        else return '#topics-columns'
+      }
+    },
+    options() {
+      return {
+        duration: 300,
+        offset: 60,
+        easing: 'easeInOutCubic',
+        container: '#topics-columns'
+      }
+    },
+    minimizeTopics: {
+      set(val) {
+        this.$store.commit('shuffler/updateMinimizeTopics', val)
+      },
+      get() {
+        return this.$store.state.shuffler.minimizeTopics
+      }
+    },
+    topicsTreeSelections: {
+      set(val) {
+        this.$store.commit('shuffler/updateTopicsTreeSelections', val)
+      },
+      get() {
+        return this.$store.state.shuffler.topicsTreeSelections
+      }
+    },
     filteredTweets() {
       let res = []
       for (const kw of this.topicsTreeSelections) {
         const tweets = this.tweets.filter(t => t.keywords.includes(kw))
-        // eslint-disable-next-line no-console
-        // console.log('Tweets:', kw, tweets)
         res = [...res, ...tweets]
       }
       return res
@@ -365,7 +437,7 @@ export default {
       const res = []
       for (const item of this.filteredTweets.map(a => Object.keys(a.topics)))
         for (const topic of item) if (!res.includes(topic)) res.push(topic)
-      return res
+      return res.sort()
     },
     userGroupItems() {
       // this.tweets().map(tw => tw.labels[i].result.group)
@@ -394,7 +466,6 @@ export default {
       ]
     },
     tweets() {
-      const that = this
       const uniques = []
       for (const tweet of this.rawTweets) {
         if (!uniques.map(a => a.id_str).includes(tweet.id_str))
@@ -402,13 +473,10 @@ export default {
       }
       return uniques
         .map(tw => {
-          let flag = false
-          if (that.selectedTweet && Object.keys(that.selectedTweet).length > 0)
-            flag = that.selectedTweet.id_str === tw.id_str
           return {
             ...tw,
             date: new Date(tw.created_at).getTime(),
-            selected: flag
+            selected: false
           }
         })
         .sort((a, b) => {
@@ -488,13 +556,15 @@ export default {
   },
   methods: {
     resize: function() {
-      const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
-      const sunburstDiv = document.getElementById(this.charts.sunburst.divId)
-      if (scatterDiv) this.charts.scatterplot.width = scatterDiv.clientWidth - 5
-      if (sunburstDiv) {
-        this.charts.sunburst.width = sunburstDiv.clientWidth - 5
-        this.charts.sunburst.height = sunburstDiv.clientWidth - 5
-      }
+      // const sunburstDiv = document.getElementById(this.charts.sunburst.divId)
+      // const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
+      // if (scatterDiv) this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      // if (sunburstDiv) {
+      //   this.charts.sunburst.width = sunburstDiv.clientWidth - 5
+      //   this.charts.sunburst.height = sunburstDiv.clientWidth - 5
+      // }
+      const contextDiv = document.getElementById(this.charts.contextMap.divId)
+      if (contextDiv) this.charts.contextMap.width = contextDiv.clientWidth - 5
     },
     getChildren(topic) {
       if (!topic || topic === '') return []
@@ -523,13 +593,15 @@ export default {
     getName(name) {
       return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
     },
-    setDetails: function(tweet) {
-      // eslint-disable-next-line no-console
-      console.log(tweet.text)
-      this.selectedTweet = tweet
+    tweetSelect: function(tweet) {
+      if (!this.selectedTweets.map(a => a.id_str).includes(tweet.id_str))
+        this.selectedTweets.push(tweet)
     },
-    unsetDetails: function(tweet) {
-      this.selectedTweet = {}
+    tweetDeselect: function(tweet) {
+      const index = this.selectedTweets.findIndex(
+        a => a.id_str === tweet.id_str
+      )
+      this.selectedTweets.splice(index, 1)
     },
     updateTweet: function(data) {
       socket.emit('update_labeling', data)
@@ -548,9 +620,37 @@ export default {
             theme: data.theme
           }
         })
+    },
+    topicSelected(data) {
+      // eslint-disable-next-line no-console
+      const container = document.getElementById('column-' + data)
+      if (container)
+        container.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        })
+    },
+    toggleTweetExamMenu(tweet) {
+      if (!this.examMenu.map(a => a.id_str).includes(tweet.id_str)) {
+        if (this.examMenu.length < 4) {
+          tweet.exam = true
+          this.examMenu.push(tweet)
+        }
+      } else {
+        const index = this.examMenu.findIndex(a => a.id_str === tweet.id_str)
+        this.examMenu.splice(index, 1)
+        tweet.exam = false
+      }
     }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.smooth-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+}
+</style>
