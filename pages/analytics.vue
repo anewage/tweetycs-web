@@ -138,7 +138,7 @@ export default {
     return {
       flat: true,
       color: 'transparent',
-      highlightedTopic: 'hiv',
+      highlightedTopic: '',
       msg: '',
       temp: [],
       selectedUser: { screen_name: '' },

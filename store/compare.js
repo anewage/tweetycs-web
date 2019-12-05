@@ -1,7 +1,7 @@
 export const strict = false
 export const state = () => ({
   comparisonSlider: 1,
-  comparisons: [{ analysis: '', machineLearning: '', topic: 'hiv' }]
+  comparisons: [{ analysis: '', machineLearning: '', topic: '' }]
 })
 
 export const mutations = {
