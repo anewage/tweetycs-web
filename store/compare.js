@@ -30,7 +30,7 @@ export const mutations = {
         state.comparisons.push({
           analysis: '',
           machineLearning: '',
-          topic: 'hiv'
+          topic: ''
         })
     } else if (state.comparisons.length > count) {
       state.comparisons.splice(count)

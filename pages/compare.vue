@@ -199,7 +199,7 @@ export default {
   data() {
     return {
       flat: true,
-      selectedTopic: 'hiv',
+      selectedTopic: '',
       color: 'transparent',
       msg: '',
       temp: [],

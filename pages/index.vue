@@ -167,6 +167,8 @@ export default {
           flag: true
         })
         socket.emit('pause_consuming')
+        // eslint-disable-next-line no-console
+        console.log(scenario.channels)
         socket.emit('update_channels', scenario.channels)
         socket.emit('initial_data_request', {})
       }

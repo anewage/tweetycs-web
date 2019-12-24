@@ -245,12 +245,92 @@ function initialState() {
       },
       {
         id: 'politics',
-        title: 'Politics',
+        title: 'U.S. Elections',
         subtitle: 'Debates about policies, political parties, and more',
         color: 'purple',
         consuming: false,
         cloud: '/politics.png',
-        channels: []
+        channels: [
+          {
+            id: 'democratic',
+            title: 'Democratic Party Candidates',
+            keywords: [
+              'democrats',
+              'dems',
+              'Michael Bennet',
+              'Bennet',
+              'Joe Biden',
+              'Biden',
+              'Michael Bloomberg',
+              'Bloomberg',
+              'Cory Booker',
+              'Booker',
+              'Pete Buttigieg',
+              'Julián Castro',
+              'John Delaney',
+              'Tulsi Gabbard',
+              'Amy Klobuchar',
+              'Deval Patrick',
+              'Bernie Sanders',
+              'Tom Steyer',
+              'Elizabeth Warren',
+              'Marianne Williamson',
+              'Andrew Yang'
+            ]
+          },
+          {
+            id: 'impeachment',
+            title: 'Impeachment-related Topics',
+            keywords: [
+              'Impeachment',
+              'Impeached45',
+              'ImpeachmentHearing',
+              'ImpeachedPresident',
+              'IMPOTUS'
+            ]
+          },
+          {
+            id: 'republican',
+            title: 'Republican Party Candidates',
+            keywords: [
+              'Donald Trump',
+              'trump',
+              'Joe Walsh',
+              'Bill Weld',
+              'Mark Sanford'
+            ]
+          },
+          {
+            id: 'libertarian',
+            title: 'Libertarian Party Candidates',
+            keywords: [
+              'Max Abramson',
+              'Ken Armstrong',
+              'Dan Behrman',
+              'Jacob Hornberger',
+              'Jo Jorgensen',
+              'Adam Kokesh',
+              'John McAfee',
+              'Sam Robb',
+              'Kim Ruff',
+              'Vermin Supreme',
+              'Arvin Vohra'
+            ]
+          },
+          {
+            id: 'green',
+            title: 'Green Party Candidates',
+            keywords: [
+              'Howie Hawkins',
+              'Dario Hunter',
+              'Sedinam Moyowasifza-Curry',
+              'Dennis Lambert',
+              'Kent Mesplay',
+              'David Rolde',
+              'Chad Wilson'
+            ]
+          }
+        ]
       }
     ]
   }
@@ -500,12 +580,92 @@ export const state = () => ({
     },
     {
       id: 'politics',
-      title: 'Politics',
+      title: 'U.S. Elections',
       subtitle: 'Debates about policies, political parties, and more',
       color: 'purple',
       consuming: false,
       cloud: '/politics.png',
-      channels: []
+      channels: [
+        {
+          id: 'democratic',
+          title: 'Democratic Party Candidates',
+          keywords: [
+            'democrats',
+            'dems',
+            'Michael Bennet',
+            'Bennet',
+            'Joe Biden',
+            'Biden',
+            'Michael Bloomberg',
+            'Bloomberg',
+            'Cory Booker',
+            'Booker',
+            'Pete Buttigieg',
+            'Julián Castro',
+            'John Delaney',
+            'Tulsi Gabbard',
+            'Amy Klobuchar',
+            'Deval Patrick',
+            'Bernie Sanders',
+            'Tom Steyer',
+            'Elizabeth Warren',
+            'Marianne Williamson',
+            'Andrew Yang'
+          ]
+        },
+        {
+          id: 'impeachment',
+          title: 'Impeachment-related Topics',
+          keywords: [
+            'Impeachment',
+            'Impeached45',
+            'ImpeachmentHearing',
+            'ImpeachedPresident',
+            'IMPOTUS'
+          ]
+        },
+        {
+          id: 'republican',
+          title: 'Republican Party Candidates',
+          keywords: [
+            'Donald Trump',
+            'trump',
+            'Joe Walsh',
+            'Bill Weld',
+            'Mark Sanford'
+          ]
+        },
+        {
+          id: 'libertarian',
+          title: 'Libertarian Party Candidates',
+          keywords: [
+            'Max Abramson',
+            'Ken Armstrong',
+            'Dan Behrman',
+            'Jacob Hornberger',
+            'Jo Jorgensen',
+            'Adam Kokesh',
+            'John McAfee',
+            'Sam Robb',
+            'Kim Ruff',
+            'Vermin Supreme',
+            'Arvin Vohra'
+          ]
+        },
+        {
+          id: 'green',
+          title: 'Green Party Candidates',
+          keywords: [
+            'Howie Hawkins',
+            'Dario Hunter',
+            'Sedinam Moyowasifza-Curry',
+            'Dennis Lambert',
+            'Kent Mesplay',
+            'David Rolde',
+            'Chad Wilson'
+          ]
+        }
+      ]
     }
   ]
 })

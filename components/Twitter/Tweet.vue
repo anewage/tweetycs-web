@@ -66,18 +66,52 @@
                     <!--  eslint-disable-next-line vue/no-v-html-->
                     <v-flex xs12 v-html="decoratedText"></v-flex>
                     <v-flex xs6>
-                      <v-text-field
+                      <v-combobox
                         v-model="customGroup"
-                        label="User Group"
+                        :items="groups"
+                        chips
+                        label="User Category"
                         clearable
-                      ></v-text-field>
+                      >
+                        <template v-slot:selection="data">
+                          <v-chip
+                            :key="JSON.stringify(data.item)"
+                            :selected="data.selected"
+                            class="v-chip--select-multi"
+                            @click.stop="data.parent.selectedIndex = data.index"
+                            @input="data.parent.selectItem(data.item)"
+                          >
+                            <v-avatar class="accent white--text">
+                              <v-icon>account_circle</v-icon>
+                            </v-avatar>
+                            {{ data.item }}
+                          </v-chip>
+                        </template>
+                      </v-combobox>
                     </v-flex>
                     <v-flex xs6>
-                      <v-text-field
+                      <v-combobox
                         v-model="customTheme"
+                        :items="themes"
+                        chips
                         label="Content Theme"
                         clearable
-                      ></v-text-field>
+                      >
+                        <template v-slot:selection="data">
+                          <v-chip
+                            :key="JSON.stringify(data.item)"
+                            :selected="data.selected"
+                            class="v-chip--select-multi"
+                            @click.stop="data.parent.selectedIndex = data.index"
+                            @input="data.parent.selectItem(data.item)"
+                          >
+                            <v-avatar class="accent white--text">
+                              <v-icon>tag</v-icon>
+                            </v-avatar>
+                            {{ data.item }}
+                          </v-chip>
+                        </template>
+                      </v-combobox>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -135,13 +169,13 @@
                     class="text-xs-center"
                   >
                     <span>{{ label.id }}: </span> <br />
-                    <v-chip color="indigo" outline>
+                    <v-chip :color="colorScale(label.result.group)" outline>
                       <v-avatar style="margin-right: 0px;">
                         <v-icon>account_circle</v-icon>
                       </v-avatar>
                       <strong>{{ label.result.group }}</strong>
                     </v-chip>
-                    <v-chip color="green" outline>
+                    <v-chip :color="colorScale(label.result.theme)" outline>
                       <v-avatar style="margin-right: 0px;">
                         <v-icon>label</v-icon>
                       </v-avatar>
@@ -158,12 +192,12 @@
               </span>
               <!--  eslint-disable-next-line vue/no-v-html-->
               <div class="body-2" v-html="decoratedText"></div>
-              <span
-                v-if="tweet.labels.find(a => a.id === 'custom')"
-                class="red--text"
-              >
-                Custom!
-              </span>
+              <!--              <span-->
+              <!--                v-if="tweet.labels.find(a => a.id === 'custom')"-->
+              <!--                class="red&#45;&#45;text"-->
+              <!--              >-->
+              <!--                {{ tweet.labels.find(a => a.id === 'custom') }}-->
+              <!--              </span>-->
             </v-flex>
           </v-layout>
         </v-card-text>
@@ -173,6 +207,7 @@
 </template>
 
 <script>
+import * as d3 from 'd3'
 export default {
   name: 'Tweet',
   props: {
@@ -237,11 +272,20 @@ export default {
     }
   },
   computed: {
+    colorScale() {
+      return d3.scaleOrdinal(d3.schemeCategory10)
+    },
     sortedLabels() {
       return this.tweet.labels
     },
     sortedAnalysis() {
       return this.tweet.analysis
+    },
+    groups() {
+      return this.sortedLabels.map(a => a.result.group)
+    },
+    themes() {
+      return this.sortedLabels.map(a => a.result.theme)
     },
     selectedTweetCategorizationHeaders() {
       return [
