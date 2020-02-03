@@ -3,9 +3,7 @@
     <v-card-title>
       <h3>
         {{ label }}
-        (<mark>{{ selectedTopic }}</mark>
-        <mark>{{ selectedAnalysisMethod }}</mark
-        >)
+        ({{ selectedTopic }} {{ selectedAnalysisMethod }} )
       </h3>
     </v-card-title>
     <v-card-text>

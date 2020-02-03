@@ -3,8 +3,7 @@
     <v-card-title>
       <h3>
         {{ label }}
-        (<mark>{{ selectedMlMethod }}</mark
-        >)
+        ({{ selectedMlMethod }})
       </h3>
     </v-card-title>
     <!--    <v-card-actions>-->

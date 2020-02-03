@@ -128,7 +128,7 @@ export default {
       miniVariant: true,
       right: true,
       rightDrawer: false,
-      title: 'Tweetycs',
+      title: 'VARTTA',
       // Data required for connection metrics
       pingPong: {
         start: 0,
