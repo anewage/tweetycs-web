@@ -3,13 +3,14 @@
     <v-flex text-xs-center xs12 class="mt-5">
       <span>Number of Panels:</span>
       <v-slider
+        v-model="comparisonSlider"
         :tick-labels="[1, 2, 3, 4, 6, 12]"
         :max="6"
         :min="1"
         step="1"
         ticks="always"
         tick-size="1"
-        @change="changeComparisons"
+        @change="updateComparisons"
       ></v-slider>
     </v-flex>
     <v-flex
@@ -23,9 +24,9 @@
     >
       <v-flex xs12>
         <v-card flat color="transparent">
-          <v-card-title>
-            <h2>{{ index + 1 }} - Control Box</h2>
-          </v-card-title>
+          <!--          <v-card-title>-->
+          <!--            <h2>{{ index + 1 }} - Control Box</h2>-->
+          <!--          </v-card-title>-->
           <v-card-actions>
             <v-layout row align-center justify-space-around>
               <v-flex v-if="mlMethods.length === 0" text-xs-center>
@@ -35,17 +36,26 @@
                   indeterminate
                 ></v-progress-circular>
               </v-flex>
-              <v-flex v-if="mlMethods.length !== 0">
+              <v-flex v-if="mlMethods.length !== 0" xs6 class="ma-1">
                 <h4>Text Categorization Methods</h4>
-                <v-radio-group v-model="comparison.machineLearning" column>
-                  <v-radio
-                    v-for="method in mlMethods"
-                    :key="method.id + '-' + index"
-                    :label="method.title"
-                    :value="method.id"
-                    color="orange"
-                  ></v-radio>
-                </v-radio-group>
+                <v-select
+                  :value="comparison.machineLearning"
+                  class="no-overflow"
+                  :items="mlMethods"
+                  item-text="title"
+                  item-value="id"
+                  label="Text Categorization Method"
+                  @change="commitMLChange.call(this, arguments[0], index)"
+                ></v-select>
+                <!--                <v-radio-group v-model="comparison.machineLearning" column>-->
+                <!--                  <v-radio-->
+                <!--                    v-for="method in mlMethods"-->
+                <!--                    :key="method.id + '-' + index"-->
+                <!--                    :label="method.title"-->
+                <!--                    :value="method.id"-->
+                <!--                    color="orange"-->
+                <!--                  ></v-radio>-->
+                <!--                </v-radio-group>-->
               </v-flex>
               <v-flex v-if="analysisMethods.length === 0" text-xs-center>
                 <v-progress-circular
@@ -54,22 +64,74 @@
                   indeterminate
                 ></v-progress-circular>
               </v-flex>
-              <v-flex v-if="analysisMethods.length !== 0">
+              <v-flex v-if="analysisMethods.length !== 0" xs6>
                 <h4>Sentiment Analysis Methods</h4>
-                <v-radio-group v-model="comparison.analysis" column>
-                  <v-radio
-                    v-for="method in analysisMethods"
-                    :key="method.id + '-' + index"
-                    :label="method.title"
-                    :value="method.id"
-                    color="cyan"
-                  ></v-radio>
-                </v-radio-group>
+                <v-select
+                  :value="comparison.analysis"
+                  class="no-overflow"
+                  :items="analysisMethods"
+                  item-text="title"
+                  item-value="id"
+                  label="Sentiment Analysis Methods"
+                  @change="
+                    commitAnalysisMethodChange.call(this, arguments[0], index)
+                  "
+                ></v-select>
+                <!--                <v-radio-group v-model="comparison.analysis" column>-->
+                <!--                  <v-radio-->
+                <!--                    v-for="method in analysisMethods"-->
+                <!--                    :key="method.id + '-' + index"-->
+                <!--                    :label="method.title"-->
+                <!--                    :value="method.id"-->
+                <!--                    color="cyan"-->
+                <!--                  ></v-radio>-->
+                <!--                </v-radio-group>-->
               </v-flex>
             </v-layout>
           </v-card-actions>
         </v-card>
       </v-flex>
+      <!--      <v-flex xs12>-->
+      <!--        <v-card flat color="transparent">-->
+      <!--          &lt;!&ndash;          <v-card-title>&ndash;&gt;-->
+      <!--          &lt;!&ndash;            <h2>{{ index + 1 }} - Control Box</h2>&ndash;&gt;-->
+      <!--          &lt;!&ndash;          </v-card-title>&ndash;&gt;-->
+      <!--          <v-card-actions>-->
+      <!--            <v-layout row align-center justify-space-around>-->
+      <!--              <v-flex v-if="analysisMethods.length === 0" text-xs-center>-->
+      <!--                <v-progress-circular-->
+      <!--                  :size="50"-->
+      <!--                  color="cyan"-->
+      <!--                  indeterminate-->
+      <!--                ></v-progress-circular>-->
+      <!--              </v-flex>-->
+      <!--              <v-flex v-if="analysisMethods.length !== 0" xs12>-->
+      <!--                <h4>Sentiment Analysis Methods</h4>-->
+      <!--                <v-select-->
+      <!--                  :value="comparison.analysis"-->
+      <!--                  class="no-overflow"-->
+      <!--                  :items="analysisMethods"-->
+      <!--                  item-text="title"-->
+      <!--                  item-value="id"-->
+      <!--                  label="Sentiment Analysis Methods"-->
+      <!--                  @change="-->
+      <!--                    commitAnalysisMethodChange.call(this, arguments[0], index)-->
+      <!--                  "-->
+      <!--                ></v-select>-->
+      <!--                &lt;!&ndash;                <v-radio-group v-model="comparison.analysis" column>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                  <v-radio&ndash;&gt;-->
+      <!--                &lt;!&ndash;                    v-for="method in analysisMethods"&ndash;&gt;-->
+      <!--                &lt;!&ndash;                    :key="method.id + '-' + index"&ndash;&gt;-->
+      <!--                &lt;!&ndash;                    :label="method.title"&ndash;&gt;-->
+      <!--                &lt;!&ndash;                    :value="method.id"&ndash;&gt;-->
+      <!--                &lt;!&ndash;                    color="cyan"&ndash;&gt;-->
+      <!--                &lt;!&ndash;                  ></v-radio>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                </v-radio-group>&ndash;&gt;-->
+      <!--              </v-flex>-->
+      <!--            </v-layout>-->
+      <!--          </v-card-actions>-->
+      <!--        </v-card>-->
+      <!--      </v-flex>-->
       <v-flex text-xs-center xs12>
         <sankey-diagram-wrapper
           :id="charts.sankey.id + '-comparison-' + index"
@@ -83,7 +145,7 @@
           :topics="topics"
           :selected-ml-method="comparison.machineLearning"
           :dataset="aggregatedTopics"
-          @itemClick="updateSecltedTopic"
+          @itemClick="updateSelectedTopic"
           @itemMouseover="applyHighlight"
           @itemMouseout="removeHighlight"
         ></sankey-diagram-wrapper>
@@ -103,48 +165,44 @@
           :dataset="aggregatedKeywords"
         ></heat-map-wrapper>
       </v-flex>
-      <v-flex text-xs-center xs12>
-        <scatter-plot-wrapper
-          :id="charts.scatterplot.id + '-comparison-' + index"
-          :div-id="charts.scatterplot.divId + '-comparison-' + index"
-          :label="index + 1 + ' - ' + charts.scatterplot.label"
-          :width="charts.scatterplot.width"
-          :height="charts.scatterplot.height"
-          :selected-analysis-method="comparison.analysis"
-          :color="color"
-          :flat="flat"
-          :dataset="aggregatedUsers"
-          @circleClicked="updateTweets"
-        ></scatter-plot-wrapper>
-      </v-flex>
+      <!--      <v-flex text-xs-center xs12>-->
+      <!--        <scatter-plot-wrapper-->
+      <!--          :id="charts.scatterplot.id + '-comparison-' + index"-->
+      <!--          :div-id="charts.scatterplot.divId + '-comparison-' + index"-->
+      <!--          :label="index + 1 + ' - ' + charts.scatterplot.label"-->
+      <!--          :width="charts.scatterplot.width"-->
+      <!--          :height="charts.scatterplot.height"-->
+      <!--          :selected-analysis-method="comparison.analysis"-->
+      <!--          :color="color"-->
+      <!--          :flat="flat"-->
+      <!--          :dataset="aggregatedUsers"-->
+      <!--          @circleClicked="updateTweets"-->
+      <!--        ></scatter-plot-wrapper>-->
+      <!--      </v-flex>-->
     </v-flex>
   </v-layout>
 </template>
 
 <script>
-// import { _ } from 'vue-underscore'
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
-import socket from '../lib/socket.io'
-import TweetsWrapper from '../components/Twitter/TweetsWrapper'
 
 export default {
   name: 'PageCompare',
   components: {
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
-    'scatter-plot-wrapper': ScatterPlotWrapper,
-    'heat-map-wrapper': HeatMapWrapper,
     // eslint-disable-next-line vue/no-unused-components
-    'tweets-wrapper': TweetsWrapper
+    'scatter-plot-wrapper': ScatterPlotWrapper,
+    'heat-map-wrapper': HeatMapWrapper
   },
   data() {
     return {
-      flat: false,
+      flat: true,
+      selectedTopic: '',
       color: 'transparent',
       msg: '',
       temp: [],
-      comparisons: [{ analysis: '', machineLearning: '', topic: 'hiv' }],
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -157,16 +215,16 @@ export default {
         sankey: {
           id: 'sankey-diagram',
           divId: 'sankey-diagram-div',
-          label: 'User Categories, Topics, and Content Theme',
+          label: 'User Categories, Topics, and Content Themes',
           width: 600,
-          height: 700
+          height: 400
         },
         heatmap: {
           id: 'heatmap',
           divId: 'heatmap-div',
           label: 'Hybrid Analysis',
           width: 600,
-          height: 150
+          height: 400
         },
         tweets: {
           user: {},
@@ -199,6 +257,22 @@ export default {
     },
     topics() {
       return this.$store.state.topics
+    },
+    comparisonSlider: {
+      set(val) {
+        this.$store.commit('compare/setComparisonSlider', val)
+      },
+      get() {
+        return this.$store.state.compare.comparisonSlider
+      }
+    },
+    comparisons: {
+      set(val) {
+        this.$store.commit('compare/setComparisons', val)
+      },
+      get() {
+        return this.$store.state.compare.comparisons
+      }
     },
     analysisMethods() {
       return this.aggregatedUsers.map(cat => {
@@ -236,55 +310,12 @@ export default {
       return avg
     }
   },
-  beforeMount() {
-    const that = this
-    /*
-     * Event handler for new connections.
-     * The callback function is invoked when a connection with the server is established.
-     */
-    socket.on('connect', () => {
-      socket.emit('client_event', { data: "I'm connected!" })
-    })
-    /*
-     * Event handler for server sent data.
-     * The callback function is invoked whenever the server emits data
-     * to the client. The data is then displayed in the "Received"
-     * section of the page.
-     */
-    socket.on('server_response', msg => {
-      // document.getElementById('log').innerText = msg.data
-    })
-    /*
-     * Handler for the "pong" message. When the pong is received, the
-     * time from the ping is stored, and the average of the last 30
-     * samples is average and displayed.
-     */
-    socket.on('server_pong', () => {
-      that.pingPong.end = new Date().getTime()
-      that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
-      // Keep last 30 samples
-      if (that.pingPong.history.length > 30) that.pingPong.history.splice(-30)
-      that.pingPong.busy = false
-    })
-    /*
-     * Store the incoming data
-     */
-    socket.on('bulk-update', msg => {
-      that.commitUpdates(msg)
-    })
-  },
   mounted() {
-    const that = this
-    this.resize()
     window.addEventListener('resize', this.resize)
-
-    window.setInterval(() => {
-      if (socket.connected) {
-        that.pingPong.busy = true
-        that.pingPong.start = new Date().getTime()
-        socket.emit('client_ping')
-      }
-    }, 2000)
+    this.resize()
+  },
+  updated() {
+    this.resize()
   },
   methods: {
     resize: function() {
@@ -298,17 +329,23 @@ export default {
         const sankeyDiv = document.getElementById(
           this.charts.sankey.divId + '-comparison-' + index
         )
-        this.charts.scatterplot.width = scatterDiv.clientWidth - 5
-        this.charts.heatmap.width = heatDiv.clientWidth - 5
-        this.charts.sankey.width = sankeyDiv.clientWidth - 5
+        if (scatterDiv)
+          this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+        if (heatDiv) this.charts.heatmap.width = heatDiv.clientWidth - 5
+        if (sankeyDiv) this.charts.sankey.width = sankeyDiv.clientWidth - 5
       }
     },
-    commitUpdates: function(msg) {
-      // Store the changes
-      this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
-      this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
-      this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
-      this.$store.commit('updateTopics', msg.topics)
+    commitMLChange: function(MLid, index) {
+      this.$store.commit('compare/updateComparisonML', {
+        index: index,
+        value: MLid
+      })
+    },
+    commitAnalysisMethodChange: function(MLid, index) {
+      this.$store.commit('compare/updateComparisonAnalysis', {
+        index: index,
+        value: MLid
+      })
     },
     updateTweets: function(data) {
       this.charts.tweets.user = data.user
@@ -316,22 +353,20 @@ export default {
       this.charts.tweets.avgSentiment = data.y
       this.charts.tweets.influence = data.x
     },
-    changeComparisons: function(count) {
-      count = [1, 2, 3, 4, 6, 12][count - 1]
-      if (this.comparisons.length < count) {
-        for (let i = this.comparisons.length; i < count; i++)
-          this.comparisons.push({
-            analysis: '',
-            machineLearning: '',
-            topic: 'hiv'
-          })
-      } else if (this.comparisons.length > count) {
-        this.comparisons.splice(count)
+    updateComparisons: function(count) {
+      this.$store.commit('compare/updateComparisons', count)
+    },
+    highlightTopic: function(item) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
+        for (const comparison of this.comparisons) {
+          comparison.topic = item.id
+        }
       }
     },
-    updateSecltedTopic: function(item) {
-      for (const comparison of this.comparisons) {
-        comparison.topic = item.id
+    updateSelectedTopic: function(item) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
+        this.selectedTopic = item.id
+        this.highlightTopic(item)
       }
     },
     applyHighlight: function(item) {
@@ -339,13 +374,23 @@ export default {
         const comps = this.$refs[index]
         for (const comp of comps) comp.applyHighlight(item)
       }
+      this.highlightTopic(item)
     },
     removeHighlight: function(item) {
       for (const index of Object.keys(this.$refs)) {
         const comps = this.$refs[index]
         for (const comp of comps) comp.removeHighlight(item)
       }
+      this.highlightTopic({ id: this.selectedTopic })
     }
   }
 }
 </script>
+
+<style scoped>
+.no-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+</style>

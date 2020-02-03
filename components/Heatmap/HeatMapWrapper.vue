@@ -1,30 +1,11 @@
 <template>
   <v-card :color="color" :flat="flat">
     <v-card-title>
-      <h2>
+      <h3>
         {{ label }}
-      </h2>
+        ({{ selectedTopic }} {{ selectedAnalysisMethod }} )
+      </h3>
     </v-card-title>
-    <v-card-actions>
-      <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">Low Values:</span>
-      <input v-model="colorRange[0]" type="color" />
-
-      <v-spacer></v-spacer>
-
-      <span class="caption theme--light">High Values:</span>
-      <input v-model="colorRange[1]" type="color" />
-      <v-spacer></v-spacer>
-    </v-card-actions>
-    <v-slide-y-transition>
-      <v-card-text v-show="meta.show">
-        {{ meta.info }}
-      </v-card-text>
-    </v-slide-y-transition>
     <v-card-text>
       <div :id="divId">
         <heat-map
@@ -36,6 +17,22 @@
         />
       </div>
     </v-card-text>
+    <v-card-actions>
+      <v-btn icon small @click="meta.show = !meta.show">
+        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
+      </v-btn>
+    </v-card-actions>
+    <v-slide-y-transition>
+      <v-card-actions v-show="meta.show">
+        <span class="caption theme--light">Low Values:</span>
+        <input v-model="colorRange[0]" type="color" />
+
+        <v-spacer></v-spacer>
+
+        <span class="caption theme--light">High Values:</span>
+        <input v-model="colorRange[1]" type="color" />
+      </v-card-actions>
+    </v-slide-y-transition>
   </v-card>
 </template>
 
@@ -99,7 +96,7 @@ export default {
   },
   data() {
     return {
-      colorRange: ['#ffffff', '#69b3a2'],
+      colorRange: ['#d7ffdb', '#006c03'],
       meta: {
         show: false,
         info: 'Hello this is only a help box!'
@@ -126,7 +123,7 @@ export default {
         for (const kw of it._id.keywords) {
           final.push({
             x: kw,
-            y: 'Content Theme: ' + it._id.theme,
+            y: 'Theme: ' + it._id.theme,
             v: it.avgSentiment,
             sort: 1
           })
@@ -143,13 +140,15 @@ export default {
         for (const kw of it._id.keywords) {
           final.push({
             x: kw,
-            y: 'Contributor Category: ' + it._id.group,
+            y: 'Group: ' + it._id.group,
             v: it.avgSentiment,
             sort: 0
           })
         }
       }
-      return final
+      return final.sort((a, b) => {
+        return a.sort > b.sort ? 1 : -1
+      })
     }
   }
 }

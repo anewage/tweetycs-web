@@ -1,71 +1,130 @@
-<template>
-  <svg
-    :id="chartDomID + '-svg'"
-    :width="width"
-    :height="height"
-    :class="'svg scatterplot-' + chartDomID"
-  >
-    <rect
-      :class="'view view-' + chartDomID"
-      :x="chartLeft"
-      :y="chartTop"
-      :width="chartWidth"
-      :height="chartHeight"
-    ></rect>
-    <transition-group
-      :id="'circles-' + chartDomID"
-      tag="svg"
-      name="fade"
-      :x="chartLeft"
-      :y="chartTop"
-      :width="chartWidth"
-      :height="chartHeight"
-      :duration="transitionDuration"
-      :appear="true"
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+  <div>
+    <svg
+      :id="chartDomID + '-svg'"
+      :width="width"
+      :height="height"
+      :class="'svg scatterplot-' + chartDomID"
     >
-      <circle
-        v-for="(item, index) in dataset"
-        :key="item.user.screen_name"
-        :cx="xScale(item[axesMeta.x.selector])"
-        :cy="yScale(item[axesMeta.y.selector])"
-        :r="radius"
-        :style="'fill: ' + colorScale(index) + ';'"
-        class="circle"
-        @click="$emit('circleClicked', item)"
-      ></circle>
-    </transition-group>
-    <g
-      :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
-      :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
-    >
-      <text
-        class="label"
-        :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
+      <defs>
+        <pattern
+          v-for="(item, index) in dataset"
+          :id="item.user.screen_name"
+          :key="index + '-' + item.user.screen_name + '-image'"
+          patternContentUnits="objectBoundingBox"
+          height="100%"
+          width="100%"
+        >
+          <image
+            width="1"
+            height="1"
+            preserveAspectRatio="none"
+            :xlink:href="item.user.profile_image_url_https"
+          ></image>
+        </pattern>
+      </defs>
+      <rect
+        :class="'view view-' + chartDomID"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+      ></rect>
+      <g
+        :class="'axis x-axis scatterplot-' + chartDomID + '-x-axis'"
+        :transform="'translate(' + chartLeft + ',' + chartBottom + ')'"
       >
-        {{ axesMeta.x.label }}
-      </text>
-    </g>
-    <g
-      :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
-      :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
-    >
-      <text
-        class="label"
-        :transform="
-          'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-25)'
-        "
+        <text
+          class="label"
+          :transform="'translate(' + (chartWidth / 2 + 90) + ',+31)'"
+        >
+          {{ axesMeta.x.label }}
+        </text>
+      </g>
+      <g
+        :class="'axis y-axis scatterplot-' + chartDomID + '-y-axis'"
+        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
       >
-        {{ axesMeta.y.label }}
-      </text>
-    </g>
-  </svg>
+        <text
+          class="label"
+          :transform="
+            'rotate(-90) translate(' + -(chartHeight / 2 - 70) + ',-25)'
+          "
+        >
+          {{ axesMeta.y.label }}
+        </text>
+      </g>
+      <path
+        v-if="line.show"
+        class="line"
+        :fill="line.fill"
+        :stroke="line.stroke"
+        :stroke-width="line.stroke_width"
+        :transform="'translate(' + chartLeft + ',' + chartTop + ')'"
+        :d="linePath(dataset)"
+      ></path>
+      <transition-group
+        :id="'circles-' + chartDomID"
+        tag="g"
+        name="fade"
+        :x="chartLeft"
+        :y="chartTop"
+        :width="chartWidth"
+        :height="chartHeight"
+        :duration="transitionDuration"
+        :appear="true"
+      >
+        <circle
+          v-for="(item, index) in dataset"
+          :id="'svg_circle_' + item.user.screen_name"
+          :key="item.id_str + index"
+          :cx="xScale(item[axesMeta.x.selector])"
+          :cy="yScale(item[axesMeta.y.selector])"
+          :stroke="item.highlighted ? 'gray' : item.selected ? 'red' : ''"
+          :stroke-width="item.selected || item.highlighted ? '3' : '0'"
+          :r="radius"
+          :fill="'url(#' + item.user.screen_name + ')'"
+          class="circle"
+          @click="ev => clicked.call({}, ev, item)"
+          @mouseover="ev => highlight.call({}, ev, item)"
+          @mouseleave="ev => dim.call({}, ev, item)"
+        ></circle>
+      </transition-group>
+    </svg>
+    <div
+      v-if="contextMenu"
+      :id="chartDomID + '-tooltip'"
+      class="tooltip"
+      style="position: fixed; opacity: 0; z-index: 999; overflow: auto;"
+    >
+      <v-sheet class="d-flex" color="black" dark>
+        <v-data-table
+          :headers="selectedTweetAnalysisHeaders"
+          :items="highlightedData.analysis"
+          hide-actions
+        >
+          <template v-slot:items="props">
+            <td>{{ props.item.title }}</td>
+            <td>{{ +props.item.result.toPrecision(4) }}</td>
+          </template>
+        </v-data-table>
+      </v-sheet>
+    </div>
+  </div>
 </template>
 
 <script>
 import * as d3 from 'd3'
+import TweetCollection from '../Twitter/TweetCollection'
 export default {
   name: 'ScatterPlot',
+  // eslint-disable-next-line vue/no-unused-components
+  components: { TweetCollection },
   props: {
+    contextMenu: {
+      type: Boolean,
+      default: false
+    },
     chartDomID: {
       type: String,
       default: 'scatter-plot'
@@ -78,6 +137,17 @@ export default {
       type: Number,
       default: 0
     },
+    line: {
+      type: Object,
+      default: function() {
+        return {
+          show: false,
+          fill: 'none',
+          stroke: 'grey',
+          stroke_width: '1.0'
+        }
+      }
+    },
     axesMeta: {
       type: Object,
       default: function() {
@@ -87,21 +157,23 @@ export default {
             initialBound: [-1, 200],
             scaleToContent: true,
             zoomEnabled: true,
-            label: 'User Influence'
+            label: 'User Influence',
+            show: true
           },
           y: {
             selector: 'y',
             initialBound: [-1, 1],
             scaleToContent: false,
             zoomEnabled: true,
-            label: 'Average Sentiment'
+            label: 'Average Sentiment',
+            show: true
           }
         }
       }
     },
     radius: {
       type: Number,
-      default: 4
+      default: 24
     },
     colorRange: {
       type: Array,
@@ -111,6 +183,12 @@ export default {
     },
     dataset: {
       type: Array,
+      default: function() {
+        return []
+      }
+    },
+    selectedData: {
+      type: Object,
       default: function() {
         return []
       }
@@ -136,8 +214,10 @@ export default {
   data() {
     return {
       svg: null,
+      tooltip: null,
       circlesGroup: null,
       view: null,
+      highlightedData: {},
       axes: {
         x: {
           ticks: 10,
@@ -149,10 +229,26 @@ export default {
         }
       },
       zoom: null,
-      transitionDuration: 2000
+      transitionDuration: 200
     }
   },
   computed: {
+    selectedTweetAnalysisHeaders() {
+      return [
+        {
+          text: 'Analysis Method',
+          align: 'left',
+          sortable: true,
+          value: 'title'
+        },
+        {
+          text: 'Sentiment',
+          align: 'left',
+          sortable: true,
+          value: 'result'
+        }
+      ]
+    },
     chartLeft: function() {
       return this.padding.left
     },
@@ -183,9 +279,13 @@ export default {
           return d[selector]
         })
       }
-      const x = d3
-        .scaleLinear()
-        .domain([min, max])
+      let x = d3.scaleLinear()
+      if (this.axesMeta.x.isTime) {
+        min = new Date(min)
+        max = new Date(max)
+        x = d3.scaleTime()
+      }
+      x.domain([min, max])
         .range([0, this.chartWidth])
         .nice()
       if (this.axesMeta.x.zoomEnabled) return this.transform.rescaleX(x)
@@ -230,6 +330,18 @@ export default {
         .tickSize(-this.chartWidth)
         .ticks(this.axes.y.ticks)
       // return d3.axisLeft(this.yScale).tickSize(this.chartHeight)
+    },
+    linePath: function() {
+      const that = this
+      return d3
+        .line()
+        .curve(d3.curveLinear) // Just add that to have a curve instead of segments
+        .x(function(d) {
+          return that.xScale(d[that.axesMeta.x.selector])
+        })
+        .y(function(d) {
+          return that.yScale(d[that.axesMeta.y.selector])
+        })
     }
   },
   beforeUpdate() {
@@ -247,6 +359,7 @@ export default {
     setupSVG: function() {
       // Select the SVG element
       this.svg = d3.select('.scatterplot-' + this.chartDomID)
+      this.tooltip = d3.select('#' + this.chartDomID + '-tooltip')
       this.circlesGroup = d3.select('#circles-' + this.chartDomID)
       this.view = d3.select('.view-' + this.chartDomID)
       this.axes.x.element = d3.select(
@@ -277,6 +390,56 @@ export default {
     resetZoom: function() {
       // reset the zoom
       if (this.zoom) this.view.call(this.zoom.transform, d3.zoomIdentity)
+    },
+    clicked: function(ev, item) {
+      item.selected = !item.selected
+      // ev.target.setAttribute('stroke', 'red')
+      // ev.target.setAttribute('stroke-width', '3')
+
+      // this.highlightedData = item
+      // this.tooltip
+      //   .transition()
+      //   .duration(200)
+      //   .style('opacity', 0.9)
+      //   .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+      //   .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+      // if (this.tooltip.attr('persist') === '0')
+      //   this.tooltip.attr('persist', '1')
+      // else if (this.tooltip.attr('persist') === '1')
+      //   this.tooltip.attr('persist', '0')
+      this.$emit('circleClicked', item)
+    },
+    highlight: function(ev, item) {
+      item.highlighted = true
+      this.highlightedData = item
+      if (this.contextMenu) {
+        this.tooltip
+          .transition()
+          .duration(200)
+          .style('opacity', 0.9)
+          .style('left', ev.target.getBoundingClientRect().x + 28 + 'px')
+          .style('top', ev.target.getBoundingClientRect().y + 28 + 'px')
+        this.tooltip.attr('persist', '0')
+      }
+      this.$emit('highlight', ev)
+    },
+    dim: function(ev, item) {
+      item.highlighted = false
+      if (this.contextMenu) {
+        if (this.tooltip.attr('persist') === '0') {
+          if (item.selected) ev.target.setAttribute('stroke', 'red')
+          else {
+            ev.target.setAttribute('stroke', '')
+            ev.target.setAttribute('stroke-width', '0')
+          }
+          this.tooltip
+            .transition()
+            .duration(500)
+            .style('opacity', 0)
+          this.highlightedData = {}
+        }
+      }
+      this.$emit('dim', item)
     }
   }
 }
@@ -323,8 +486,22 @@ export default {
   fill: red;
 }
 
-.svg >>> .circle {
-  transition: opacity 1800ms, fill 1800ms, cy 1800ms;
-  -webkit-transition: opacity 1800ms, fill 1800ms, cy 1800ms;
+.svg >>> .circle,
+.svg >>> .line {
+  transition: all 0ms;
+  -webkit-transition: all 0ms;
+}
+
+.fade-enter-active {
+  fill: green;
+}
+
+.fade-leave-active {
+  fill: brown;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -17,8 +17,8 @@
           :x1="link.source.x1"
           :x2="link.target.x0"
         >
-          <stop offset="0%" :stop-color="color(link.source.name)"></stop>
-          <stop offset="100%" :stop-color="color(link.target.name)"></stop>
+          <stop offset="0%" :stop-color="color(link.source.id)"></stop>
+          <stop offset="100%" :stop-color="color(link.target.id)"></stop>
         </linearGradient>
         <path
           :id="specialID + '-path-' + link.source.id + '-' + link.target.id"
@@ -56,7 +56,7 @@
           :width="item.x1 - item.x0"
           :y="item.y0"
           :height="item.y1 - item.y0"
-          :fill="color(item.name)"
+          :fill="color(item.id)"
           stroke="none"
           class="rect"
         ></rect>
@@ -64,7 +64,7 @@
           :x="item.x0 < chartWidth / 2 ? item.x1 + 6 : item.x0 - 6"
           :y="(item.y1 + item.y0) / 2"
           :text-anchor="item.x0 < chartWidth / 2 ? 'start' : 'end'"
-          style="font: 10px sans-serif;"
+          class="body-1"
         >
           {{ item.name }}
         </text>
@@ -155,12 +155,32 @@ export default {
       })
     },
     color: function() {
-      const color = d3.scaleOrdinal(d3.schemeCategory10)
-      return name => color(name.replace(/ .*/, ''))
+      const idToNumScale = d3
+        .scaleLinear()
+        .domain([0, this.sankyed.nodes.length])
+        .range([0, 1])
+      const color = d3.scaleSequential(d3.interpolateTurbo)
+      return id => {
+        return color(
+          idToNumScale(this.sankyed.nodes.findIndex(a => a.id === id))
+        )
+      }
     },
     format: function() {
-      const f = d3.format(',.0f')
-      return d => f(d) + 'TWh'
+      // TODO
+      const f = d3.format('.0%')
+      return d => {
+        const num =
+          d /
+          this.sankyed.links
+            .map(l => l.value)
+            .reduce((sum, v) => {
+              return sum + v
+            })
+
+        return f(num)
+        // return f(d)
+      }
     },
     d: function() {
       return d3Sankey.sankeyLinkHorizontal()
@@ -181,6 +201,8 @@ export default {
     mouseover: function(item, manual = false) {
       // Identify the nodes - paths and rects - that should be highlighted
       const whiteList = []
+      item = this.sankyed.nodes.find(a => a.id === item.id)
+      if (!item) return
 
       // Select the paths that should be highlighted
       for (const link of [...item.targetLinks, ...item.sourceLinks]) {

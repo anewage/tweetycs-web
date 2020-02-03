@@ -1,23 +1,12 @@
 <template>
   <v-layout row wrap>
-    <v-flex text-xs-center xs12>
-      <div>
-        <h1>
-          Delay: <span>{{ delay }}</span>
-        </h1>
-        <h1>
-          Avg. Delay: <span>{{ avgDelay }}</span>
-        </h1>
-        <h1 id="log">Response: {{ msg }}</h1>
-      </div>
-    </v-flex>
     <v-flex xs12>
       <v-card flat color="transparent">
-        <v-card-title>
-          <h2>
-            Control Box
-          </h2>
-        </v-card-title>
+        <!--        <v-card-title>-->
+        <!--          <h2>-->
+        <!--            Control Box-->
+        <!--          </h2>-->
+        <!--        </v-card-title>-->
         <v-card-actions>
           <v-layout row align-center justify-space-around>
             <v-flex v-if="mlMethods.length === 0" text-xs-center>
@@ -27,17 +16,25 @@
                 indeterminate
               ></v-progress-circular>
             </v-flex>
-            <v-flex v-if="mlMethods.length !== 0">
+            <v-flex v-if="mlMethods.length !== 0" md7>
               <h4>Text Categorization Methods</h4>
-              <v-radio-group v-model="selectedMachineLearningMethod" column>
-                <v-radio
-                  v-for="method in mlMethods"
-                  :key="method.id"
-                  :label="method.title"
-                  :value="method.id"
-                  color="orange"
-                ></v-radio>
-              </v-radio-group>
+              <v-select
+                v-model="selectedMachineLearningMethod"
+                class="no-overflow"
+                :items="mlMethods"
+                item-text="title"
+                item-value="id"
+                label="Text Categorization Method"
+              ></v-select>
+              <!--              <v-radio-group v-model="selectedMachineLearningMethod" column>-->
+              <!--                <v-radio-->
+              <!--                  v-for="method in mlMethods"-->
+              <!--                  :key="method.id"-->
+              <!--                  :label="method.title"-->
+              <!--                  :value="method.id"-->
+              <!--                  color="orange"-->
+              <!--                ></v-radio>-->
+              <!--              </v-radio-group>-->
             </v-flex>
             <v-flex v-if="analysisMethods.length === 0" text-xs-center>
               <v-progress-circular
@@ -46,17 +43,25 @@
                 indeterminate
               ></v-progress-circular>
             </v-flex>
-            <v-flex v-if="analysisMethods.length !== 0">
+            <v-flex v-if="analysisMethods.length !== 0" md5>
               <h4>Sentiment Analysis Methods</h4>
-              <v-radio-group v-model="selectedSentimentAnalysisMethod" column>
-                <v-radio
-                  v-for="method in analysisMethods"
-                  :key="method.id"
-                  :label="method.title"
-                  :value="method.id"
-                  color="cyan"
-                ></v-radio>
-              </v-radio-group>
+              <v-select
+                v-model="selectedSentimentAnalysisMethod"
+                class="no-overflow"
+                :items="analysisMethods"
+                item-text="title"
+                item-value="id"
+                label="Sentiment Analysis Methods"
+              ></v-select>
+              <!--              <v-radio-group v-model="selectedSentimentAnalysisMethod" column>-->
+              <!--                <v-radio-->
+              <!--                  v-for="method in analysisMethods"-->
+              <!--                  :key="method.id"-->
+              <!--                  :label="method.title"-->
+              <!--                  :value="method.id"-->
+              <!--                  color="cyan"-->
+              <!--                ></v-radio>-->
+              <!--              </v-radio-group>-->
             </v-flex>
           </v-layout>
         </v-card-actions>
@@ -74,10 +79,27 @@
         :selected-ml-method="selectedMachineLearningMethod"
         :topics="topics"
         :dataset="aggregatedTopics"
-        @itemClick="updateTopic"
+        @itemClick="updateSelectedTopic"
+        @itemMouseover="applyHighlight"
+        @itemMouseout="removeHighlight"
       ></sankey-diagram-wrapper>
     </v-flex>
     <v-flex text-xs-center xs12 md5>
+      <heat-map-wrapper
+        :id="charts.heatmap.id"
+        :div-id="charts.heatmap.divId"
+        :selected-analysis-method="selectedSentimentAnalysisMethod"
+        :selected-machine-learning-method="selectedMachineLearningMethod"
+        :label="charts.heatmap.label"
+        :width="charts.heatmap.width"
+        :height="charts.heatmap.height"
+        :color="color"
+        :flat="flat"
+        :selected-topic="highlightedTopic"
+        :dataset="aggregatedKeywords"
+      ></heat-map-wrapper>
+    </v-flex>
+    <v-flex text-xs-center xs12 md8>
       <scatter-plot-wrapper
         :id="charts.scatterplot.id"
         :div-id="charts.scatterplot.divId"
@@ -91,53 +113,35 @@
         @circleClicked="updateTweets"
       ></scatter-plot-wrapper>
     </v-flex>
-    <v-flex text-xs-center xs12 md9>
-      <heat-map-wrapper
-        :id="charts.heatmap.id"
-        :div-id="charts.heatmap.divId"
-        :selected-analysis-method="selectedSentimentAnalysisMethod"
-        :selected-machine-learning-method="selectedMachineLearningMethod"
-        :label="charts.heatmap.label"
-        :width="charts.heatmap.width"
-        :height="charts.heatmap.height"
-        :color="color"
-        :flat="flat"
-        :selected-topic="selectedTopic"
-        :dataset="aggregatedKeywords"
-      ></heat-map-wrapper>
-    </v-flex>
-    <v-flex text-xs-center xs12 md3>
-      <tweets-wrapper
-        :config="charts.tweets"
-        :color="color"
-        :flat="flat"
-      ></tweets-wrapper>
+    <v-flex text-xs-center xs12 md4>
+      <!--   TODO: make it transparent   -->
+      <user-profile :username="selectedUser.screen_name"></user-profile>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
-// import { _ } from 'vue-underscore'
+// eslint-disable-next-line no-unused-vars
 import ScatterPlotWrapper from '../components/Scatterplot/ScatterPlotWrapper'
 import HeatMapWrapper from '../components/Heatmap/HeatMapWrapper'
 import SankeyDiagramWrapper from '../components/Sankey/SankeyDiagramWrapper'
-import socket from '../lib/socket.io'
-import TweetsWrapper from '../components/Twitter/TweetsWrapper'
-
+import UserProfile from '../components/Twitter/UserProfile'
 export default {
   name: 'PageAnalytics',
   components: {
+    UserProfile,
     'sankey-diagram-wrapper': SankeyDiagramWrapper,
     'scatter-plot-wrapper': ScatterPlotWrapper,
-    'heat-map-wrapper': HeatMapWrapper,
-    'tweets-wrapper': TweetsWrapper
+    'heat-map-wrapper': HeatMapWrapper
   },
   data() {
     return {
       flat: true,
       color: 'transparent',
+      highlightedTopic: '',
       msg: '',
       temp: [],
+      selectedUser: { screen_name: '' },
       // Charts and all of their configurations
       charts: {
         scatterplot: {
@@ -150,30 +154,17 @@ export default {
         sankey: {
           id: 'sankey-diagram',
           divId: 'sankey-diagram-div',
-          label: 'User Categories, Topics, and Content Theme',
+          label: 'User Groups, Topics, and Content Themes',
           width: 600,
-          height: 700
+          height: 600
         },
         heatmap: {
           id: 'heatmap',
           divId: 'heatmap-div',
           label: 'Hybrid Analysis',
           width: 600,
-          height: 500
-        },
-        tweets: {
-          user: {},
-          tweets: [],
-          avgSentiment: 0,
-          influence: 0
+          height: 600
         }
-      },
-      // Data required for connection metrics
-      pingPong: {
-        start: 0,
-        end: 0,
-        busy: false,
-        history: []
       }
     }
   },
@@ -195,26 +186,29 @@ export default {
     },
     selectedTopic: {
       set(val) {
-        this.$store.commit('updateSelectedTopic', val)
+        this.$store.commit('analytics/updateSelectedTopic', val)
       },
       get() {
-        return this.$store.state.selectedTopic
+        return this.$store.state.analytics.selectedTopic
       }
     },
     selectedSentimentAnalysisMethod: {
       set(val) {
-        this.$store.commit('updateSelectedSentimentAnalysisMethod', val)
+        this.$store.commit(
+          'analytics/updateSelectedSentimentAnalysisMethod',
+          val
+        )
       },
       get() {
-        return this.$store.state.selectedSentimentAnalysisMethod
+        return this.$store.state.analytics.selectedSentimentAnalysisMethod
       }
     },
     selectedMachineLearningMethod: {
       set(val) {
-        this.$store.commit('updateSelectedMachineLearningMethod', val)
+        this.$store.commit('analytics/updateSelectedMachineLearningMethod', val)
       },
       get() {
-        return this.$store.state.selectedMachineLearningMethod
+        return this.$store.state.analytics.selectedMachineLearningMethod
       }
     },
     analysisMethods() {
@@ -232,102 +226,59 @@ export default {
           title: cat.items[0].labels.title
         }
       })
-    },
-    /*
-     * Current delay in ms
-     */
-    delay() {
-      if (this.pingPong.busy)
-        if (this.pingPong.history.length > 0)
-          return this.pingPong.history[this.pingPong.history.length - 1]
-        else return 0
-      return this.pingPong.end - this.pingPong.start
-    },
-    /*
-     * Current average delay in ms
-     */
-    avgDelay() {
-      let avg = 0
-      for (const num of this.pingPong.history) avg += num
-      avg = (10 * avg) / (this.pingPong.history.length * 10)
-      return avg
     }
   },
-  beforeMount() {
-    const that = this
-    /*
-     * Event handler for new connections.
-     * The callback function is invoked when a connection with the server is established.
-     */
-    socket.on('connect', () => {
-      socket.emit('client_event', { data: "I'm connected!" })
-    })
-    /*
-     * Event handler for server sent data.
-     * The callback function is invoked whenever the server emits data
-     * to the client. The data is then displayed in the "Received"
-     * section of the page.
-     */
-    socket.on('server_response', msg => {
-      // document.getElementById('log').innerText = msg.data
-    })
-    /*
-     * Handler for the "pong" message. When the pong is received, the
-     * time from the ping is stored, and the average of the last 30
-     * samples is average and displayed.
-     */
-    socket.on('server_pong', () => {
-      that.pingPong.end = new Date().getTime()
-      that.pingPong.history.push(that.pingPong.end - that.pingPong.start)
-      // Keep last 30 samples
-      if (that.pingPong.history.length > 30) that.pingPong.history.splice(-30)
-      that.pingPong.busy = false
-    })
-    /*
-     * Store the incoming data
-     */
-    socket.on('bulk-update', msg => {
-      that.commitUpdates(msg)
-    })
-  },
   mounted() {
-    const that = this
     this.resize()
     window.addEventListener('resize', this.resize)
-
-    window.setInterval(() => {
-      if (socket.connected) {
-        that.pingPong.busy = true
-        that.pingPong.start = new Date().getTime()
-        socket.emit('client_ping')
-      }
-    }, 2000)
+    // this.$nextTick(() => {
+    //   debugger
+    //
+    // })
   },
   methods: {
     resize: function() {
       const scatterDiv = document.getElementById(this.charts.scatterplot.divId)
       const heatDiv = document.getElementById(this.charts.heatmap.divId)
       const sankeyDiv = document.getElementById(this.charts.sankey.divId)
-      this.charts.scatterplot.width = scatterDiv.clientWidth - 5
-      this.charts.heatmap.width = heatDiv.clientWidth - 5
-      this.charts.sankey.width = sankeyDiv.clientWidth - 5
+      if (scatterDiv) this.charts.scatterplot.width = scatterDiv.clientWidth - 5
+      if (heatDiv) this.charts.heatmap.width = heatDiv.clientWidth - 5
+      if (sankeyDiv) this.charts.sankey.width = sankeyDiv.clientWidth - 5
     },
-    commitUpdates: function(msg) {
-      // Store the changes
-      this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
-      this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
-      this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
-      this.$store.commit('updateTopics', msg.topics)
-    },
+    // commitUpdates: function(msg) {
+    //   // Store the changes
+    //   this.$store.commit('updateAggregatedTopics', msg.aggregatedTopics)
+    //   this.$store.commit('updateAggregatedUsers', msg.aggregatedUsers)
+    //   this.$store.commit('updateAggregatedKeywords', msg.aggregatedKeywords)
+    //   this.$store.commit('updateTopics', msg.topics)
+    // },
     updateTweets: function(data) {
-      this.charts.tweets.user = data.user
-      this.charts.tweets.tweets = data.tweets
-      this.charts.tweets.avgSentiment = data.y
-      this.charts.tweets.influence = data.x
+      this.selectedUser = data.user
     },
-    updateTopic: function(topic) {
-      this.selectedTopic = topic.id
+    // Just to be consistent with the page compare
+    highlightTopic: function(item) {
+      this.highlightedTopic = item.id
+    },
+    updateSelectedTopic: function(item) {
+      if (this.topics.map(a => a.id).includes(item.id)) {
+        this.selectedTopic = item.id
+        this.highlightTopic(item)
+      }
+    },
+    applyHighlight: function(item) {
+      this.highlightTopic(item)
+    },
+    removeHighlight: function(item) {
+      this.highlightTopic({ id: this.selectedTopic })
     }
   }
 }
 </script>
+
+<style scoped>
+.no-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+</style>

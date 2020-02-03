@@ -1,20 +1,21 @@
 <template>
   <v-card :color="color" :flat="flat">
     <v-card-title>
-      <h2>
+      <h3>
         {{ label }}
-      </h2>
+        ({{ selectedMlMethod }})
+      </h3>
     </v-card-title>
-    <v-card-actions>
-      <v-btn icon @click="meta.show = !meta.show">
-        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>
-      </v-btn>
-    </v-card-actions>
-    <v-slide-y-transition>
-      <v-card-text v-show="meta.show">
-        {{ meta.info }}
-      </v-card-text>
-    </v-slide-y-transition>
+    <!--    <v-card-actions>-->
+    <!--      <v-btn icon @click="meta.show = !meta.show">-->
+    <!--        <v-icon>{{ meta.show ? 'help' : 'help_outline' }}</v-icon>-->
+    <!--      </v-btn>-->
+    <!--    </v-card-actions>-->
+    <!--    <v-slide-y-transition>-->
+    <!--      <v-card-text v-show="meta.show">-->
+    <!--        {{ meta.info }}-->
+    <!--      </v-card-text>-->
+    <!--    </v-slide-y-transition>-->
     <v-card-text>
       <div :id="divId">
         <sankey-diagram
@@ -73,9 +74,9 @@ export default {
       default: 'CNN'
     },
     topics: {
-      type: Object,
+      type: Array,
       default: function() {
-        return {}
+        return []
       }
     },
     dataset: {
@@ -113,20 +114,32 @@ export default {
     },
     nodesList() {
       const that = this
+      // Gathering all of the topics
       const topics1 = new Set(this.groupsToTopics.map(it => it._id.topic))
       const topics2 = new Set(this.themesToTopics.map(it => it._id.topic))
       const nodes1 = [...new Set([...topics2, ...topics1])].map(node => {
-        return { id: node, name: that.topics[node].title }
+        return {
+          id: node,
+          name: that.getName(node),
+          type: 'topic'
+        }
       })
+      // Gathering user groups
       const groups = new Set(this.groupsToTopics.map(it => it._id.group))
-      const themes = new Set(this.themesToTopics.map(it => it._id.theme))
-      const nodes2 = [...new Set([...groups, ...themes])].map(node => {
-        return { id: node, name: node }
+      const nodes2 = [...new Set([...groups])].map(node => {
+        return { id: node, name: that.getName(node), type: 'group' }
       })
-      return [...nodes1, ...nodes2]
+      // Gathering content themes
+      const themes = new Set(this.themesToTopics.map(it => it._id.theme))
+      const nodes3 = [...new Set([...themes])].map(node => {
+        return { id: node, name: that.getName(node), type: 'theme' }
+      })
+      // Joining the results and sorting them out
+      return [...nodes1, ...nodes2, ...nodes3].sort((a, b) => {
+        return a.id > b.id ? 1 : -1
+      })
     },
     linksList() {
-      // eslint-disable-next-line no-unused-vars
       const links1 = this.groupsToTopics.map(it => {
         return {
           source: it._id.group,
@@ -134,7 +147,6 @@ export default {
           value: it.count
         }
       })
-      // eslint-disable-next-line no-unused-vars
       const links2 = this.themesToTopics.map(it => {
         return {
           source: it._id.topic,
@@ -142,7 +154,10 @@ export default {
           value: it.count
         }
       })
-      return [...links1, ...links2]
+      // Sorting
+      return [...links1, ...links2].sort((a, b) => {
+        return a.value > b.value ? 1 : -1
+      })
     },
     sankeyData() {
       // Get data from bak and update the values only by each emit
@@ -182,6 +197,9 @@ export default {
     },
     removeHighlight: function(data) {
       this.$refs.sankey.mouseout(data, true)
+    },
+    getName(name) {
+      return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
     }
   }
 }

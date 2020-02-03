@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-app>
     <v-navigation-drawer
       v-model="drawer"
@@ -7,6 +7,46 @@
       fixed
       app
     >
+      <v-list>
+        <v-list-group
+          v-for="(item, index) in topicItems"
+          :key="index"
+          prepend-icon="account_circle"
+          value="true"
+        >
+          <template v-slot:activator>
+            <v-list-tile>
+              <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+            </v-list-tile>
+          </template>
+          <v-list-group
+            v-for="(subitem, ind) in item.children"
+            :key="index + ',' + ind"
+            no-action
+            sub-group
+            value="true"
+          >
+            <template v-slot:activator>
+              <v-list-tile>
+                <v-list-tile-title>{{ subitem.name }}</v-list-tile-title>
+              </v-list-tile>
+              <v-list-tile-action>
+                <v-icon>check</v-icon>
+              </v-list-tile-action>
+            </template>
+
+            <v-list-tile
+              v-for="(subsubitem, i) in subitem.children"
+              :key="i + ',' + ind + ',' + index"
+            >
+              <v-list-tile-title>{{ subsubitem.name }}</v-list-tile-title>
+              <v-list-tile-action>
+                <v-icon>check</v-icon>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list-group>
+        </v-list-group>
+      </v-list>
       <v-list>
         <v-list-tile
           v-for="(item, i) in items"
@@ -36,15 +76,10 @@
       <!--        <v-icon>remove</v-icon>-->
       <!--      </v-btn>-->
       <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn v-if="disconnected" icon :loading="disconnected" disabled>
-        <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
-      </v-btn>
-      <v-btn v-if="selectedScenario" round flat disabled>
-        <v-icon>play_arrow</v-icon>
-        {{ selectedScenario.title }}
-      </v-btn>
-      <v-icon>{{ disconnected ? 'power_off' : 'power' }}</v-icon>
+      <!--      <v-spacer />-->
+      <!--      <v-btn icon @click.stop="rightDrawer = !rightDrawer">-->
+      <!--        <v-icon>menu</v-icon>-->
+      <!--      </v-btn>-->
     </v-toolbar>
     <v-content>
       <v-container :fluid="fluid">
@@ -95,40 +130,18 @@
 <script>
 import socket from '../lib/socket.io'
 export default {
-  name: 'LayoutDefault',
+  name: 'LayoutShuffler',
   data() {
     return {
       fluid: true,
-      disconnected: socket.disconnected,
       clipped: true,
       drawer: true,
       fixed: false,
-      items: [
-        {
-          icon: 'apps',
-          title: 'Welcome',
-          to: '/'
-        },
-        {
-          icon: 'bubble_chart',
-          title: 'Analytics',
-          to: '/analytics'
-        },
-        {
-          icon: 'dashboard',
-          title: 'Compare',
-          to: '/compare'
-        },
-        {
-          icon: 'chrome_reader_mode',
-          title: 'Shuffler',
-          to: '/shuffler'
-        }
-      ],
-      miniVariant: true,
+      items: [],
+      miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'VARTTA',
+      title: 'Tweetycs',
       // Data required for connection metrics
       pingPong: {
         start: 0,
@@ -139,6 +152,33 @@ export default {
     }
   },
   computed: {
+    topics: {
+      set(val) {
+        this.$store.commit('topics', val)
+      },
+      get() {
+        return this.$store.state.topics
+      }
+    },
+    topicItems() {
+      const that = this
+      const children = this.topics
+        .map(channel => ({
+          id: channel.id + '-channel',
+          name: that.getName(channel.id),
+          children: that.getChildren(channel.id)
+        }))
+        .sort((a, b) => {
+          return a.name > b.name ? 1 : -1
+        })
+      return [
+        {
+          id: '1',
+          name: 'All Topics',
+          children
+        }
+      ]
+    },
     /*
      * Current delay in ms
      */
@@ -157,9 +197,6 @@ export default {
       for (const num of this.pingPong.history) avg += num
       avg = (10 * avg) / (this.pingPong.history.length * 10)
       return avg
-    },
-    selectedScenario() {
-      return this.$store.state.scenarios.find(a => a.consuming)
     }
   },
   mounted() {
@@ -176,15 +213,8 @@ export default {
      * The callback function is invoked when a connection with the server is established.
      */
     socket.on('connect', () => {
-      this.disconnected = socket.disconnected
       socket.emit('client_event', { data: "I'm connected!" })
-      // socket.emit('initial_data_request', {})
-    })
-
-    socket.on('reconnecting', data => {
-      // eslint-disable-next-line no-console
-      console.log(data)
-      this.disconnected = socket.disconnected
+      socket.emit('initial_data_request', {})
     })
 
     /*
@@ -216,6 +246,25 @@ export default {
     })
   },
   methods: {
+    getChildren(topic) {
+      if (!topic || topic === '') return []
+      if (!this.topics.map(a => a.id).includes(topic)) return []
+      const keywords = []
+      const foundTopic = this.topics.find(a => a.id === topic)
+      if (!foundTopic) return []
+      for (const keyword of foundTopic.keywords) {
+        keywords.push({
+          id: keyword.toLowerCase(),
+          name: this.getName(keyword)
+        })
+      }
+      return keywords.sort((a, b) => {
+        return a.id > b.id ? 1 : -1
+      })
+    },
+    getName(name) {
+      return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
+    },
     commitUpdates: function(msg) {
       // eslint-disable-next-line no-console
       console.log('commiting bulk update')
@@ -229,3 +278,5 @@ export default {
   }
 }
 </script>
+
+<style scoped></style>
