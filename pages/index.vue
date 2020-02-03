@@ -3,9 +3,9 @@
     <v-flex xs12 text-xs-center>
       <v-card flat color="transparent">
         <v-card-text>
-          <h1>Welcome to Tweetycs</h1>
+          <h1>Welcome to VARTTA</h1>
           <p>
-            This is a system to "make sense" of what is going on Twitter. <br />
+            VARTTA: Visual Analytics for Real-Time Twitter datA. <br />
             To start, select one of the cases below.
           </p>
           <p>
