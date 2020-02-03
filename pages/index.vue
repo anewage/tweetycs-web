@@ -18,7 +18,7 @@
             >.
           </p>
           <p>
-            Find a bug? Please report it on the github
+            Find a bug? Please report it on the Github
             <a
               href="https://github.com/anewage/tweetycs-web/issues"
               target="_blank"
