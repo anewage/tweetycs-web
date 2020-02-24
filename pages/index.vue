@@ -147,6 +147,7 @@ export default {
       this.disconnected = socket.disconnected
     })
   },
+
   methods: {
     toggleConsuming: function(scenario) {
       if (scenario.consuming) {
