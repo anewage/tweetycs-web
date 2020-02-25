@@ -169,9 +169,6 @@ export default {
     }
   },
   computed: {
-    /*
-     * dataset containing the tweets
-     */
     aggregatedTopics() {
       return this.$store.state.aggregatedTopics
     },
