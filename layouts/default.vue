@@ -94,10 +94,10 @@
 
 <script>
 import socket from '../lib/socket.io'
-import tweets from '~/static/tweets.json'
-import agkeywords from '~/static/agkeywords.json'
-import agtopics from '~/static/agtopics.json'
-import agusers from '~/static/agusers.json'
+import tweets from '~/static/samples/phealth/tweets.json'
+import agkeywords from '~/static/samples/phealth/agkeywords.json'
+import agtopics from '~/static/samples/phealth/agtopics.json'
+import agusers from '~/static/samples/phealth/agusers.json'
 export default {
   name: 'LayoutDefault',
   data() {
