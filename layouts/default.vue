@@ -94,6 +94,10 @@
 
 <script>
 import socket from '../lib/socket.io'
+import tweets from '~/static/tweets.json'
+import agkeywords from '~/static/agkeywords.json'
+import agtopics from '~/static/agtopics.json'
+import agusers from '~/static/agusers.json'
 export default {
   name: 'LayoutDefault',
   data() {
@@ -163,6 +167,97 @@ export default {
     }
   },
   mounted() {
+    const topics = [
+      {
+        id: 'democratic',
+        title: 'Democratic Party Candidates',
+        keywords: [
+          'democrats',
+          'dems',
+          'Michael Bennet',
+          'Bennet',
+          'Joe Biden',
+          'Biden',
+          'Michael Bloomberg',
+          'Bloomberg',
+          'Cory Booker',
+          'Booker',
+          'Pete Buttigieg',
+          'Julián Castro',
+          'John Delaney',
+          'Tulsi Gabbard',
+          'Amy Klobuchar',
+          'Deval Patrick',
+          'Bernie Sanders',
+          'Tom Steyer',
+          'Elizabeth Warren',
+          'Marianne Williamson',
+          'Andrew Yang'
+        ]
+      },
+      {
+        id: 'impeachment',
+        title: 'Impeachment-related Topics',
+        keywords: [
+          'Impeachment',
+          'Impeached45',
+          'ImpeachmentHearing',
+          'ImpeachedPresident',
+          'IMPOTUS'
+        ]
+      },
+      {
+        id: 'republican',
+        title: 'Republican Party Candidates',
+        keywords: [
+          'Donald Trump',
+          'trump',
+          'Joe Walsh',
+          'Bill Weld',
+          'Mark Sanford'
+        ]
+      },
+      {
+        id: 'libertarian',
+        title: 'Libertarian Party Candidates',
+        keywords: [
+          'Max Abramson',
+          'Ken Armstrong',
+          'Dan Behrman',
+          'Jacob Hornberger',
+          'Jo Jorgensen',
+          'Adam Kokesh',
+          'John McAfee',
+          'Sam Robb',
+          'Kim Ruff',
+          'Vermin Supreme',
+          'Arvin Vohra'
+        ]
+      },
+      {
+        id: 'green',
+        title: 'Green Party Candidates',
+        keywords: [
+          'Howie Hawkins',
+          'Dario Hunter',
+          'Sedinam Moyowasifza-Curry',
+          'Dennis Lambert',
+          'Kent Mesplay',
+          'David Rolde',
+          'Chad Wilson'
+        ]
+      }
+    ]
+
+    this.commitUpdates({
+      topics: topics,
+      aggregatedTopics: agtopics,
+      aggregatedUsers: agusers.user_groups,
+      aggregatedKeywords: agkeywords,
+      tweets: tweets
+    })
+
+    // eslint-disable-next-line no-console
     const that = this
     window.setInterval(() => {
       if (socket.connected) {

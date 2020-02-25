@@ -22,6 +22,7 @@
     "cross-env": "^5.2.0",
     "d3": "^5.9.2",
     "d3-sankey": "^0.12.1",
+    "mock-socket": "^9.0.3",
     "nuxt": "^2.9.2",
     "push-dir": "^0.4.1",
     "socket.io-client": "^2.2.0",
