@@ -244,6 +244,73 @@ function initialState() {
         ]
       },
       {
+        id: 'urban',
+        title: 'Smart City / Urban Planning',
+        subtitle: "Citizens' comments about urban spaces...",
+        color: 'blue',
+        consuming: false,
+        cloud: '/smartcity.webp',
+        channels: [
+          {
+            id: 'transportation',
+            title: 'Public Transportation',
+            keywords: [
+              'sustainable transportation',
+              'public transportation',
+              'ttc',
+              'ttc subway',
+              'ttc bus',
+              'go ontario',
+              'go shuttle',
+              'go bus',
+              'toronto subway station',
+              'toronto bus station',
+              'toronto metro',
+              'gas station',
+              'pearson airport'
+            ]
+          },
+          {
+            id: 'urban',
+            title: 'Urban Planning',
+            keywords: [
+              'urban planning',
+              'urban sprawl',
+              'urban development',
+              'urban governance',
+              'toronto portlands',
+              'sustainable toronto'
+            ]
+          },
+          {
+            id: 'places',
+            title: 'Venues and Places',
+            keywords: [
+              'CN Tower',
+              'royal ontario museum',
+              'Aquarium of Canada',
+              'Rogers Centre',
+              'Art Gallery of Ontario',
+              'Entertainment District',
+              'toronto zoo',
+              'casa loma',
+              'St. Lawrence Market',
+              'saint Lawrence market',
+              'Nathan Philips Square',
+              'toronto city hall',
+              'eaton center',
+              'Distillery District',
+              'High Park toronto',
+              'Toronto Islands',
+              'Ontario Science Centre',
+              'Hockey Hall of Fame',
+              'Graffiti Alley',
+              'toronto public library'
+            ]
+          }
+        ]
+      },
+      {
         id: 'politics',
         title: 'U.S. Elections',
         subtitle: 'Debates about policies, political parties, and more',
@@ -575,6 +642,73 @@ export const state = () => ({
           id: 'transport',
           title: 'Transport injuries',
           keywords: ['Transport Injury', 'Road Injury']
+        }
+      ]
+    },
+    {
+      id: 'urban',
+      title: 'Smart City / Urban Planning',
+      subtitle: "Citizens' comments about urban spaces...",
+      color: 'blue',
+      consuming: false,
+      cloud: '/smartcity.webp',
+      channels: [
+        {
+          id: 'transportation',
+          title: 'Public Transportation',
+          keywords: [
+            'sustainable transportation',
+            'public transportation',
+            'ttc',
+            'ttc subway',
+            'ttc bus',
+            'go ontario',
+            'go shuttle',
+            'go bus',
+            'toronto subway station',
+            'toronto bus station',
+            'toronto metro',
+            'gas station',
+            'pearson airport'
+          ]
+        },
+        {
+          id: 'urban',
+          title: 'Urban Planning',
+          keywords: [
+            'urban planning',
+            'urban sprawl',
+            'urban development',
+            'urban governance',
+            'toronto portlands',
+            'sustainable toronto'
+          ]
+        },
+        {
+          id: 'places',
+          title: 'Venues and Places',
+          keywords: [
+            'CN Tower',
+            'royal ontario museum',
+            'Aquarium of Canada',
+            'Rogers Centre',
+            'Art Gallery of Ontario',
+            'Entertainment District',
+            'toronto zoo',
+            'casa loma',
+            'St. Lawrence Market',
+            'saint Lawrence market',
+            'Nathan Philips Square',
+            'toronto city hall',
+            'eaton center',
+            'Distillery District',
+            'High Park toronto',
+            'Toronto Islands',
+            'Ontario Science Centre',
+            'Hockey Hall of Fame',
+            'Graffiti Alley',
+            'toronto public library'
+          ]
         }
       ]
     },

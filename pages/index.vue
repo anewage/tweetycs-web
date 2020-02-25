@@ -9,15 +9,6 @@
             To start, select one of the cases below.
           </p>
           <p>
-            If you have questions, please refer to
-            <a
-              href="http://insight.uwo.ca/"
-              target="_blank"
-              title="Insight Lab's Webpage"
-              >Insight Lab's Webpage</a
-            >.
-          </p>
-          <p>
             Find a bug? Please report it on the Github
             <a
               href="https://github.com/anewage/tweetycs-web/issues"
@@ -33,7 +24,7 @@
       v-for="(scenario, index) in scenarios"
       :key="index"
       xs12
-      md6
+      md4
       class="mt-2"
     >
       <v-hover>
