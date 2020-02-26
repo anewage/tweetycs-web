@@ -36,15 +36,17 @@
         >
           <v-img :aspect-ratio="16 / 9" :src="scenario.cloud">
             <v-expand-transition>
-              <!--              <div-->
-              <!--                v-if="disconnected"-->
-              <!--                class="d-flex text-xs-center transition-fast-in-fast-out grey darken-2 v-card&#45;&#45;reveal&#45;&#45;disconnected display-3 white&#45;&#45;text"-->
-              <!--                style="height: 100%;"-->
-              <!--              >-->
-              <!--                Disconnected-->
-              <!--              </div>-->
               <div
-                v-if="selectedScenario && selectedScenario.id !== scenario.id"
+                v-if="disconnected"
+                class="d-flex text-xs-center transition-fast-in-fast-out grey darken-2 v-card--reveal--disconnected display-3 white--text"
+                style="height: 100%;"
+              >
+                Disconnected
+              </div>
+              <div
+                v-else-if="
+                  selectedScenario && selectedScenario.id !== scenario.id
+                "
                 class="d-flex text-xs-center transition-fast-in-fast-out grey darken-2 v-card--reveal--disconnected display-3 white--text"
                 style="height: 100%;"
               >
@@ -72,9 +74,10 @@
               right
               top
               :disabled="
-                selectedScenario && selectedScenario.id !== scenario.id
+                disconnected ||
+                  (selectedScenario && selectedScenario.id !== scenario.id)
               "
-              :loading="selectedScenario && selectedScenario.id !== scenario.id"
+              :loading="disconnected"
               @click.stop="toggleConsuming(scenario)"
             >
               <v-icon>
@@ -155,7 +158,8 @@ export default {
           id: scenario.id,
           flag: true
         })
-        debugger
+        // eslint-disable-next-line no-console
+        console.log('Starting with fresh data...')
         this.$store.commit('updateTopics', scenario.channels)
         this.$store.commit('updateAggregatedTopics', scenario.data.agtopics)
         this.$store.commit('updateAggregatedUsers', scenario.data.agusers.a)

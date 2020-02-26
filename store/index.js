@@ -37,7 +37,6 @@ function initialState() {
     topics: [],
     rawTweets: [],
     limit: 400,
-    streamData: {},
     scenarios: [
       {
         id: 'phealth',
@@ -458,7 +457,6 @@ export const state = () => ({
   topics: [],
   rawTweets: [],
   limit: 400,
-  streamData: {},
   scenarios: [
     {
       id: 'phealth',
