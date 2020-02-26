@@ -1,6 +1,7 @@
 <template>
   <div id="timeline-target">
     <time-line
+      v-if="username"
       :id="username"
       ref="timeline"
       source-type="profile"

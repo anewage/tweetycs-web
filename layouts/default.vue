@@ -163,6 +163,7 @@ export default {
     }
   },
   mounted() {
+    // eslint-disable-next-line no-console
     const that = this
     window.setInterval(() => {
       if (socket.connected) {

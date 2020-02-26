@@ -1,3 +1,27 @@
+// eslint-disable-next-line camelcase
+import phealth_tweets from '~/static/samples/phealth/tweets.json'
+// eslint-disable-next-line camelcase
+import phealth_agkeywords from '~/static/samples/phealth/agkeywords.json'
+// eslint-disable-next-line camelcase
+import phealth_agtopics from '~/static/samples/phealth/agtopics.json'
+// eslint-disable-next-line camelcase
+import phealth_agusers from '~/static/samples/phealth/agusers.json'
+// eslint-disable-next-line camelcase
+import politics_tweets from '~/static/samples/politics/tweets.json'
+// eslint-disable-next-line camelcase
+import politics_agkeywords from '~/static/samples/politics/agkeywords.json'
+// eslint-disable-next-line camelcase
+import politics_agtopics from '~/static/samples/politics/agtopics.json'
+// eslint-disable-next-line camelcase
+import politics_agusers from '~/static/samples/politics/agusers.json'
+// eslint-disable-next-line camelcase
+import smartcity_tweets from '~/static/samples/smartcity/tweets.json'
+// eslint-disable-next-line camelcase
+import smartcity_agkeywords from '~/static/samples/smartcity/agkeywords.json'
+// eslint-disable-next-line camelcase
+import smartcity_agtopics from '~/static/samples/smartcity/agtopics.json'
+// eslint-disable-next-line camelcase
+import smartcity_agusers from '~/static/samples/smartcity/agusers.json'
 export const strict = false
 function initialState() {
   return {
@@ -13,6 +37,7 @@ function initialState() {
     topics: [],
     rawTweets: [],
     limit: 400,
+    streamData: {},
     scenarios: [
       {
         id: 'phealth',
@@ -241,7 +266,13 @@ function initialState() {
             title: 'Transport injuries',
             keywords: ['Transport Injury', 'Road Injury']
           }
-        ]
+        ],
+        data: {
+          tweets: phealth_tweets,
+          agusers: phealth_agusers,
+          agtopics: phealth_agtopics,
+          agkeywords: phealth_agkeywords
+        }
       },
       {
         id: 'urban',
@@ -308,7 +339,13 @@ function initialState() {
               'toronto public library'
             ]
           }
-        ]
+        ],
+        data: {
+          tweets: smartcity_tweets,
+          agusers: smartcity_agusers,
+          agtopics: smartcity_agtopics,
+          agkeywords: smartcity_agkeywords
+        }
       },
       {
         id: 'politics',
@@ -397,7 +434,13 @@ function initialState() {
               'Chad Wilson'
             ]
           }
-        ]
+        ],
+        data: {
+          tweets: politics_tweets,
+          agusers: politics_agusers,
+          agtopics: politics_agtopics,
+          agkeywords: politics_agkeywords
+        }
       }
     ]
   }
@@ -415,6 +458,7 @@ export const state = () => ({
   topics: [],
   rawTweets: [],
   limit: 400,
+  streamData: {},
   scenarios: [
     {
       id: 'phealth',
@@ -643,7 +687,13 @@ export const state = () => ({
           title: 'Transport injuries',
           keywords: ['Transport Injury', 'Road Injury']
         }
-      ]
+      ],
+      data: {
+        tweets: phealth_tweets,
+        agusers: phealth_agusers,
+        agtopics: phealth_agtopics,
+        agkeywords: phealth_agkeywords
+      }
     },
     {
       id: 'urban',
@@ -799,7 +849,13 @@ export const state = () => ({
             'Chad Wilson'
           ]
         }
-      ]
+      ],
+      data: {
+        tweets: politics_tweets,
+        agusers: politics_agusers,
+        agtopics: politics_agtopics,
+        agkeywords: politics_agkeywords
+      }
     }
   ]
 })
