@@ -9,15 +9,6 @@
             To start, select one of the cases below.
           </p>
           <p>
-            If you have questions, please refer to
-            <a
-              href="http://insight.uwo.ca/"
-              target="_blank"
-              title="Insight Lab's Webpage"
-              >Insight Lab's Webpage</a
-            >.
-          </p>
-          <p>
             Find a bug? Please report it on the Github
             <a
               href="https://github.com/anewage/tweetycs-web/issues"
@@ -33,7 +24,7 @@
       v-for="(scenario, index) in scenarios"
       :key="index"
       xs12
-      md6
+      md4
       class="mt-2"
     >
       <v-hover>
@@ -147,6 +138,7 @@ export default {
       this.disconnected = socket.disconnected
     })
   },
+
   methods: {
     toggleConsuming: function(scenario) {
       if (scenario.consuming) {
@@ -166,6 +158,13 @@ export default {
           id: scenario.id,
           flag: true
         })
+        // eslint-disable-next-line no-console
+        console.log('Starting with fresh data...')
+        this.$store.commit('updateTopics', scenario.channels)
+        this.$store.commit('updateAggregatedTopics', scenario.data.agtopics)
+        this.$store.commit('updateAggregatedUsers', scenario.data.agusers.a)
+        this.$store.commit('updateAggregatedKeywords', scenario.data.agkeywords)
+        this.$store.commit('addToRawTweets', scenario.data.tweets)
         socket.emit('pause_consuming')
         // eslint-disable-next-line no-console
         console.log(scenario.channels)
