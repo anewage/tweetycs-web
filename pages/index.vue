@@ -138,6 +138,7 @@ export default {
       this.disconnected = socket.disconnected
     })
   },
+
   methods: {
     toggleConsuming: function(scenario) {
       if (scenario.consuming) {
@@ -157,6 +158,13 @@ export default {
           id: scenario.id,
           flag: true
         })
+        // eslint-disable-next-line no-console
+        console.log('Starting with fresh data...')
+        this.$store.commit('updateTopics', scenario.channels)
+        this.$store.commit('updateAggregatedTopics', scenario.data.agtopics)
+        this.$store.commit('updateAggregatedUsers', scenario.data.agusers.a)
+        this.$store.commit('updateAggregatedKeywords', scenario.data.agkeywords)
+        this.$store.commit('addToRawTweets', scenario.data.tweets)
         socket.emit('pause_consuming')
         // eslint-disable-next-line no-console
         console.log(scenario.channels)
