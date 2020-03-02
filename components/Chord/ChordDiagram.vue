@@ -73,7 +73,7 @@
         />
       </g>
     </transition-group>
-    <circle
+    <!--    <circle
       :cx="this.radius"
       :cy="this.radius"
       :r="token.size"
@@ -81,7 +81,7 @@
       :stroke-width="token.strokeSize"
       :fill="token.color"
       :fill-opacity="token.opacity"
-    />
+    />-->
   </svg>
 </template>
 
