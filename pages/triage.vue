@@ -105,13 +105,13 @@ export default {
       ],
       mySampleData: 'Color Code:',
       usersSet: [
-        { name: 'a', value: 100 },
-        { name: 'b', value: 90 },
-        { name: 'c', value: 20 },
-        { name: 'd', value: 200 },
-        { name: 'e', value: 150 },
-        { name: 'f', value: 50 },
-        { name: 'g', value: 160 }
+        { name: 'a', tweets: [{}, {}, {}] },
+        { name: 'b', value: [{}, {}, {}] },
+        { name: 'c', value: [{}, {}, {}] },
+        { name: 'd', value: [{}, {}, {}] },
+        { name: 'e', value: [{}, {}, {}] },
+        { name: 'f', value: [{}, {}, {}] },
+        { name: 'g', value: [{}, {}, {}] }
       ],
       flat: true,
       color: 'transparent',

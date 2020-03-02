@@ -145,6 +145,7 @@ export default {
   },
   computed: {
     /*
+     * Current delay in ms
      */
     delay() {
       if (this.pingPong.busy)

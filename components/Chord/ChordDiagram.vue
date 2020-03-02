@@ -62,7 +62,7 @@
       :duration="transitionDuration"
       :transform="'translate(' + radius + ',' + radius * 0.7 + ')'"
     >
-      <g v-for="(item, index) in root" :key="index">
+      <g v-for="(item, index) in rootColor" :key="index">
         <circle
           :cx="200"
           :cy="200"
@@ -170,10 +170,10 @@ export default {
         .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.018))
         .padRadius(this.radius / 2)
         .innerRadius(function(d) {
-          return (this.radius - d.y1 + 20 + 100 * d.depth) * 1.2
+          return this.innerRadiusTerm(d)
         })
         .outerRadius(function(d) {
-          return (this.radius - d.y0) * 1
+          return this.outerRadiusTerm(d)
         })
     },
     hierarchizeData: function() {
@@ -232,8 +232,8 @@ export default {
     },
     labelTransform: function() {
       return d => {
-        const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI
-        const y = (d.y0 + d.y1) / (d.depth ** 2 * 0.9)
+        const x = this.labelTransferX(d)
+        const y = this.labelTransferY(d)
         return `rotate(${x - 90}) translate(${y},0) rotate(${
           x < 180 ? 0 : 180
         })`
@@ -252,20 +252,28 @@ export default {
       }
     },
     // sample
-    pack: function() {
-      return data => {
-        const pack = d3
-          .pack()
-          .size([this.meta.width / 2, this.meta.width / 2])
-          .padding(10)
-        const root = { children: data.filter(d => d.value > 0) }
-        return data => {
-          return pack(d3.hierarchy(root).sum(d => d.radius * 1))
-        }
-      }
-    },
     tokenPlace: function() {
       return d => d.depth
+    },
+    innerRadiusTerm: function(d) {
+      return d => {
+        return this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
+      }
+    },
+    outerRadiusTerm: function(d) {
+      return d => {
+        return this.radius - d.y0 + this.radius / 10
+      }
+    },
+    labelTransferX: function(d) {
+      return d => {
+        return (((d.x0 + d.x1) / 2) * 180) / Math.PI
+      }
+    },
+    labelTransferY: function(d) {
+      return d => {
+        return ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
+      }
     }
   },
   mounted() {
