@@ -5,7 +5,6 @@
     :height="meta.height"
     :fill-opacity="meta.fillOpacity"
     class="svg chord"
-    :viewBox="autoBox.join()"
   >
     <!--sunburst-->
     <transition-group
@@ -75,8 +74,8 @@
       </g>
     </transition-group>
     <circle
-      :cx="200"
-      :cy="200"
+      :cx="this.radius"
+      :cy="this.radius"
       :r="token.size"
       stroke="grey"
       :stroke-width="token.strokeSize"
@@ -170,6 +169,8 @@ export default {
         .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.018))
         .padRadius(this.radius / 2)
         .innerRadius(function(d) {
+          // eslint-disable-next-line no-console
+          console.log(this.innerRadiusTerm(d))
           return this.innerRadiusTerm(d)
         })
         .outerRadius(function(d) {
@@ -181,7 +182,7 @@ export default {
         const c = a.keywords.map(kw => {
           return {
             name: kw,
-            value: Math.floor(Math.random() * 10)
+            value: 1
           }
         })
         return {
@@ -251,26 +252,25 @@ export default {
           .join('/')}\n${d.data.value}`
       }
     },
-    // sample
     tokenPlace: function() {
       return d => d.depth
     },
-    innerRadiusTerm: function(d) {
+    innerRadiusTerm: function() {
       return d => {
         return this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
       }
     },
-    outerRadiusTerm: function(d) {
+    outerRadiusTerm: function() {
       return d => {
         return this.radius - d.y0 + this.radius / 10
       }
     },
-    labelTransferX: function(d) {
+    labelTransferX: function() {
       return d => {
         return (((d.x0 + d.x1) / 2) * 180) / Math.PI
       }
     },
-    labelTransferY: function(d) {
+    labelTransferY: function() {
       return d => {
         return ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
       }

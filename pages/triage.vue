@@ -1,16 +1,18 @@
 <template>
-  <v-layout row wrap>
-    <v-flex xs12>
-      <div :id="charts.chordDiagram.id">
-        <chord-diagram
-          :a="mySampleData"
-          :fake-data="usersSet"
-          :meta="charts.chordDiagram"
-          :topics="topics"
-        ></chord-diagram>
-      </div>
-    </v-flex>
-  </v-layout>
+  <v-container fill-height fluid>
+    <v-layout row justify-center>
+      <v-flex xs8>
+        <div :id="charts.chordDiagram.id">
+          <chord-diagram
+            :a="mySampleData"
+            :fake-data="usersSet"
+            :meta="charts.chordDiagram"
+            :topics="topics"
+          ></chord-diagram>
+        </div>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>
@@ -125,7 +127,7 @@ export default {
           id: 'chord-diagram',
           label: 'Agent-Topic Association ',
           width: 600,
-          height: 600
+          height: 1000
         }
       }
     }
@@ -141,7 +143,10 @@ export default {
   methods: {
     resize: function() {
       const chordDiv = document.getElementById(this.charts.chordDiagram.id)
-      if (chordDiv) this.charts.chordDiagram.width = chordDiv.clientWidth - 5
+      if (chordDiv) {
+        this.charts.chordDiagram.width = chordDiv.clientWidth - 5
+        // this.charts.chordDiagram.height = chordDiv.clientHeight - 5
+      }
     },
     doSomething: function() {
       const a = 100
