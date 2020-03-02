@@ -251,6 +251,7 @@ export default {
           .join('/')}\n${d.data.value}`
       }
     },
+    // sample
     pack: function() {
       return data => {
         const pack = d3
