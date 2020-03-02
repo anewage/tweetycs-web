@@ -123,6 +123,11 @@ export default {
           icon: 'chrome_reader_mode',
           title: 'Shuffler',
           to: '/shuffler'
+        },
+        {
+          icon: 'chrome_reader_mode',
+          title: 'Triage',
+          to: '/Triage'
         }
       ],
       miniVariant: true,

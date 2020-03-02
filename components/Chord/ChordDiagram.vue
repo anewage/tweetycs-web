@@ -1,0 +1,280 @@
+<template>
+  <svg
+    :id="chartDomID + '-svg'"
+    :width="meta.width"
+    :height="meta.height"
+    :fill-opacity="meta.fillOpacity"
+    class="svg chord"
+    :viewBox="autoBox.join()"
+  >
+    <!--sunburst-->
+    <transition-group
+      id="sunburstSlices"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
+      :transform="'translate(' + radius + ',' + radius + ')'"
+    >
+      <!--SLICES-->
+      <g v-for="(arc, index) in rootColor" :key="index">
+        <path
+          class="line"
+          :fill="colorPack(arc)"
+          :fill-opacity="line.fillOpacity"
+          :stroke="line.stroke"
+          :stroke-width="line.stroke_width"
+          :d="arcFunction(arc)"
+        >
+          <title>
+            {{ ancestorPath(arc) }}
+          </title>
+        </path>
+      </g>
+    </transition-group>
+    <!--TEXT-->
+    <transition-group
+      id="SunburstLables"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
+      :transform="'translate(' + radius + ',' + radius + ')'"
+    >
+      <g v-for="(item, index) in rootText" :key="index">
+        <text
+          pointer-events="null"
+          text-anchor="middle"
+          font-family="sans-serif"
+          font-size="8"
+          style="user-select: none;"
+          dy="0.35em"
+          class="sunburst-text"
+          :transform="labelTransform(item)"
+        >
+          {{ item.data.name }}
+        </text>
+      </g>
+    </transition-group>
+    <!--Bubbles-->
+    <transition-group
+      id="Bubbles"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
+      :transform="'translate(' + radius + ',' + radius * 0.7 + ')'"
+    >
+      <g v-for="(item, index) in root" :key="index">
+        <circle
+          :cx="200"
+          :cy="200"
+          :r="token.size"
+          stroke="grey"
+          :stroke-width="token.strokeSize"
+          :fill="token.color"
+          :fill-opacity="token.opacity"
+        />
+      </g>
+    </transition-group>
+    <circle
+      :cx="200"
+      :cy="200"
+      :r="token.size"
+      stroke="grey"
+      :stroke-width="token.strokeSize"
+      :fill="token.color"
+      :fill-opacity="token.opacity"
+    />
+  </svg>
+</template>
+
+<script>
+import * as d3 from 'd3'
+
+export default {
+  name: 'ChordDiagram',
+  props: {
+    chartDomID: {
+      type: String,
+      default: 'chord-diagram'
+    },
+    topics: {
+      type: Array,
+      default: function() {
+        return []
+      }
+    },
+    meta: {
+      type: Object,
+      default: function() {
+        return {
+          id: 'chord-diagram',
+          label: 'Agent-Topic Association ',
+          width: 500,
+          height: 500,
+          fillOpacity: 0.6
+        }
+      }
+    },
+    fakeData: {
+      type: Array,
+      default: function() {
+        return [{ name: 'a', value: 100 }]
+      }
+    },
+    line: {
+      type: Object,
+      default: function() {
+        return {
+          show: true,
+          fill: 'blue',
+          fillOpacity: 0.6,
+          stroke: 'grey',
+          stroke_width: '1.0'
+        }
+      }
+    },
+    text: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    },
+    token: {
+      type: Object,
+      default: function() {
+        return {
+          size: '7',
+          color: 'pink',
+          opacity: '0.6',
+          strokeSize: '1'
+        }
+      }
+    }
+  },
+  data() {
+    return {
+      svg: null,
+      arcGroup: null,
+      arcsCoefficient: 0.85,
+      transitionDuration: 500
+    }
+  },
+  computed: {
+    radius: function() {
+      return Math.min(this.meta.width) / 2
+    },
+    arcFunction: function() {
+      return d3
+        .arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.018))
+        .padRadius(this.radius / 2)
+        .innerRadius(function(d) {
+          return (this.radius - d.y1 + 20 + 100 * d.depth) * 1.2
+        })
+        .outerRadius(function(d) {
+          return (this.radius - d.y0) * 1
+        })
+    },
+    hierarchizeData: function() {
+      const child = this.topics.map(a => {
+        const c = a.keywords.map(kw => {
+          return {
+            name: kw,
+            value: Math.floor(Math.random() * 10)
+          }
+        })
+        return {
+          ...a,
+          children: c,
+          name: a.id
+        }
+      })
+      return {
+        name: 'All Topics',
+        children: child
+      }
+    },
+    partitions: function() {
+      return function(ddd) {
+        return d3.partition().size([2 * Math.PI, this.radius])(
+          d3
+            .hierarchy(ddd)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value)
+        )
+      }
+    },
+    rootColor: function() {
+      return this.partitions(this.hierarchizeData)
+        .descendants()
+        .filter(d => d.depth)
+    },
+    rootText: function() {
+      return this.partitions(this.hierarchizeData)
+        .descendants()
+        .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 10)
+    },
+    colorPack: function() {
+      return d => {
+        while (d.depth > 1) d = d.parent
+        return this.color(d.data.name)
+      }
+    },
+    color: function() {
+      const that = this
+      return d3.scaleOrdinal(
+        d3.quantize(
+          d3.interpolateInferno,
+          that.hierarchizeData.children.length + 1
+        )
+      )
+    },
+    labelTransform: function() {
+      return d => {
+        const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI
+        const y = (d.y0 + d.y1) / (d.depth ** 2 * 0.9)
+        return `rotate(${x - 90}) translate(${y},0) rotate(${
+          x < 180 ? 0 : 180
+        })`
+      }
+    },
+    autoBox: function() {
+      return [0, 0, this.meta.width * 2, this.meta.height * 2]
+    },
+    ancestorPath: function() {
+      return d => {
+        return `${d
+          .ancestors()
+          .map(d => d.data.name)
+          .reverse()
+          .join('/')}\n${d.data.value}`
+      }
+    },
+    pack: function() {
+      return data => {
+        const pack = d3
+          .pack()
+          .size([this.meta.width / 2, this.meta.width / 2])
+          .padding(10)
+        const root = { children: data.filter(d => d.value > 0) }
+        return data => {
+          return pack(d3.hierarchy(root).sum(d => d.radius * 1))
+        }
+      }
+    },
+    tokenPlace: function() {
+      return d => d.depth
+    }
+  },
+  mounted() {
+    this.setupSVG()
+  },
+  methods: {
+    setupSVG: function() {
+      this.svg = d3.select('.chord')
+      this.arcGroup = d3.select('#arcs')
+    }
+  }
+}
+</script>
