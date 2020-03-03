@@ -79,7 +79,7 @@
       name="fade"
       :duration="transitionDuration"
     >
-      <g v-for="(item, index) in root" :key="index">
+      <g v-for="(item, index) in users" :key="index">
         <circle
           :cx="radius"
           :cy="radius"
@@ -122,10 +122,10 @@ export default {
         }
       }
     },
-    fakeData: {
+    users: {
       type: Array,
       default: function() {
-        return [{ name: 'a', value: 100 }]
+        return []
       }
     },
     line: {
@@ -201,7 +201,7 @@ export default {
         }
       })
       return {
-        name: 'All Topics',
+        name: 'U.S. Elections',
         children: child
       }
     },

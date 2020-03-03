@@ -5,9 +5,9 @@
         <div :id="charts.chordDiagram.id">
           <chord-diagram
             :a="mySampleData"
-            :fake-data="usersSet"
             :meta="charts.chordDiagram"
             :topics="topics"
+            :users="usersSet"
           ></chord-diagram>
         </div>
       </v-flex>
@@ -108,12 +108,12 @@ export default {
       mySampleData: 'Color Code:',
       usersSet: [
         { name: 'a', tweets: [{}, {}, {}] },
-        { name: 'b', value: [{}, {}, {}] },
-        { name: 'c', value: [{}, {}, {}] },
-        { name: 'd', value: [{}, {}, {}] },
-        { name: 'e', value: [{}, {}, {}] },
-        { name: 'f', value: [{}, {}, {}] },
-        { name: 'g', value: [{}, {}, {}] }
+        { name: 'b', tweets: [{}, {}] },
+        { name: 'c', tweets: [{}, {}, {}] },
+        { name: 'd', tweets: [{}, {}] },
+        { name: 'e', tweets: [{}, {}, {}, {}] },
+        { name: 'f', tweets: [{}, {}, {}] },
+        { name: 'g', tweets: [{}] }
       ],
       flat: true,
       color: 'transparent',
