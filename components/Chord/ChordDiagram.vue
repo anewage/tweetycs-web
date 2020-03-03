@@ -45,33 +45,6 @@
         </text>
       </g>
     </transition-group>
-    <!--
-    &lt;!&ndash;TEXT&ndash;&gt;
-    <transition-group
-      id="SunburstLables"
-      tag="g"
-      name="fade"
-      :duration="transitionDuration"
-      :transform="'translate(' + radius + ',' + radius + ')'"
-    >
-      <g v-for="(item, index) in root" :key="index">
-        <text
-          pointer-events="null"
-          text-anchor="middle"
-          font-family="sans-serif"
-          font-size="8"
-          style="user-select: none;"
-          dy="0.35em"
-          class="sunburst-text"
-          textLength="40"
-          lengthAdjust="spacingAndGlyphs"
-          :transform="labelTransform(item)"
-        >
-          {{ item.data.name }}
-        </text>
-      </g>
-    </transition-group>
-  -->
     <!--Bubbles-->
     <transition-group
       id="Bubbles"
@@ -79,16 +52,17 @@
       name="fade"
       :duration="transitionDuration"
     >
-      <g v-for="(item, index) in users" :key="index">
+      <g v-for="(item, index) in leaf.children" :key="index">
         <circle
-          :cx="radius"
-          :cy="radius"
+          :cx="item.x"
+          :cy="item.y"
           :r="token.size"
           :stroke="token.strokeColor"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
           :fill="token.color"
           :fill-opacity="token.opacity"
+          :transform="circleTransform"
         />
       </g>
     </transition-group>
@@ -219,7 +193,7 @@ export default {
         return {
           ...a,
           children: c,
-          name: a.id
+          name: a.name
         }
       })
       return {
@@ -242,11 +216,6 @@ export default {
         .descendants()
         .filter(d => d.depth)
     },
-    /*    rootText: function() {
-      return this.partitions(this.hierarchizeTopicData)
-        .descendants()
-        .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 0)
-    }, */
     sliceColor: function() {
       return d => {
         while (d.depth > 1) d = d.parent
@@ -307,6 +276,20 @@ export default {
       return d => {
         return ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
       }
+    },
+    circleTransform: function() {
+      return 'translate(' + this.radius + ',' + this.radius + ')'
+    },
+    pack: function() {
+      return function(ddd) {
+        return d3
+          .pack()
+          .size([this.radius / 3, this.radius / 3])
+          .padding(3)(d3.hierarchy(ddd).sum(d => d.value))
+      }
+    },
+    leaf: function() {
+      return this.pack(this.hierarchizeUsercData)
     }
   },
   mounted() {
