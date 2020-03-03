@@ -84,7 +84,8 @@
           :cx="radius"
           :cy="radius"
           :r="token.size"
-          stroke="grey"
+          :stroke="token.strokeColor"
+          :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
           :fill="token.color"
           :fill-opacity="token.opacity"
@@ -135,8 +136,8 @@ export default {
           show: true,
           fill: 'blue',
           fillOpacity: 0.6,
-          stroke: 'grey',
-          stroke_width: '1.0'
+          stroke: '#61768e',
+          stroke_width: '0.6'
         }
       }
     },
@@ -150,10 +151,12 @@ export default {
       type: Object,
       default: function() {
         return {
-          size: '7',
-          color: 'pink',
+          size: '10',
+          color: '#d6d0bc',
           opacity: '0.6',
-          strokeSize: '1'
+          strokeSize: '0.7',
+          strokeOpcaity: '0.6',
+          strokeColor: '#797362'
         }
       }
     }
@@ -186,7 +189,7 @@ export default {
           return this.outerRadiusTerm(d)
         })
     },
-    hierarchizeData: function() {
+    hierarchizeTopicData: function() {
       const child = this.topics.map(a => {
         const c = a.keywords.map(kw => {
           return {
@@ -205,6 +208,25 @@ export default {
         children: child
       }
     },
+    hierarchizeUsercData: function() {
+      const child = this.users.map(a => {
+        const c = a.tweets.map(tw => {
+          return {
+            name: tw,
+            value: 1
+          }
+        })
+        return {
+          ...a,
+          children: c,
+          name: a.id
+        }
+      })
+      return {
+        name: 'Tweeters',
+        children: child
+      }
+    },
     partitions: function() {
       return function(ddd) {
         return d3.partition().size([2 * Math.PI, this.radius])(
@@ -216,12 +238,12 @@ export default {
       }
     },
     root: function() {
-      return this.partitions(this.hierarchizeData)
+      return this.partitions(this.hierarchizeTopicData)
         .descendants()
         .filter(d => d.depth)
     },
     /*    rootText: function() {
-      return this.partitions(this.hierarchizeData)
+      return this.partitions(this.hierarchizeTopicData)
         .descendants()
         .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 0)
     }, */
@@ -236,7 +258,7 @@ export default {
       return d3.scaleOrdinal(
         d3.quantize(
           d3.interpolateInferno,
-          that.hierarchizeData.children.length + 1
+          that.hierarchizeTopicData.children.length + 1
         )
       )
     },
