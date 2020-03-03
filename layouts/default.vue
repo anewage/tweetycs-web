@@ -127,7 +127,7 @@ export default {
         {
           icon: 'chrome_reader_mode',
           title: 'Triage',
-          to: '/Triage'
+          to: '/triage'
         }
       ],
       miniVariant: true,

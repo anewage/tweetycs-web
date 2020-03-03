@@ -4,7 +4,6 @@
       <v-flex xs8>
         <div :id="charts.chordDiagram.id">
           <chord-diagram
-            :a="mySampleData"
             :meta="charts.chordDiagram"
             :topics="topics"
             :users="usersSet"
@@ -135,10 +134,6 @@ export default {
   mounted() {
     this.resize()
     window.addEventListener('resize', this.resize)
-    // this.$nextTick(() => {
-    //   debugger
-    //
-    // })
   },
   methods: {
     resize: function() {
