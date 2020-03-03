@@ -6,7 +6,7 @@
     :fill-opacity="meta.fillOpacity"
     class="svg chord"
   >
-    <!--sunburst-->
+    <!--SUNBURST-->
     <transition-group
       id="sunburstSlices"
       tag="g"
@@ -15,10 +15,10 @@
       :transform="'translate(' + radius + ',' + radius + ')'"
     >
       <!--SLICES-->
-      <g v-for="(arc, index) in rootColor" :key="index">
+      <g v-for="(arc, index) in root" :key="index">
         <path
           class="line"
-          :fill="colorPack(arc)"
+          :fill="sliceColor(arc)"
           :fill-opacity="line.fillOpacity"
           :stroke="line.stroke"
           :stroke-width="line.stroke_width"
@@ -28,17 +28,6 @@
             {{ ancestorPath(arc) }}
           </title>
         </path>
-      </g>
-    </transition-group>
-    <!--TEXT-->
-    <transition-group
-      id="SunburstLables"
-      tag="g"
-      name="fade"
-      :duration="transitionDuration"
-      :transform="'translate(' + radius + ',' + radius + ')'"
-    >
-      <g v-for="(item, index) in rootText" :key="index">
         <text
           pointer-events="null"
           text-anchor="middle"
@@ -47,24 +36,53 @@
           style="user-select: none;"
           dy="0.35em"
           class="sunburst-text"
+          textLength="10"
+          :textLength="textLength(arc)"
+          lengthAdjust="spacingAndGlyphs"
+          :transform="labelTransform(arc)"
+        >
+          {{ arc.data.name }}
+        </text>
+      </g>
+    </transition-group>
+    <!--
+    &lt;!&ndash;TEXT&ndash;&gt;
+    <transition-group
+      id="SunburstLables"
+      tag="g"
+      name="fade"
+      :duration="transitionDuration"
+      :transform="'translate(' + radius + ',' + radius + ')'"
+    >
+      <g v-for="(item, index) in root" :key="index">
+        <text
+          pointer-events="null"
+          text-anchor="middle"
+          font-family="sans-serif"
+          font-size="8"
+          style="user-select: none;"
+          dy="0.35em"
+          class="sunburst-text"
+          textLength="40"
+          lengthAdjust="spacingAndGlyphs"
           :transform="labelTransform(item)"
         >
           {{ item.data.name }}
         </text>
       </g>
     </transition-group>
+  -->
     <!--Bubbles-->
     <transition-group
       id="Bubbles"
       tag="g"
       name="fade"
       :duration="transitionDuration"
-      :transform="'translate(' + radius + ',' + radius * 0.7 + ')'"
     >
-      <g v-for="(item, index) in rootColor" :key="index">
+      <g v-for="(item, index) in root" :key="index">
         <circle
-          :cx="200"
-          :cy="200"
+          :cx="radius"
+          :cy="radius"
           :r="token.size"
           stroke="grey"
           :stroke-width="token.strokeSize"
@@ -73,15 +91,6 @@
         />
       </g>
     </transition-group>
-    <!--    <circle
-      :cx="this.radius"
-      :cy="this.radius"
-      :r="token.size"
-      stroke="grey"
-      :stroke-width="token.strokeSize"
-      :fill="token.color"
-      :fill-opacity="token.opacity"
-    />-->
   </svg>
 </template>
 
@@ -206,17 +215,17 @@ export default {
         )
       }
     },
-    rootColor: function() {
+    root: function() {
       return this.partitions(this.hierarchizeData)
         .descendants()
         .filter(d => d.depth)
     },
-    rootText: function() {
+    /*    rootText: function() {
       return this.partitions(this.hierarchizeData)
         .descendants()
-        .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 10)
-    },
-    colorPack: function() {
+        .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 0)
+    }, */
+    sliceColor: function() {
       return d => {
         while (d.depth > 1) d = d.parent
         return this.color(d.data.name)
@@ -240,8 +249,12 @@ export default {
         })`
       }
     },
-    autoBox: function() {
-      return [0, 0, this.meta.width * 2, this.meta.height * 2]
+    textLength: function() {
+      return d => {
+        return Math.abs(
+          Math.abs(this.outerRadiusTerm(d) - this.innerRadiusTerm(d)) - 10
+        )
+      }
     },
     ancestorPath: function() {
       return d => {
@@ -249,11 +262,9 @@ export default {
           .ancestors()
           .map(d => d.data.name)
           .reverse()
-          .join('/')}\n${d.data.value}`
+          .join('/')}\n`
+        // ${d.data.value}
       }
-    },
-    tokenPlace: function() {
-      return d => d.depth
     },
     innerRadiusTerm: function() {
       return d => {
