@@ -10,6 +10,8 @@
           ></chord-diagram>
         </div>
       </v-flex>
+    </v-layout>
+    <v-layout row justify-center>
       <v-flex xs8>
         <treemap :users="usersSet"></treemap>
       </v-flex>
