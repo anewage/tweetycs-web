@@ -36,9 +36,6 @@
           style="user-select: none;"
           dy="0.35em"
           class="sunburst-text"
-          textLength="10"
-          :textLength="textLength(arc)"
-          lengthAdjust="spacingAndGlyphs"
           :transform="labelTransform(arc)"
         >
           {{ arc.data.name }}
@@ -57,7 +54,7 @@
         <circle
           :cx="circleX(item)"
           :cy="circleY(item)"
-          :r="token.size"
+          :r="circleSize"
           :stroke="token.strokeColor"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
@@ -132,7 +129,7 @@ export default {
         return {
           size: '10',
           color: '#d6d0bc',
-          opacity: '0.6',
+          opacity: '0.8',
           strokeSize: '0.7',
           strokeOpcaity: '0.6',
           strokeColor: '#797362'
@@ -145,7 +142,8 @@ export default {
       svg: null,
       arcGroup: null,
       arcsCoefficient: 0.85,
-      transitionDuration: 500
+      transitionDuration: 500,
+      sunburst: false
     }
   },
   computed: {
@@ -234,18 +232,6 @@ export default {
         )
       )
     },
-    pack: function() {
-      return function(d) {
-        const innerRadius = this.radius
-        return d3
-          .pack()
-          .size([innerRadius * 0.8, innerRadius * 0.8])
-          .padding(30)(d3.hierarchy(d).sum(d => d.value))
-      }
-    },
-    leaf: function() {
-      return this.pack(this.hierarchizeUsercData)
-    },
     labelTransform: function() {
       return d => {
         const x = this.labelTransferX(d)
@@ -273,12 +259,14 @@ export default {
     },
     innerRadiusTerm: function() {
       return d => {
-        return this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
+        return this.sunburst
+          ? d.y0
+          : this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
       }
     },
     outerRadiusTerm: function() {
       return d => {
-        return this.radius - d.y0 + this.radius / 10
+        return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 10
       }
     },
     labelTransferX: function() {
@@ -288,8 +276,22 @@ export default {
     },
     labelTransferY: function() {
       return d => {
-        return ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
+        return this.sunburst
+          ? (d.y0 + d.y1) / 2
+          : ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
       }
+    },
+    pack: function() {
+      return function(d) {
+        const innerRadius = this.radius
+        return d3
+          .pack()
+          .size([innerRadius * 0.8, innerRadius * 0.8])
+          .padding(30)(d3.hierarchy(d).sum(d => d.value))
+      }
+    },
+    leaf: function() {
+      return this.pack(this.hierarchizeUsercData)
     },
     circleTransform: function() {
       return 'translate(' + this.radius * 0.6 + ',' + this.radius * 0.6 + ')'
@@ -308,6 +310,12 @@ export default {
       return d => {
         return this.color(d)
       }
+    },
+    circleSize: function() {
+      return this.radius * 0.02
+    },
+    ribbon: function() {
+      return d3.ribbon().radius()
     }
   },
   mounted() {

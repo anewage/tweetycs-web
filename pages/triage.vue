@@ -106,13 +106,54 @@ export default {
       ],
       mySampleData: 'Color Code:',
       usersSet: [
-        { name: 'a', tweets: [{}, {}, {}] },
-        { name: 'b', tweets: [{}, {}] },
-        { name: 'c', tweets: [{}, {}, {}] },
-        { name: 'd', tweets: [{}, {}] },
-        { name: 'e', tweets: [{}, {}, {}, {}] },
-        { name: 'f', tweets: [{}, {}, {}] },
-        { name: 'g', tweets: [{}] }
+        {
+          name: 'a',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        },
+        {
+          name: 'b',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        },
+        {
+          name: 'a',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        },
+        {
+          name: 'b',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        },
+        {
+          name: 'a',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        },
+        {
+          name: 'b',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['John McAfee'], topics: ['democratic'] },
+            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+          ]
+        }
       ],
       flat: true,
       color: 'transparent',
@@ -142,10 +183,6 @@ export default {
         this.charts.chordDiagram.width = chordDiv.clientWidth - 5
         // this.charts.chordDiagram.height = chordDiv.clientHeight - 5
       }
-    },
-    doSomething: function() {
-      const a = 100
-      window.alert(a)
     }
   }
 }
