@@ -8,8 +8,10 @@
             :topics="topics"
             :users="usersSet"
           ></chord-diagram>
-          <treemap :users="usersSet"></treemap>
         </div>
+      </v-flex>
+      <v-flex xs8>
+        <treemap :users="usersSet"></treemap>
       </v-flex>
     </v-layout>
   </v-container>
