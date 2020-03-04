@@ -8,6 +8,7 @@
             :topics="topics"
             :users="usersSet"
           ></chord-diagram>
+          <treemap :users="usersSet"></treemap>
         </div>
       </v-flex>
     </v-layout>
@@ -16,10 +17,12 @@
 
 <script>
 import ChordDiagram from '../components/Chord/ChordDiagram'
+import Treemap from '../components/Treemap/Treemap'
 export default {
   name: 'Triage',
   components: {
-    ChordDiagram
+    ChordDiagram,
+    Treemap
   },
   data() {
     return {
