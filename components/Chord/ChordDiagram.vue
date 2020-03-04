@@ -53,14 +53,15 @@
       :duration="transitionDuration"
     >
       <g v-for="(item, index) in leaf.children" :key="index">
+        <!--TODO: tranform and colors need to be changed-->
         <circle
-          :cx="item.x"
-          :cy="item.y"
+          :cx="circleX(item)"
+          :cy="circleY(item)"
           :r="token.size"
           :stroke="token.strokeColor"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
-          :fill="token.color"
+          :fill="circleFill(index)"
           :fill-opacity="token.opacity"
           :transform="circleTransform"
         />
@@ -102,6 +103,10 @@ export default {
       default: function() {
         return []
       }
+    },
+    innerRadiusSize: {
+      type: Number,
+      default: 0
     },
     line: {
       type: Object,
@@ -155,8 +160,6 @@ export default {
         .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.018))
         .padRadius(this.radius / 2)
         .innerRadius(function(d) {
-          // eslint-disable-next-line no-console
-          console.log(this.innerRadiusTerm(d))
           return this.innerRadiusTerm(d)
         })
         .outerRadius(function(d) {
@@ -231,6 +234,18 @@ export default {
         )
       )
     },
+    pack: function() {
+      return function(d) {
+        const innerRadius = this.radius
+        return d3
+          .pack()
+          .size([innerRadius * 0.8, innerRadius * 0.8])
+          .padding(30)(d3.hierarchy(d).sum(d => d.value))
+      }
+    },
+    leaf: function() {
+      return this.pack(this.hierarchizeUsercData)
+    },
     labelTransform: function() {
       return d => {
         const x = this.labelTransferX(d)
@@ -254,7 +269,6 @@ export default {
           .map(d => d.data.name)
           .reverse()
           .join('/')}\n`
-        // ${d.data.value}
       }
     },
     innerRadiusTerm: function() {
@@ -278,18 +292,22 @@ export default {
       }
     },
     circleTransform: function() {
-      return 'translate(' + this.radius + ',' + this.radius + ')'
+      return 'translate(' + this.radius * 0.6 + ',' + this.radius * 0.6 + ')'
     },
-    pack: function() {
-      return function(ddd) {
-        return d3
-          .pack()
-          .size([this.radius / 3, this.radius / 3])
-          .padding(3)(d3.hierarchy(ddd).sum(d => d.value))
+    circleX: function() {
+      return d => {
+        return d.x
       }
     },
-    leaf: function() {
-      return this.pack(this.hierarchizeUsercData)
+    circleY: function() {
+      return d => {
+        return d.y
+      }
+    },
+    circleFill: function() {
+      return d => {
+        return this.color(d)
+      }
     }
   },
   mounted() {
