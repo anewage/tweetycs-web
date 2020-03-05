@@ -110,48 +110,16 @@ export default {
           name: 'a',
           tweets: [
             { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+            { keywords: ['Adam Kokesh'], topics: ['libertarian'] },
+            { keywords: ['IMPOTUS'], topics: ['impeachment'] }
           ]
         },
         {
           name: 'b',
           tweets: [
             { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
-          ]
-        },
-        {
-          name: 'a',
-          tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
-          ]
-        },
-        {
-          name: 'b',
-          tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
-          ]
-        },
-        {
-          name: 'a',
-          tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
-          ]
-        },
-        {
-          name: 'b',
-          tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['John McAfee'], topics: ['democratic'] },
-            { keywords: ['Kim Ruff'], topics: ['democratic'] }
+            { keywords: ['ImpeachedPresident'], topics: ['impeachment'] },
+            { keywords: ['David Rolde'], topics: ['green'] }
           ]
         }
       ],

@@ -23,6 +23,7 @@
           :stroke="line.stroke"
           :stroke-width="line.stroke_width"
           :d="arcFunction(arc)"
+          @click="sunburstView"
         >
           <title>
             {{ ancestorPath(arc) }}
@@ -259,14 +260,16 @@ export default {
     },
     innerRadiusTerm: function() {
       return d => {
-        return this.sunburst
-          ? d.y0
-          : this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
+        return this.sunburst ? d.y0 : this.radius - d.y1 + this.radius / 3
+        // : this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
       }
     },
     outerRadiusTerm: function() {
       return d => {
-        return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 10
+        return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 3
+        // return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 10
+        // to change the size of sunburts: multiply d.y0 and d.y1 to a value> 1 to magnify and a value < 1 to reduce it
+        // and add a term to that to make the inner radius bigger ( the white circle in the middle)
       }
     },
     labelTransferX: function() {
@@ -278,7 +281,8 @@ export default {
       return d => {
         return this.sunburst
           ? (d.y0 + d.y1) / 2
-          : ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
+          : ((d.y0 + d.y1) / d.depth ** 1.4) * 0.8
+        // : ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
       }
     },
     pack: function() {
@@ -325,6 +329,9 @@ export default {
     setupSVG: function() {
       this.svg = d3.select('.chord')
       this.arcGroup = d3.select('#arcs')
+    },
+    sunburstView: function() {
+      this.sunburst = !this.sunburst
     }
   }
 }
