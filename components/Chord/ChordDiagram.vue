@@ -7,10 +7,8 @@
     class="svg chord"
   >
     <!--SUNBURST-->
-    <transition-group
+    <g
       id="sunburstSlices"
-      tag="g"
-      name="fade"
       :duration="transitionDuration"
       :transform="'translate(' + radius + ',' + radius + ')'"
     >
@@ -23,7 +21,7 @@
           :stroke="line.stroke"
           :stroke-width="line.stroke_width"
           :d="arcFunction(arc)"
-          @click="sunburstView"
+          @click="sunburst = !sunburst"
         >
           <title>
             {{ ancestorPath(arc) }}
@@ -42,14 +40,9 @@
           {{ arc.data.name }}
         </text>
       </g>
-    </transition-group>
+    </g>
     <!--Bubbles-->
-    <transition-group
-      id="Bubbles"
-      tag="g"
-      name="fade"
-      :duration="transitionDuration"
-    >
+    <g id="Bubbles" :duration="transitionDuration">
       <g v-for="(item, index) in leaf.children" :key="index">
         <!--TODO: tranform and colors need to be changed-->
         <circle
@@ -64,7 +57,23 @@
           :transform="circleTransform"
         />
       </g>
-    </transition-group>
+    </g>
+    <!--     Ribbons-->
+    <!--    <g id="Ribbons" :duration="transitionDuration">
+      <g v-for="(ribbon, index) in ribbonFunction" :key="index">
+        <path
+          v-for="(path, index) in root"
+          :key="index"
+          class="ribbon"
+          :fill="path.fill"
+          :fill-opacity="path.fillOpacity"
+          :stroke="path.stroke"
+          :stroke-width="path.stroke_width"
+          :stroke-opacity="path.stroke_opacity"
+          :d="arcfunction(path)"
+        ></path>
+      </g>
+    </g>-->
   </svg>
 </template>
 
@@ -111,10 +120,22 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: 'blue',
           fillOpacity: 0.6,
           stroke: '#61768e',
           stroke_width: '0.6'
+        }
+      }
+    },
+    ribbon: {
+      type: Object,
+      default: function() {
+        return {
+          show: true,
+          fill: '#61768e',
+          fillOpacity: 0.2,
+          stroke: '#61768e',
+          stroke_width: '0.6',
+          stroke_opacity: 0.6
         }
       }
     },
@@ -188,14 +209,16 @@ export default {
       const child = this.users.map(a => {
         const c = a.tweets.map(tw => {
           return {
-            name: tw,
+            name: 'tweet',
+            tweet: tw,
             value: 1
           }
         })
+        c.value = 1
         return {
           ...a,
           children: c,
-          name: a.name
+          name: 'users'
         }
       })
       return {
@@ -318,8 +341,14 @@ export default {
     circleSize: function() {
       return this.radius * 0.02
     },
-    ribbon: function() {
-      return d3.ribbon().radius()
+    ribbonFunction: function() {
+      return d => {
+        const res = []
+        for (const item of this.filteredTweets.map(a => Object.keys(a.topics)))
+          for (const keywords of item)
+            if (!res.includes(keywords)) res.push(keywords)
+        return res
+      }
     }
   },
   mounted() {
