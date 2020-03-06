@@ -31,7 +31,7 @@
           pointer-events="null"
           text-anchor="middle"
           font-family="sans-serif"
-          font-size="8"
+          :font-size="labelFont(arc)"
           style="user-select: none;"
           dy="0.35em"
           class="sunburst-text"
@@ -43,7 +43,7 @@
     </g>
     <!--Bubbles-->
     <g id="Bubbles" :duration="transitionDuration">
-      <g v-for="(item, index) in leaf.children" :key="index">
+      <g v-for="(item, index) in packed.children" :key="index">
         <!--TODO: tranform and colors need to be changed-->
         <circle
           :cx="circleX(item)"
@@ -58,22 +58,22 @@
         />
       </g>
     </g>
-    <!--     Ribbons-->
-    <!--    <g id="Ribbons" :duration="transitionDuration">
-      <g v-for="(ribbon, index) in ribbonFunction" :key="index">
+    <!--Ribbons-->
+    <g id="Ribbons" :duration="transitionDuration">
+      <!--      <g v-for="(node, index) in packed.children" :key="index">
         <path
-          v-for="(path, index) in root"
+          v-for="(path, index) in findLinks(node)"
           :key="index"
           class="ribbon"
-          :fill="path.fill"
-          :fill-opacity="path.fillOpacity"
-          :stroke="path.stroke"
-          :stroke-width="path.stroke_width"
-          :stroke-opacity="path.stroke_opacity"
-          :d="arcfunction(path)"
+          :fill="ribbon.fill"
+          :fill-opacity="ribbon.fillOpacity"
+          :stroke="ribbon.stroke"
+          :stroke-width="ribbon.stroke_width"
+          :stroke-opacity="ribbon.stroke_opacity"
+          :d="ribbonPath(path)"
         ></path>
-      </g>
-    </g>-->
+      </g>-->
+    </g>
   </svg>
 </template>
 
@@ -195,7 +195,7 @@ export default {
           }
         })
         return {
-          ...a,
+          // ...a,
           children: c,
           name: a.id
         }
@@ -216,9 +216,9 @@ export default {
         })
         c.value = 1
         return {
-          ...a,
+          // ...a,
           children: c,
-          name: 'users'
+          name: a.name
         }
       })
       return {
@@ -251,7 +251,7 @@ export default {
       const that = this
       return d3.scaleOrdinal(
         d3.quantize(
-          d3.interpolateInferno,
+          d3.interpolateYlGnBu,
           that.hierarchizeTopicData.children.length + 1
         )
       )
@@ -263,6 +263,13 @@ export default {
         return `rotate(${x - 90}) translate(${y},0) rotate(${
           x < 180 ? 0 : 180
         })`
+      }
+    },
+    // TODO: this function needs to be changed to be relative to radius
+    labelFont: function() {
+      return d => {
+        if (d.data.name.length > 20) return 7.5
+        return 8
       }
     },
     textLength: function() {
@@ -305,7 +312,6 @@ export default {
         return this.sunburst
           ? (d.y0 + d.y1) / 2
           : ((d.y0 + d.y1) / d.depth ** 1.4) * 0.8
-        // : ((d.y0 + d.y1) / d.depth ** 1.2) * 0.7
       }
     },
     pack: function() {
@@ -317,7 +323,7 @@ export default {
           .padding(30)(d3.hierarchy(d).sum(d => d.value))
       }
     },
-    leaf: function() {
+    packed: function() {
       return this.pack(this.hierarchizeUsercData)
     },
     circleTransform: function() {
@@ -341,14 +347,46 @@ export default {
     circleSize: function() {
       return this.radius * 0.02
     },
-    ribbonFunction: function() {
+    /*    findLinks: function() {
       return d => {
         const res = []
-        for (const item of this.filteredTweets.map(a => Object.keys(a.topics)))
-          for (const keywords of item)
-            if (!res.includes(keywords)) res.push(keywords)
+        const sourceCartesianCo = { X: d.x, Y: d.y, R: d.r }
+        for (const tw of d.children.data.children.tweet) {
+          const targetPolarCo = d3.arc()
+          res.push([sourceCartesianCo, targetPolarCo])
+        }
         return res
       }
+    }, */
+    createConnectorPath(arc, node) {
+      const { start, end } = this.calculateCoordinate(arc)
+      return this.drawCurvePath({ start, end, node })
+    },
+    calculateCoordinate(arc, radius) {
+      const startAngle = arc.startAngle
+      const endAngle = arc.endAngle
+      // radius should be changed based on it's value but it's constant( consider a padding later)
+      radius = 200
+      const start = {}
+      const end = {}
+      // converting polar to cartesian (rotate 90 degrees to get to standard system)
+      start.x = radius * Math.cos(startAngle - Math.PI / 2)
+      start.y = radius * Math.sin(startAngle - Math.PI / 2)
+      end.x = radius * Math.cos(endAngle - Math.PI / 2)
+      end.y = radius * Math.sin(endAngle - Math.PI / 2)
+      return { start, end }
+    },
+    drawCurvePath(d) {
+      return (
+        `M ${d.start.x},${d.start.y}` +
+        `C ${d.start.x},${(d.start.y + d.node.y) / 2} ${d.node.x},${(d.start.y +
+          d.node.y) /
+          2} ${d.node.x},${d.node.y}` +
+        `L ${d.node.x},${d.node.y}` +
+        `C ${d.node.x},${(d.node.y + d.end.y) / 2} ${d.end.x},${(d.node.y +
+          d.end.y) /
+          2} ${d.end.x},${d.end.y}`
+      )
     }
   },
   mounted() {
