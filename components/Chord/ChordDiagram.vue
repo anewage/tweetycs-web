@@ -71,7 +71,6 @@
           :stroke-width="ribbon.stroke_width"
           :stroke-opacity="ribbon.stroke_opacity"
           :d="createConnectorPath(arc, node)"
-          :transform="circleTransform"
         ></path>
       </g>
     </g>
@@ -132,8 +131,8 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: '#61768e',
-          fillOpacity: 0.2,
+          fill: '#869bb4',
+          fillOpacity: 0.1,
           stroke: '#61768e',
           stroke_width: '0.6',
           stroke_opacity: 0.6
@@ -272,7 +271,7 @@ export default {
     // TODO: this function needs to be relative to radius
     labelFont: function() {
       return d => {
-        if (d.data.name.length > 20) return 7.5
+        if (d.data.name.length * 4 > this.radius / 3) return 7
         return 8
       }
     },
@@ -352,8 +351,17 @@ export default {
       return this.radius * 0.02
     },
     createConnectorPath: function() {
-      return (arc, node) => {
+      return (arc, userNode) => {
         const { start, end } = this.calculateCoordinate(arc)
+        // update start and end points with transforms done on sunburst
+        // TODO: remove it when padding functions added
+        const node = {}
+        node.x = userNode.x + this.radius * 0.6
+        node.y = userNode.y + this.radius * 0.6
+        start.x = start.x + this.radius
+        start.y = start.y + this.radius
+        end.x = end.x + this.radius
+        end.y = end.y + this.radius
         return this.drawCurvePath({ start, end, node })
       }
     },
@@ -361,7 +369,7 @@ export default {
       return arc => {
         const startAngle = arc.x0
         const endAngle = arc.x1
-        const radius = this.innerAreaRadius * 0.9
+        const radius = this.innerAreaRadius * 0.98
         const start = {}
         const end = {}
         // converting polar to cartesian (rotate 90 degrees to get to standard system)
