@@ -173,6 +173,9 @@ export default {
     radius: function() {
       return Math.min(this.meta.width) / 2
     },
+    innerAreaRadius: function() {
+      return this.radius / 3
+    },
     arcFunction: function() {
       return d3
         .arc()
@@ -253,7 +256,6 @@ export default {
       return d3.scaleOrdinal(
         d3.quantize(
           d3.interpolateYlGnBu,
-          d3.interpolateYlGnBu,
           that.hierarchizeTopicData.children.length + 1
         )
       )
@@ -292,13 +294,13 @@ export default {
     },
     innerRadiusTerm: function() {
       return d => {
-        return this.sunburst ? d.y0 : this.radius - d.y1 + this.radius / 3
+        return this.sunburst ? d.y0 : this.radius - d.y1 + this.innerAreaRadius
         // : this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
       }
     },
     outerRadiusTerm: function() {
       return d => {
-        return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 3
+        return this.sunburst ? d.y1 : this.radius - d.y0 + this.innerAreaRadius
         // return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 10
         // to change the size of sunburts: multiply d.y0 and d.y1 to a value> 1 to magnify and a value < 1 to reduce it
         // and add a term to that to make the inner radius bigger ( the white circle in the middle)
@@ -318,10 +320,10 @@ export default {
     },
     pack: function() {
       return function(d) {
-        const innerRadius = this.radius
+        const packRadius = this.radius * 0.8
         return d3
           .pack()
-          .size([innerRadius * 0.8, innerRadius * 0.8])
+          .size([packRadius, packRadius])
           .padding(30)(d3.hierarchy(d).sum(d => d.value))
       }
     },
@@ -349,17 +351,6 @@ export default {
     circleSize: function() {
       return this.radius * 0.02
     },
-    /*    findLinks: function() {
-      return d => {
-        const res = []
-        const sourceCartesianCo = { X: d.x, Y: d.y, R: d.r }
-        for (const tw of d.children.data.children.tweet) {
-          const targetPolarCo = d3.arc()
-          res.push([sourceCartesianCo, targetPolarCo])
-        }
-        return res
-      }
-    }, */
     createConnectorPath: function() {
       return (arc, node) => {
         const { start, end } = this.calculateCoordinate(arc)
@@ -370,8 +361,7 @@ export default {
       return arc => {
         const startAngle = arc.x0
         const endAngle = arc.x1
-        // radius should be changed based on it's value but it's constant( consider a padding later)
-        const radius = 100
+        const radius = this.innerAreaRadius * 0.9
         const start = {}
         const end = {}
         // converting polar to cartesian (rotate 90 degrees to get to standard system)
