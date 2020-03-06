@@ -60,9 +60,9 @@
     </g>
     <!--Ribbons-->
     <g id="Ribbons" :duration="transitionDuration">
-      <!--      <g v-for="(node, index) in packed.children" :key="index">
+      <g v-for="(node, index) in packed.children" :key="index">
         <path
-          v-for="(path, index) in findLinks(node)"
+          v-for="(arc, index) in root"
           :key="index"
           class="ribbon"
           :fill="ribbon.fill"
@@ -70,9 +70,10 @@
           :stroke="ribbon.stroke"
           :stroke-width="ribbon.stroke_width"
           :stroke-opacity="ribbon.stroke_opacity"
-          :d="ribbonPath(path)"
+          :d="createConnectorPath(arc, node)"
+          :transform="circleTransform"
         ></path>
-      </g>-->
+      </g>
     </g>
   </svg>
 </template>
@@ -164,7 +165,7 @@ export default {
       svg: null,
       arcGroup: null,
       arcsCoefficient: 0.85,
-      transitionDuration: 500,
+      transitionDuration: 50,
       sunburst: false
     }
   },
@@ -252,6 +253,7 @@ export default {
       return d3.scaleOrdinal(
         d3.quantize(
           d3.interpolateYlGnBu,
+          d3.interpolateYlGnBu,
           that.hierarchizeTopicData.children.length + 1
         )
       )
@@ -265,7 +267,7 @@ export default {
         })`
       }
     },
-    // TODO: this function needs to be changed to be relative to radius
+    // TODO: this function needs to be relative to radius
     labelFont: function() {
       return d => {
         if (d.data.name.length > 20) return 7.5
@@ -358,35 +360,42 @@ export default {
         return res
       }
     }, */
-    createConnectorPath(arc, node) {
-      const { start, end } = this.calculateCoordinate(arc)
-      return this.drawCurvePath({ start, end, node })
+    createConnectorPath: function() {
+      return (arc, node) => {
+        const { start, end } = this.calculateCoordinate(arc)
+        return this.drawCurvePath({ start, end, node })
+      }
     },
-    calculateCoordinate(arc, radius) {
-      const startAngle = arc.startAngle
-      const endAngle = arc.endAngle
-      // radius should be changed based on it's value but it's constant( consider a padding later)
-      radius = 200
-      const start = {}
-      const end = {}
-      // converting polar to cartesian (rotate 90 degrees to get to standard system)
-      start.x = radius * Math.cos(startAngle - Math.PI / 2)
-      start.y = radius * Math.sin(startAngle - Math.PI / 2)
-      end.x = radius * Math.cos(endAngle - Math.PI / 2)
-      end.y = radius * Math.sin(endAngle - Math.PI / 2)
-      return { start, end }
+    calculateCoordinate: function() {
+      return arc => {
+        const startAngle = arc.x0
+        const endAngle = arc.x1
+        // radius should be changed based on it's value but it's constant( consider a padding later)
+        const radius = 100
+        const start = {}
+        const end = {}
+        // converting polar to cartesian (rotate 90 degrees to get to standard system)
+        start.x = radius * Math.cos(startAngle - Math.PI / 2)
+        start.y = radius * Math.sin(startAngle - Math.PI / 2)
+        end.x = radius * Math.cos(endAngle - Math.PI / 2)
+        end.y = radius * Math.sin(endAngle - Math.PI / 2)
+        return { start, end }
+      }
     },
-    drawCurvePath(d) {
-      return (
-        `M ${d.start.x},${d.start.y}` +
-        `C ${d.start.x},${(d.start.y + d.node.y) / 2} ${d.node.x},${(d.start.y +
-          d.node.y) /
-          2} ${d.node.x},${d.node.y}` +
-        `L ${d.node.x},${d.node.y}` +
-        `C ${d.node.x},${(d.node.y + d.end.y) / 2} ${d.end.x},${(d.node.y +
-          d.end.y) /
-          2} ${d.end.x},${d.end.y}`
-      )
+    drawCurvePath: function() {
+      return d => {
+        return (
+          `M ${d.start.x},${d.start.y}` +
+          `C ${d.start.x},${(d.start.y + d.node.y) / 2} ${d.node.x},${(d.start
+            .y +
+            d.node.y) /
+            2} ${d.node.x},${d.node.y}` +
+          `L ${d.node.x},${d.node.y}` +
+          `C ${d.node.x},${(d.node.y + d.end.y) / 2} ${d.end.x},${(d.node.y +
+            d.end.y) /
+            2} ${d.end.x},${d.end.y}`
+        )
+      }
     }
   },
   mounted() {
