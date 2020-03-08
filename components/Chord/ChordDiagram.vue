@@ -13,7 +13,14 @@
       :transform="'translate(' + radius + ',' + radius + ')'"
     >
       <!--SLICES-->
-      <g v-for="(arc, index) in root" :key="index">
+      <g
+        v-for="(arc, index) in root"
+        :id="'arc-' + arc.data.name"
+        :key="index"
+        class="highlightable"
+        @mouseover="highlightConnectedSet({ arc: arc })"
+        @mouseout="removeHighlights"
+      >
         <path
           class="line"
           :fill="sliceColor(arc)"
@@ -21,12 +28,12 @@
           :stroke="line.stroke"
           :stroke-width="line.stroke_width"
           :d="arcFunction(arc)"
-          @click="sunburst = !sunburst"
         >
           <title>
             {{ ancestorPath(arc) }}
           </title>
         </path>
+        <!--Labels-->
         <text
           pointer-events="null"
           text-anchor="middle"
@@ -41,11 +48,34 @@
         </text>
       </g>
     </g>
+    <!--Ribbons-->
+    <g id="Ribbons" :duration="transitionDuration">
+      <g v-for="(node, index) in packed.children" :key="index">
+        <path
+          v-for="(arc, index) in findArcs(node)"
+          :id="'path-' + node.data.name + '-' + arc.data.name"
+          :key="index"
+          class="ribbon highlightable"
+          :fill="ribbon.fill"
+          :fill-opacity="ribbon.fillOpacity"
+          :stroke="ribbon.stroke"
+          :stroke-width="ribbon.stroke_width"
+          :stroke-opacity="ribbon.stroke_opacity"
+          :d="createConnectorPath(arc, node)"
+          @mouseover="
+            highlightConnectedSet({ path: arc, user: node, arc: arc })
+          "
+          @mouseout="removeHighlights"
+        ></path>
+      </g>
+    </g>
     <!--Bubbles-->
     <g id="Bubbles" :duration="transitionDuration">
       <g v-for="(item, index) in packed.children" :key="index">
         <!--TODO: tranform and colors need to be changed-->
         <circle
+          :id="'user-' + item.data.screen_name"
+          :class="'user-circle highlightable'"
           :cx="circleX(item)"
           :cy="circleY(item)"
           :r="circleSize"
@@ -55,23 +85,9 @@
           :fill="circleFill(index)"
           :fill-opacity="token.opacity"
           :transform="circleTransform"
+          @mouseover="highlightConnectedSet({ user: item })"
+          @mouseout="removeHighlights"
         />
-      </g>
-    </g>
-    <!--Ribbons-->
-    <g id="Ribbons" :duration="transitionDuration">
-      <g v-for="(node, index) in packed.children" :key="index">
-        <path
-          v-for="(arc, index) in root"
-          :key="index"
-          class="ribbon"
-          :fill="ribbon.fill"
-          :fill-opacity="ribbon.fillOpacity"
-          :stroke="ribbon.stroke"
-          :stroke-width="ribbon.stroke_width"
-          :stroke-opacity="ribbon.stroke_opacity"
-          :d="createConnectorPath(arc, node)"
-        ></path>
       </g>
     </g>
   </svg>
@@ -120,7 +136,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fillOpacity: 0.6,
+          fillOpacity: 0.9,
           stroke: '#61768e',
           stroke_width: '0.6'
         }
@@ -153,7 +169,7 @@ export default {
           color: '#d6d0bc',
           opacity: '0.8',
           strokeSize: '0.7',
-          strokeOpcaity: '0.6',
+          strokeOpacity: '0.8',
           strokeColor: '#797362'
         }
       }
@@ -189,6 +205,10 @@ export default {
           return this.outerRadiusTerm(d)
         })
     },
+    /**
+     * formatting Topic data, to apply arc() on it
+     * each element has a name, and children (for non-leaf nodes) or a value (for leaf nodes)
+     **/
     hierarchizeTopicData: function() {
       const child = this.topics.map(a => {
         const c = a.keywords.map(kw => {
@@ -198,7 +218,7 @@ export default {
           }
         })
         return {
-          // ...a,
+          ...a,
           children: c,
           name: a.id
         }
@@ -208,20 +228,23 @@ export default {
         children: child
       }
     },
+    /**
+     * formating Topic data, to apply pack() on it
+     **/
     hierarchizeUsercData: function() {
       const child = this.users.map(a => {
         const c = a.tweets.map(tw => {
           return {
             name: 'tweet',
-            tweet: tw,
+            tweets: tw,
             value: 1
           }
         })
         c.value = 1
         return {
-          // ...a,
+          ...a,
           children: c,
-          name: a.name
+          name: a.screen_name
         }
       })
       return {
@@ -268,18 +291,11 @@ export default {
         })`
       }
     },
-    // TODO: this function needs to be relative to radius
+    // TODO: this function should to be relative to radius
     labelFont: function() {
       return d => {
         if (d.data.name.length * 4 > this.radius / 3) return 7
         return 8
-      }
-    },
-    textLength: function() {
-      return d => {
-        return Math.abs(
-          Math.abs(this.outerRadiusTerm(d) - this.innerRadiusTerm(d)) - 10
-        )
       }
     },
     ancestorPath: function() {
@@ -293,16 +309,20 @@ export default {
     },
     innerRadiusTerm: function() {
       return d => {
-        return this.sunburst ? d.y0 : this.radius - d.y1 + this.innerAreaRadius
-        // : this.radius - d.y1 + (this.radius / 4) * d.depth * 1.2
+        return this.meta.sunburst
+          ? d.y0
+          : this.radius - d.y1 + this.innerAreaRadius
       }
     },
+    /**
+     * to magnify sunburst: multiply d.y0 & d.y1 to a value> 1 (and to a value < 1 to reduce)
+     * to magnify the inner area radius (the white circle in the middle): add a term to that
+     **/
     outerRadiusTerm: function() {
       return d => {
-        return this.sunburst ? d.y1 : this.radius - d.y0 + this.innerAreaRadius
-        // return this.sunburst ? d.y1 : this.radius - d.y0 + this.radius / 10
-        // to change the size of sunburts: multiply d.y0 and d.y1 to a value> 1 to magnify and a value < 1 to reduce it
-        // and add a term to that to make the inner radius bigger ( the white circle in the middle)
+        return this.meta.sunburst
+          ? d.y1
+          : this.radius - d.y0 + this.innerAreaRadius
       }
     },
     labelTransferX: function() {
@@ -312,7 +332,7 @@ export default {
     },
     labelTransferY: function() {
       return d => {
-        return this.sunburst
+        return this.meta.sunburst
           ? (d.y0 + d.y1) / 2
           : ((d.y0 + d.y1) / d.depth ** 1.4) * 0.8
       }
@@ -350,11 +370,66 @@ export default {
     circleSize: function() {
       return this.radius * 0.02
     },
+    /**
+     * Related arcs to a user, only at one of depth 1 or 2
+     **/
+    findArcs: function() {
+      return user => {
+        let res = []
+        const desiredDepth = this.meta.sunburst ? 1 : 2
+        const desiredField = this.meta.sunburst ? 'topics' : 'keywords'
+        const arcs = this.root.filter(d => d.depth === desiredDepth)
+        for (const tw of user.data.children)
+          res = res.concat(
+            arcs.filter(d => tw.tweets[desiredField].includes(d.data.name))
+          )
+        return res
+      }
+    },
+    /**
+     * Related arcs to a user, at both 1 and 2 depths
+     **/
+    relatedArcs: function() {
+      return user => {
+        let res = []
+        for (const tw of user.data.children)
+          res = res.concat(
+            this.root.filter(
+              d =>
+                tw.tweets.topics.includes(d.data.name) ||
+                tw.tweets.keywords.includes(d.data.name)
+            )
+          )
+        return res
+      }
+    },
+    /**
+     * Related users to a specific arc
+     **/
+    relatedUsers: function() {
+      return arc => {
+        let res = []
+        for (const user of this.packed.children) {
+          for (const tw of user.data.tweets) {
+            if (this.meta.sunburst) {
+              if (tw.topics.includes(arc.data.name)) res = res.concat(user)
+            } else if (tw.keywords.includes(arc.data.name)) {
+              res = res.concat(user)
+            }
+          }
+        }
+        return res
+      }
+    },
+    /**
+     * takes a node in cartesian system and an arc's start and end points in polar
+     * transforms start/end point by transforms done on sunburst
+     * transforms node coordinate by transforms done on bubbles
+     * returns a sequence of dots for drawing a ribbon
+     **/
     createConnectorPath: function() {
       return (arc, userNode) => {
         const { start, end } = this.calculateCoordinate(arc)
-        // update start and end points with transforms done on sunburst
-        // TODO: remove it when padding functions added
         const node = {}
         node.x = userNode.x + this.radius * 0.6
         node.y = userNode.y + this.radius * 0.6
@@ -365,6 +440,9 @@ export default {
         return this.drawCurvePath({ start, end, node })
       }
     },
+    /**
+     * converts polar coordinates of arc start and end points to cartesian
+     **/
     calculateCoordinate: function() {
       return arc => {
         const startAngle = arc.x0
@@ -372,7 +450,6 @@ export default {
         const radius = this.innerAreaRadius * 0.98
         const start = {}
         const end = {}
-        // converting polar to cartesian (rotate 90 degrees to get to standard system)
         start.x = radius * Math.cos(startAngle - Math.PI / 2)
         start.y = radius * Math.sin(startAngle - Math.PI / 2)
         end.x = radius * Math.cos(endAngle - Math.PI / 2)
@@ -380,6 +457,9 @@ export default {
         return { start, end }
       }
     },
+    /**
+     * takes start/end/node points and returns coordination of a path (ribbon)
+     **/
     drawCurvePath: function() {
       return d => {
         return (
@@ -404,9 +484,124 @@ export default {
       this.svg = d3.select('.chord')
       this.arcGroup = d3.select('#arcs')
     },
-    sunburstView: function() {
-      this.sunburst = !this.sunburst
+    removeHighlights: function() {
+      const elems = document.getElementsByClassName('highlightable')
+      for (const el of elems) {
+        if (el) {
+          el.classList.remove('highlighted')
+          el.classList.remove('greyed')
+        }
+      }
+    },
+    // Highlight a user and the connected topics/subtopics
+    highlightConnectedSet: function(
+      elements = { user: null, path: null, arc: null }
+    ) {
+      // Find elements to highlight
+      let whiteList = []
+
+      // Only user is a candidate (the mouse is on user)
+      if (elements.user) {
+        // The user himself
+        whiteList.push('user-' + elements.user.data.name)
+
+        // The arcs and paths which are related to this user
+        const arcs = this.relatedArcs(elements.user)
+        for (const arc of arcs) {
+          whiteList.push('arc-' + arc.data.name)
+          whiteList.push(
+            'path-' + elements.user.data.name + '-' + arc.data.name
+          )
+        }
+      }
+
+      // Only an arc is a candidate (the mouse is on an arc)
+      if (elements.arc) {
+        let keywordList = []
+        whiteList.push('arc-' + elements.arc.data.name)
+        // If the arc is for a Topic add all its 'used keywords'
+        if (elements.arc.depth === 1) {
+          for (const el of elements.arc.children) {
+            whiteList.push('arc-' + el.data.name)
+            keywordList = keywordList.concat(el)
+          }
+        } // If the arc is for a keyword add its Topic
+        else {
+          whiteList.push('arc-' + elements.arc.parent.data.name)
+          keywordList = keywordList.concat(elements.arc)
+        }
+        // Adding related users and their ribbons
+        if (this.meta.sunburst) {
+          // add 'users of a Topic' and 'used keywords'
+          if (elements.arc.depth === 1) {
+            // users of a Topic
+            for (const tw of this.relatedUsers(elements.arc)) {
+              whiteList.push('user-' + tw.data.name)
+              whiteList.push(
+                'path-' + tw.data.name + '-' + elements.arc.data.name
+              )
+              whiteList.push('arc-' + tw.data.name)
+            }
+            // used keywords
+            for (const kw of keywordList) whiteList.push('arc-' + kw.data.name)
+          } else {
+            const parent = elements.arc.parent
+            for (const tw of this.relatedUsers(parent)) {
+              whiteList.push('user-' + tw.data.name)
+              whiteList.push('path-' + tw.data.name + '-' + parent.data.name)
+            }
+          }
+        } else {
+          for (const kw of keywordList) {
+            for (const tw of this.relatedUsers(kw)) {
+              whiteList.push('user-' + tw.data.name)
+              whiteList.push('path-' + tw.data.name + '-' + kw.data.name)
+            }
+          }
+        }
+      }
+
+      // Only a path is a candidate (the mouse is on a path connecting a user to a (sub)topic)
+      if (elements.path) {
+        whiteList.push(
+          'path-' + elements.user.data.name + '-' + elements.path.data.name
+        )
+      }
+      // Add greyed class to all of objects
+      const elems = document.getElementsByClassName('highlightable')
+      for (const el of elems) {
+        if (el) {
+          el.classList.remove('highlighted')
+          el.classList.add('greyed')
+        }
+      }
+      whiteList = whiteList.map(str => document.getElementById(str))
+      // Highlight the known elements
+      for (const el of whiteList) {
+        // Prevent error while brushing
+        if (el) {
+          el.classList.remove('greyed')
+          el.classList.add('highlighted')
+        }
+      }
     }
   }
 }
 </script>
+
+<style scoped>
+.svg >>> .greyed {
+  opacity: 0.2;
+  stroke-opacity: 0.2;
+}
+
+.svg >>> .highlighted {
+  opacity: 1;
+  stroke-opacity: unset;
+}
+
+.svg >>> .selected {
+  opacity: 1;
+  stroke-opacity: unset;
+}
+</style>

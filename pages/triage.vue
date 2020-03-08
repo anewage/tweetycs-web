@@ -3,6 +3,13 @@
     <v-layout row justify-center>
       <v-flex xs8>
         <div :id="charts.chordDiagram.id">
+          <v-btn
+            @click="
+              charts.chordDiagram.sunburst = !charts.chordDiagram.sunburst
+            "
+          >
+            SUNBURST VIEW
+          </v-btn>
           <chord-diagram
             :meta="charts.chordDiagram"
             :topics="topics"
@@ -107,20 +114,59 @@ export default {
       mySampleData: 'Color Code:',
       usersSet: [
         {
-          name: 'a',
+          screen_name: 'a',
           tweets: [
             { keywords: ['democrats'], topics: ['democratic'] },
             { keywords: ['Adam Kokesh'], topics: ['libertarian'] },
             { keywords: ['IMPOTUS'], topics: ['impeachment'] }
-          ]
+          ],
+          selected: false
         },
         {
-          name: 'b',
+          screen_name: 'b',
           tweets: [
             { keywords: ['democrats'], topics: ['democratic'] },
             { keywords: ['ImpeachedPresident'], topics: ['impeachment'] },
             { keywords: ['David Rolde'], topics: ['green'] }
-          ]
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'c',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['Dennis Lambert'], topics: ['green'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'd',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['ImpeachedPresident'], topics: ['impeachment'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'e',
+          tweets: [
+            { keywords: ['Bill Weld'], topics: ['republican'] },
+            { keywords: ['ImpeachedPresident'], topics: ['impeachment'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'f',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['Donald Trump'], topics: ['republican'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'g',
+          tweets: [{ keywords: ['Elizabeth Warren'], topics: ['democratic'] }],
+          selected: false
         }
       ],
       flat: true,
@@ -135,7 +181,8 @@ export default {
           id: 'chord-diagram',
           label: 'Agent-Topic Association ',
           width: 600,
-          height: 1000
+          height: 1000,
+          sunburst: false
         }
       }
     }
@@ -149,7 +196,6 @@ export default {
       const chordDiv = document.getElementById(this.charts.chordDiagram.id)
       if (chordDiv) {
         this.charts.chordDiagram.width = chordDiv.clientWidth - 5
-        // this.charts.chordDiagram.height = chordDiv.clientHeight - 5
       }
     }
   }
