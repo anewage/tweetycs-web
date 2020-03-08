@@ -167,7 +167,7 @@ export default {
         return {
           size: '10',
           color: '#d6d0bc',
-          opacity: '0.8',
+          opacity: '.9',
           strokeSize: '0.7',
           strokeOpacity: '0.8',
           strokeColor: '#797362'
@@ -339,7 +339,7 @@ export default {
     },
     pack: function() {
       return function(d) {
-        const packRadius = this.radius * 0.8
+        const packRadius = this.radius * 0.78
         return d3
           .pack()
           .size([packRadius, packRadius])
@@ -403,21 +403,23 @@ export default {
         return res
       }
     },
+    isUsed: function() {
+      return arc => {
+        for (const user of this.packed.children)
+          for (const tw of user.data.tweets)
+            if (tw.keywords.includes(arc.data.name)) return true
+        return false
+      }
+    },
     /**
      * Related users to a specific arc
      **/
     relatedUsers: function() {
       return arc => {
         let res = []
-        for (const user of this.packed.children) {
-          for (const tw of user.data.tweets) {
-            if (this.meta.sunburst) {
-              if (tw.topics.includes(arc.data.name)) res = res.concat(user)
-            } else if (tw.keywords.includes(arc.data.name)) {
-              res = res.concat(user)
-            }
-          }
-        }
+        for (const user of this.packed.children)
+          for (const tw of user.data.tweets)
+            if (tw.keywords.includes(arc.data.name)) res = res.concat(user)
         return res
       }
     },
@@ -499,7 +501,6 @@ export default {
     ) {
       // Find elements to highlight
       let whiteList = []
-
       // Only user is a candidate (the mouse is on user)
       if (elements.user) {
         // The user himself
@@ -517,45 +518,50 @@ export default {
 
       // Only an arc is a candidate (the mouse is on an arc)
       if (elements.arc) {
-        let keywordList = []
         whiteList.push('arc-' + elements.arc.data.name)
-        // If the arc is for a Topic add all its 'used keywords'
-        if (elements.arc.depth === 1) {
-          for (const el of elements.arc.children) {
-            whiteList.push('arc-' + el.data.name)
-            keywordList = keywordList.concat(el)
-          }
-        } // If the arc is for a keyword add its Topic
-        else {
+        let keywordList = []
+        let usersList = []
+        // If keyword is selected add its parent
+        if (elements.arc.depth === 2) {
           whiteList.push('arc-' + elements.arc.parent.data.name)
           keywordList = keywordList.concat(elements.arc)
+        } // If topic is selected add all its used keywords
+        else if (elements.arc.depth === 1) {
+          for (const el of elements.arc.children)
+            if (this.isUsed(el)) {
+              whiteList.push('arc-' + el.data.name)
+              keywordList = keywordList.concat(el)
+            }
         }
-        // Adding related users and their ribbons
-        if (this.meta.sunburst) {
-          // add 'users of a Topic' and 'used keywords'
-          if (elements.arc.depth === 1) {
-            // users of a Topic
-            for (const tw of this.relatedUsers(elements.arc)) {
-              whiteList.push('user-' + tw.data.name)
+        // Add all related users
+        for (const kw of keywordList)
+          for (const tw of this.relatedUsers(kw)) {
+            whiteList.push('user-' + tw.data.name)
+            usersList = usersList.concat(tw)
+          }
+        // Add the ribbons between arc and users based on sunburst view
+        for (const tw of usersList) {
+          // If selected arc is a keyword
+          if (elements.arc.depth === 2) {
+            const baseArc = this.meta.sunburst
+              ? elements.arc.parent
+              : elements.arc
+            whiteList.push('path-' + tw.data.name + '-' + baseArc.data.name)
+          } // If selected arc is a topic
+          else if (elements.arc.depth === 1) {
+            if (this.meta.sunburst)
               whiteList.push(
                 'path-' + tw.data.name + '-' + elements.arc.data.name
               )
-              whiteList.push('arc-' + tw.data.name)
-            }
-            // used keywords
-            for (const kw of keywordList) whiteList.push('arc-' + kw.data.name)
-          } else {
-            const parent = elements.arc.parent
-            for (const tw of this.relatedUsers(parent)) {
-              whiteList.push('user-' + tw.data.name)
-              whiteList.push('path-' + tw.data.name + '-' + parent.data.name)
-            }
-          }
-        } else {
-          for (const kw of keywordList) {
-            for (const tw of this.relatedUsers(kw)) {
-              whiteList.push('user-' + tw.data.name)
-              whiteList.push('path-' + tw.data.name + '-' + kw.data.name)
+            // If not sunburst, find ribbons between each keyword and user
+            else {
+              for (const kw of keywordList)
+                for (const user of usersList)
+                  for (const tw of user.data.tweets)
+                    if (tw.keywords.includes(kw.data.name))
+                      whiteList.push(
+                        'path-' + user.data.name + '-' + kw.data.name
+                      )
             }
           }
         }
