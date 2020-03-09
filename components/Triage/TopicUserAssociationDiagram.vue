@@ -97,11 +97,11 @@
 import * as d3 from 'd3'
 
 export default {
-  name: 'ChordDiagram',
+  name: 'TopicUserDiagram',
   props: {
     chartDomID: {
       type: String,
-      default: 'chord-diagram'
+      default: 'topic-user'
     },
     topics: {
       type: Array,
@@ -113,7 +113,7 @@ export default {
       type: Object,
       default: function() {
         return {
-          id: 'chord-diagram',
+          id: 'topic-user-diagram',
           label: 'Agent-Topic Association ',
           width: 500,
           height: 500,

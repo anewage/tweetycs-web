@@ -2,19 +2,20 @@
   <v-container fill-height fluid>
     <v-layout row justify-center>
       <v-flex xs8>
-        <div :id="charts.chordDiagram.id">
+        <div :id="charts.topicUserDiagram.id">
           <v-btn
             @click="
-              charts.chordDiagram.sunburst = !charts.chordDiagram.sunburst
+              charts.topicUserDiagram.sunburst = !charts.topicUserDiagram
+                .sunburst
             "
           >
             SUNBURST VIEW
           </v-btn>
-          <chord-diagram
-            :meta="charts.chordDiagram"
+          <topic-user
+            :meta="charts.topicUserDiagram"
             :topics="topics"
             :users="usersSet"
-          ></chord-diagram>
+          ></topic-user>
         </div>
       </v-flex>
     </v-layout>
@@ -22,11 +23,11 @@
 </template>
 
 <script>
-import ChordDiagram from '../components/TopicUser/TopicUserAssociationDiagram'
+import TopicUser from '../components/Triage/TopicUserAssociationDiagram'
 export default {
   name: 'Triage',
   components: {
-    ChordDiagram
+    TopicUser
   },
   data() {
     return {
@@ -207,8 +208,8 @@ export default {
       selectedUser: { screen_name: '' },
       // Charts and all of their configurations
       charts: {
-        chordDiagram: {
-          id: 'chord-diagram',
+        topicUserDiagram: {
+          id: 'topic-user-diagram',
           label: 'Agent-Topic Association ',
           width: 600,
           height: 1000,
@@ -223,9 +224,9 @@ export default {
   },
   methods: {
     resize: function() {
-      const chordDiv = document.getElementById(this.charts.chordDiagram.id)
+      const chordDiv = document.getElementById(this.charts.topicUserDiagram.id)
       if (chordDiv) {
-        this.charts.chordDiagram.width = chordDiv.clientWidth - 5
+        this.charts.topicUserDiagram.width = chordDiv.clientWidth - 5
       }
     }
   }
