@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import ChordDiagram from '../components/Chord/ChordDiagram'
+import ChordDiagram from '../components/TopicUser/TopicUserAssociationDiagram'
 export default {
   name: 'Triage',
   components: {
@@ -111,7 +111,6 @@ export default {
           ]
         }
       ],
-      mySampleData: 'Color Code:',
       usersSet: [
         {
           screen_name: 'a',
@@ -166,6 +165,37 @@ export default {
         {
           screen_name: 'g',
           tweets: [{ keywords: ['Elizabeth Warren'], topics: ['democratic'] }],
+          selected: false
+        },
+        {
+          screen_name: 'h',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['Howie Hawkins'], topics: ['green'] },
+            { keywords: ['Sedinam Moyowasifza-Curry'], topics: ['green'] },
+            { keywords: ['Kent Mesplay'], topics: ['green'] },
+            { keywords: ['Chad Wilson'], topics: ['green'] },
+            { keywords: ['David Rolde'], topics: ['green'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'i',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['Donald Trump'], topics: ['republican'] },
+            { keywords: ['Mark Sanford'], topics: ['republican'] }
+          ],
+          selected: false
+        },
+        {
+          screen_name: 'j',
+          tweets: [
+            { keywords: ['democrats'], topics: ['democratic'] },
+            { keywords: ['Jo Jorgensen'], topics: ['libertarian'] },
+            { keywords: ['Sam Robb'], topics: ['libertarian'] },
+            { keywords: ['Donald Trump'], topics: ['republican'] }
+          ],
           selected: false
         }
       ],

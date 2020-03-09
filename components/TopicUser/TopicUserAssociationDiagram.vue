@@ -136,7 +136,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fillOpacity: 0.9,
+          fillOpacity: 0.7,
           stroke: '#61768e',
           stroke_width: '0.6'
         }
@@ -151,7 +151,7 @@ export default {
           fillOpacity: 0.1,
           stroke: '#61768e',
           stroke_width: '0.6',
-          stroke_opacity: 0.6
+          stroke_opacity: 0.4
         }
       }
     },
@@ -167,7 +167,7 @@ export default {
         return {
           size: '10',
           color: '#d6d0bc',
-          opacity: '.9',
+          opacity: '0.9',
           strokeSize: '0.7',
           strokeOpacity: '0.8',
           strokeColor: '#797362'
@@ -231,7 +231,7 @@ export default {
     /**
      * formating Topic data, to apply pack() on it
      **/
-    hierarchizeUsercData: function() {
+    hierarchizeUsersData: function() {
       const child = this.users.map(a => {
         const c = a.tweets.map(tw => {
           return {
@@ -282,6 +282,15 @@ export default {
         )
       )
     },
+    colorToken: function() {
+      const that = this
+      return d3.scaleOrdinal(
+        d3.quantize(
+          d3.interpolateCubehelixDefault,
+          that.hierarchizeUsersData.children.length + 1
+        )
+      )
+    },
     labelTransform: function() {
       return d => {
         const x = this.labelTransferX(d)
@@ -294,7 +303,7 @@ export default {
     // TODO: this function should to be relative to radius
     labelFont: function() {
       return d => {
-        if (d.data.name.length * 4 > this.radius / 3) return 7
+        if (d.data.name.length * 4 > this.radius / 3) return 6.5
         return 8
       }
     },
@@ -308,10 +317,11 @@ export default {
       }
     },
     innerRadiusTerm: function() {
+      const margin = 2
       return d => {
         return this.meta.sunburst
-          ? d.y0
-          : this.radius - d.y1 + this.innerAreaRadius
+          ? d.y0 + margin
+          : this.radius - d.y1 + this.innerAreaRadius + margin
       }
     },
     /**
@@ -347,7 +357,7 @@ export default {
       }
     },
     packed: function() {
-      return this.pack(this.hierarchizeUsercData)
+      return this.pack(this.hierarchizeUsersData)
     },
     circleTransform: function() {
       return 'translate(' + this.radius * 0.6 + ',' + this.radius * 0.6 + ')'
@@ -364,7 +374,7 @@ export default {
     },
     circleFill: function() {
       return d => {
-        return this.color(d)
+        return this.colorToken(d)
       }
     },
     circleSize: function() {
