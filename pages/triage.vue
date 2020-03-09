@@ -44,6 +44,7 @@
           <concentric-chart
             :meta="charts.concentricChart"
             :topics="topics"
+            :users="usersSet"
           ></concentric-chart>
         </div>
       </v-flex>
@@ -148,12 +149,24 @@ export default {
         {
           screen_name: 'a',
           tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['Adam Kokesh'], topics: ['libertarian'] },
-            { keywords: ['IMPOTUS'], topics: ['impeachment'] }
+            {
+              keywords: ['democrats'],
+              topics: ['democratic'],
+              created_at: 'Fri Apr 07 15:24:15 +0000 2020'
+            },
+            {
+              keywords: ['Adam Kokesh'],
+              topics: ['libertarian'],
+              created_at: 'Thu Apr 06 20:20:20 +0000 2020'
+            },
+            {
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu May 06 15:24:15 +0000 2019'
+            }
           ],
           selected: false
-        },
+        } /*,
         {
           screen_name: 'b',
           tweets: [
@@ -190,8 +203,16 @@ export default {
         {
           screen_name: 'f',
           tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['Donald Trump'], topics: ['republican'] }
+            {
+              keywords: ['democrats'],
+              topics: ['democratic'],
+              created_at: 'Thu Apr 06 15:24:15 +0000 2017'
+            },
+            {
+              keywords: ['Donald Trump'],
+              topics: ['republican'],
+              created_at: 'Thu Apr 06 15:24:15 +0000 2017'
+            }
           ],
           selected: false
         },
@@ -230,7 +251,7 @@ export default {
             { keywords: ['Donald Trump'], topics: ['republican'] }
           ],
           selected: false
-        }
+        } */
       ],
       flat: true,
       color: 'transparent',
