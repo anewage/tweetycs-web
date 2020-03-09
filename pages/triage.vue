@@ -1,7 +1,8 @@
 <template>
   <v-container fill-height fluid>
-    <v-layout row justify-center>
-      <v-flex xs8>
+    <v-layout row wrap justify-center>
+      <v-flex xs3></v-flex>
+      <v-flex xs6>
         <div :id="charts.topicUserDiagram.id">
           <v-btn
             @click="
@@ -18,16 +19,47 @@
           ></topic-user>
         </div>
       </v-flex>
+      <v-flex xs3></v-flex>
+      <v-flex xs3></v-flex>
+      <v-flex xs6>
+        <div :id="charts.concentricChart.id">
+          <v-btn
+            @click="
+              charts.concentricChart.unit =
+                (charts.concentricChart.unit + 1) % 5
+            "
+          >
+            TIME UNIT {{ charts.concentricChart.unit }}
+          </v-btn>
+          <v-radio-group
+            v-model="charts.concentricChart.timeUnit"
+            :mandatory="false"
+          >
+            <v-radio label="Yearly" value="12"></v-radio>
+            <v-radio label="Monthly" value="30"></v-radio>
+            <v-radio label="Weekly" value="7"></v-radio>
+            <v-radio label="Daily" value="24"></v-radio>
+            <v-radio label="Hourly" value="60"></v-radio>
+          </v-radio-group>
+          <concentric-chart
+            :meta="charts.concentricChart"
+            :topics="topics"
+          ></concentric-chart>
+        </div>
+      </v-flex>
+      <v-flex xs3></v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
 import TopicUser from '../components/Triage/TopicUserAssociationDiagram'
+import ConcentricChart from '../components/Triage/ConcentricChart'
 export default {
   name: 'Triage',
   components: {
-    TopicUser
+    TopicUser,
+    ConcentricChart
   },
   data() {
     return {
@@ -214,6 +246,14 @@ export default {
           width: 600,
           height: 1000,
           sunburst: false
+        },
+        concentricChart: {
+          id: 'concentric-chart',
+          label: 'Agent-Time Association ',
+          width: 600,
+          height: 1000,
+          unit: 0,
+          timeUnit: 12
         }
       }
     }
@@ -225,8 +265,14 @@ export default {
   methods: {
     resize: function() {
       const chordDiv = document.getElementById(this.charts.topicUserDiagram.id)
+      const concentricDiv = document.getElementById(
+        this.charts.concentricChart.id
+      )
       if (chordDiv) {
         this.charts.topicUserDiagram.width = chordDiv.clientWidth - 5
+      }
+      if (concentricDiv) {
+        this.charts.concentricChart.width = concentricDiv.clientWidth - 5
       }
     }
   }
