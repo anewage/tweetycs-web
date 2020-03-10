@@ -35,11 +35,11 @@
             v-model="charts.concentricChart.timeUnit"
             :mandatory="false"
           >
-            <v-radio label="Yearly" value="12"></v-radio>
-            <v-radio label="Monthly" value="30"></v-radio>
-            <v-radio label="Weekly" value="7"></v-radio>
-            <v-radio label="Daily" value="24"></v-radio>
-            <v-radio label="Hourly" value="60"></v-radio>
+            <v-radio label="Year" value="12"></v-radio>
+            <v-radio label="Month" value="30"></v-radio>
+            <v-radio label="Week" value="7"></v-radio>
+            <v-radio label="Day" value="24"></v-radio>
+            <v-radio label="Hour" value="60"></v-radio>
           </v-radio-group>
           <concentric-chart
             :meta="charts.concentricChart"

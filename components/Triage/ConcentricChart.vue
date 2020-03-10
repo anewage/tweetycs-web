@@ -15,11 +15,11 @@
       <!--ConcentricAxis-->
       <g>
         <circle
-          v-for="(circle, index) in numberOfTracks"
+          v-for="(circle, index) in numberOfTracks + 1"
           :key="index"
           :cx="0"
           :cy="0"
-          :r="(radius * (numberOfTracks - index)) / numberOfTracks"
+          :r="radiusCalculation(index)"
           :fill="axis.fill"
           :opacity="axis.fillOpacity"
           :stroke="axis.stroke"
@@ -30,27 +30,21 @@
       <!--RadialAxis-->
       <g>
         <path
-          v-for="(item, index) in parseInt(this.meta.timeUnit)"
+          v-for="(path, index) in parseInt(this.meta.timeUnit)"
           :key="'t-' + index"
           :stroke="line.stroke"
           :stroke-opacity="line.strokeOpacity"
           :fill="line.fill"
+          stroke-dasharray="3,3"
           :d="divider(index)"
         ></path>
         <!--TimeLabels-->
-        // TODO: check the other component to implement
+        /* TODO: check the other component to implement*/
         <text
-          v-for="(circle, index) in parseInt(this.meta.timeUnit)"
+          v-for="(item, index) in parseInt(this.meta.timeUnit)"
           :key="'c-' + index"
           font-size="8"
-          :x="
-            PolarToCartesianX((angleScale(index) + angleScale(index + 1)) / 2) *
-              3.9
-          "
-          :y="
-            PolarToCartesianY((angleScale(index) + angleScale(index + 1)) / 2) *
-              3.9
-          "
+          :transform="textTransform(index)"
         >
           {{ index + 1 }}
         </text>
@@ -60,8 +54,8 @@
         <circle
           v-for="(circle, index) in parseInt(this.meta.timeUnit)"
           :key="'c-' + index"
-          :cx="PolarToCartesianX(angleScale(index))"
-          :cy="PolarToCartesianY(angleScale(index))"
+          :cx="PolarToCartesianX(angleScale(index), radius)"
+          :cy="PolarToCartesianY(angleScale(index), radius)"
           r="5"
           fill="white"
         ></circle>
@@ -111,7 +105,7 @@ export default {
         return {
           show: true,
           fill: '#eef1f1',
-          fillOpacity: 0.8,
+          fillOpacity: 0.4,
           stroke: '#d9e3ec',
           stroke_width: '0.8',
           stroke_opacity: 0.9
@@ -125,9 +119,9 @@ export default {
           show: true,
           fill: '#869bb4',
           fillOpacity: 0.5,
-          stroke: '#ccd6df',
+          stroke: '#d4dee7',
           stroke_width: '0.1',
-          stroke_opacity: 0.5
+          stroke_opacity: 0.2
         }
       }
     }
@@ -137,7 +131,7 @@ export default {
       svg: null,
       transitionDuration: 50,
       unit: 0,
-      numberOfTracks: 4,
+      numberOfTracks: 2,
       innerRCoefficient: 1,
       outerRCoefficient: 1
     }
@@ -161,9 +155,62 @@ export default {
     },
     divider: function() {
       return d => {
-        const x = this.PolarToCartesianX(this.angleScale(d))
-        const y = this.PolarToCartesianY(this.angleScale(d))
-        return `M ${x},${y}` + `L ${4 * x},${4 * y}`
+        // const start = this.radiusCalculation(this.numberOfTracks)
+        const x0 = this.PolarToCartesianX(
+          this.angleScale(d),
+          this.radiusCalculation(this.numberOfTracks)
+        )
+        const y0 = this.PolarToCartesianY(
+          this.angleScale(d),
+          this.radiusCalculation(this.numberOfTracks)
+        )
+        const x1 = this.PolarToCartesianX(
+          this.angleScale(d),
+          this.radiusCalculation(0)
+        )
+        const y1 = this.PolarToCartesianY(
+          this.angleScale(d),
+          this.radiusCalculation(0)
+        )
+        return `M ${x0},${y0}` + `L ${x1},${y1}`
+      }
+    },
+    textTransform: function() {
+      return d => {
+        const x = this.labelX({
+          x0: this.angleScale(d),
+          x1: this.angleScale((d + 1) % this.numberOfTracks)
+        })
+        const y = this.labelY({
+          y0: this.angleScale(d),
+          y1: this.angleScale((d + 1) % this.numberOfTracks)
+        })
+        return `rotate(${x - 90}) translate(${y},0) rotate(${
+          x < 180 ? 0 : 180
+        })`
+      }
+    },
+    labelX: function() {
+      return d => {
+        return (((d.x0 + d.x1) / 2) * 180) / Math.PI
+      }
+    },
+    labelY: function() {
+      return d => {
+        return (d.y0 + d.y1) / 2
+      }
+    },
+    radiusCalculation: function() {
+      return d => {
+        d = this.numberOfTracks - d
+        const coef = ((d + 1) * (d + 2)) / 2
+        const total =
+          ((this.numberOfTracks + 1) * (this.numberOfTracks + 2)) / 2
+        const scale = d3
+          .scaleLinear()
+          .domain([0, total])
+          .range([0, this.radius])
+        return scale(coef)
       }
     }
   },
@@ -177,11 +224,11 @@ export default {
     /**
      * @return {number}
      */
-    PolarToCartesianX(angle) {
-      return (this.radius / this.numberOfTracks) * Math.sin(-(angle + Math.PI))
+    PolarToCartesianX: function(angle, radius) {
+      return (radius / this.numberOfTracks) * Math.sin(-(angle + Math.PI))
     },
-    PolarToCartesianY(angle) {
-      return (this.radius / this.numberOfTracks) * Math.cos(-(angle + Math.PI))
+    PolarToCartesianY: function(angle, radius) {
+      return (radius / this.numberOfTracks) * Math.cos(-(angle + Math.PI))
     }
   }
 }
