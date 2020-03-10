@@ -35,7 +35,7 @@
           :stroke="line.stroke"
           :stroke-opacity="line.strokeOpacity"
           :fill="line.fill"
-          stroke-dasharray="3,3"
+          stroke-dasharray="2,3"
           :d="divider(index)"
         ></path>
         <!--TimeLabels-->
@@ -106,7 +106,7 @@ export default {
           show: true,
           fill: '#eef1f1',
           fillOpacity: 0.4,
-          stroke: '#d9e3ec',
+          stroke: '#bed2ec',
           stroke_width: '0.8',
           stroke_opacity: 0.9
         }
@@ -131,7 +131,7 @@ export default {
       svg: null,
       transitionDuration: 50,
       unit: 0,
-      numberOfTracks: 2,
+      numberOfTracks: 3,
       innerRCoefficient: 1,
       outerRCoefficient: 1
     }
@@ -155,22 +155,21 @@ export default {
     },
     divider: function() {
       return d => {
-        // const start = this.radiusCalculation(this.numberOfTracks)
         const x0 = this.PolarToCartesianX(
           this.angleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
+          this.radiusCalculation(0)
         )
         const y0 = this.PolarToCartesianY(
           this.angleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
+          this.radiusCalculation(0)
         )
         const x1 = this.PolarToCartesianX(
           this.angleScale(d),
-          this.radiusCalculation(0)
+          this.radiusCalculation(this.numberOfTracks)
         )
         const y1 = this.PolarToCartesianY(
           this.angleScale(d),
-          this.radiusCalculation(0)
+          this.radiusCalculation(this.numberOfTracks)
         )
         return `M ${x0},${y0}` + `L ${x1},${y1}`
       }
@@ -202,14 +201,18 @@ export default {
     },
     radiusCalculation: function() {
       return d => {
-        d = this.numberOfTracks - d
+        // d = this.numberOfTracks - d
         const coef = ((d + 1) * (d + 2)) / 2
         const total =
           ((this.numberOfTracks + 1) * (this.numberOfTracks + 2)) / 2
         const scale = d3
           .scaleLinear()
           .domain([0, total])
-          .range([0, this.radius])
+          .range([this.radius / total, this.radius])
+        // eslint-disable-next-line no-console
+        console.log(d)
+        // eslint-disable-next-line no-console
+        console.log(scale(coef))
         return scale(coef)
       }
     }
@@ -225,10 +228,10 @@ export default {
      * @return {number}
      */
     PolarToCartesianX: function(angle, radius) {
-      return (radius / this.numberOfTracks) * Math.sin(-(angle + Math.PI))
+      return radius * Math.sin(-(angle + Math.PI))
     },
     PolarToCartesianY: function(angle, radius) {
-      return (radius / this.numberOfTracks) * Math.cos(-(angle + Math.PI))
+      return radius * Math.cos(-(angle + Math.PI))
     }
   }
 }
