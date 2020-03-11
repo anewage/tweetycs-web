@@ -25,26 +25,29 @@
         <div :id="charts.concentricChart.id">
           <v-btn
             @click="
-              charts.concentricChart.unit =
-                (charts.concentricChart.unit + 1) % 5
+              charts.concentricChart.tracks =
+                charts.concentricChart.tracks < 5
+                  ? charts.concentricChart.tracks + 1
+                  : 1
             "
           >
-            TIME UNIT {{ charts.concentricChart.unit }}
+            NUMBER OF TRACKS {{ charts.concentricChart.tracks }}
           </v-btn>
           <v-radio-group
             v-model="charts.concentricChart.timeUnit"
             :mandatory="false"
           >
-            <v-radio label="Year" value="12"></v-radio>
-            <v-radio label="Month" value="30"></v-radio>
-            <v-radio label="Week" value="7"></v-radio>
-            <v-radio label="Day" value="24"></v-radio>
-            <v-radio label="Hour" value="60"></v-radio>
+            <v-radio label="Years" value="12"></v-radio>
+            <v-radio label="Months" value="30"></v-radio>
+            <v-radio label="Weeks" value="7"></v-radio>
+            <v-radio label="Days" value="24"></v-radio>
+            <v-radio label="Hours" value="60"></v-radio>
           </v-radio-group>
           <concentric-chart
             :meta="charts.concentricChart"
             :topics="topics"
             :users="usersSet"
+            :number-of-tracks="charts.concentricChart.tracks"
           ></concentric-chart>
         </div>
       </v-flex>
@@ -152,17 +155,17 @@ export default {
             {
               keywords: ['democrats'],
               topics: ['democratic'],
-              created_at: 'Fri Apr 07 15:24:15 +0000 2020'
+              created_at: 'Mon Apr 13 15:24:15 +0000 2020'
             },
             {
               keywords: ['Adam Kokesh'],
               topics: ['libertarian'],
-              created_at: 'Thu Apr 06 20:20:20 +0000 2020'
+              created_at: 'Thu Apr 05 20:20:20 +0000 2020'
             },
             {
               keywords: ['IMPOTUS'],
               topics: ['impeachment'],
-              created_at: 'Thu May 06 15:24:15 +0000 2019'
+              created_at: 'Thu May 2 15:24:15 +0000 2019'
             }
           ],
           selected: false
@@ -170,9 +173,21 @@ export default {
         {
           screen_name: 'b',
           tweets: [
-            { keywords: ['democrats'], topics: ['democratic'] },
-            { keywords: ['ImpeachedPresident'], topics: ['impeachment'] },
-            { keywords: ['David Rolde'], topics: ['green'] }
+            {
+              keywords: ['democrats'],
+              topics: ['democratic'],
+              created_at: 'Tue Sept 04 15:24:15 +0000 2019'
+            },
+            {
+              keywords: ['ImpeachedPresident'],
+              topics: ['impeachment'],
+              created_at: 'Thu Oct 06 15:24:15 +0000 2019'
+            },
+            {
+              keywords: ['David Rolde'],
+              topics: ['green'],
+              created_at: 'Fri Jun 07 15:24:15 +0000 2019'
+            }
           ],
           selected: false
         },
@@ -273,8 +288,8 @@ export default {
           label: 'Agent-Time Association ',
           width: 600,
           height: 1000,
-          unit: 0,
-          timeUnit: 12
+          tracks: 3,
+          timeUnit: '12'
         }
       }
     }

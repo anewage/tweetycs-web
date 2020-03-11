@@ -35,7 +35,7 @@
           :stroke="line.stroke"
           :stroke-opacity="line.strokeOpacity"
           :fill="line.fill"
-          stroke-dasharray="2,3"
+          stroke-dasharray="3,7"
           :d="divider(index)"
         ></path>
         <!--TimeLabels-->
@@ -43,14 +43,34 @@
         <text
           v-for="(item, index) in parseInt(this.meta.timeUnit)"
           :key="'c-' + index"
-          font-size="8"
+          font-size="7"
           :transform="textTransform(index)"
+          opacity="0.6"
         >
           {{ index + 1 }}
         </text>
       </g>
+      <!--Bubbles-->
+      <g v-for="user in this.users" :key="user.screen_name">
+        <circle
+          v-for="(tweet, index) in user.tweets"
+          :key="index"
+          :cx="
+            PolarToCartesianX(angleScale(tweetTime(tweet).first), radius / 2)
+          "
+          :cy="
+            PolarToCartesianY(angleScale(tweetTime(tweet).first), radius / 2)
+          "
+          :r="circleSize"
+          :stroke="token.stroke"
+          :stroke-opacity="token.strokeOpacity"
+          :stroke-width="token.strokeSize"
+          :fill="circleFill(user.screen_name)"
+          :fill-opacity="token.opacity"
+        />
+      </g>
       <!--Markers-->
-      <g>
+      <!--      <g>
         <circle
           v-for="(circle, index) in parseInt(this.meta.timeUnit)"
           :key="'c-' + index"
@@ -59,7 +79,7 @@
           r="5"
           fill="white"
         ></circle>
-      </g>
+      </g>-->
     </g>
   </svg>
 </template>
@@ -99,6 +119,12 @@ export default {
         return []
       }
     },
+    numberOfTracks: {
+      type: Number,
+      default: function() {
+        return 3
+      }
+    },
     axis: {
       type: Object,
       default: function() {
@@ -124,6 +150,19 @@ export default {
           stroke_opacity: 0.2
         }
       }
+    },
+    token: {
+      type: Object,
+      default: function() {
+        return {
+          size: '10',
+          color: '#d6d0bc',
+          opacity: '0.7',
+          strokeSize: '0.8',
+          strokeOpacity: '0.8',
+          strokeColor: '#6eecbf'
+        }
+      }
     }
   },
   data() {
@@ -131,7 +170,7 @@ export default {
       svg: null,
       transitionDuration: 50,
       unit: 0,
-      numberOfTracks: 3,
+      // numberOfTracks: this.,
       innerRCoefficient: 1,
       outerRCoefficient: 1
     }
@@ -178,11 +217,14 @@ export default {
       return d => {
         const x = this.labelX({
           x0: this.angleScale(d),
-          x1: this.angleScale((d + 1) % this.numberOfTracks)
+          x1: this.angleScale(d + 1)
         })
+        // margin is defined for symmetric distances to circle in both sides
+        const margin = x < 180 ? 0.9 : 0.95
         const y = this.labelY({
-          y0: this.angleScale(d),
-          y1: this.angleScale((d + 1) % this.numberOfTracks)
+          // to bring labels in the inner ares: radiusCalculation(0)
+          y0: this.radiusCalculation(this.numberOfTracks) * margin,
+          y1: this.radiusCalculation(this.numberOfTracks)
         })
         return `rotate(${x - 90}) translate(${y},0) rotate(${
           x < 180 ? 0 : 180
@@ -199,9 +241,13 @@ export default {
         return (d.y0 + d.y1) / 2
       }
     },
+    /**
+     * Returns the radius of the i th track (recent tracks have larger index)
+     * to change the ratio of radius, we should change this function
+     * radius(d) = coef * r
+     */
     radiusCalculation: function() {
       return d => {
-        // d = this.numberOfTracks - d
         const coef = ((d + 1) * (d + 2)) / 2
         const total =
           ((this.numberOfTracks + 1) * (this.numberOfTracks + 2)) / 2
@@ -209,13 +255,88 @@ export default {
           .scaleLinear()
           .domain([0, total])
           .range([this.radius / total, this.radius])
-        // eslint-disable-next-line no-console
-        console.log(d)
-        // eslint-disable-next-line no-console
-        console.log(scale(coef))
         return scale(coef)
       }
+    },
+    circleFill: function() {
+      return d => {
+        return this.colorToken(d)
+      }
+    },
+    circleSize: function() {
+      return this.radius * 0.02
+    },
+    colorToken: function() {
+      const that = this
+      return d3.scaleOrdinal(
+        d3.quantize(d3.interpolateCubehelixDefault, that.users.length)
+      )
+    },
+    time: function() {
+      return date => {
+        const d = new Date(date)
+        return {
+          millisecond: d.getUTCMilliseconds(),
+          second: d.getUTCSeconds(),
+          minute: d.getUTCMinutes(),
+          hour: d.getUTCHours(),
+          day: d.getUTCDay(),
+          date: d.getUTCDate(),
+          month: d.getUTCMonth(),
+          year: d.getUTCFullYear()
+        }
+      }
+    },
+    /**
+     * Returns the place of a user on the stack of users in each epoch
+     * this will feed radius of PolarToCartesianX/Y(angel, radius) for placing a circle
+     */
+    stackScale: function() {
+      return (d, track) => {
+        const scale = d3
+          .scaleLinear()
+          .domain([0, this.users.length])
+          .range([
+            this.radiusCalculation(track - 1) + this.circleSize(),
+            this.radiusCalculation(track) - this.circleSize()
+          ])
+        return scale(d)
+      }
+    },
+    /**
+     * Returns time of a tweet based on the selected time unit,
+     * first is the value of selected time unit
+     * second will be used to make the VR more precised
+     */
+    tweetTime: function() {
+      return tweet => {
+        const tm = this.time(tweet.created_at)
+        const temp = {}
+        if (this.meta.timeUnit === '12') {
+          temp.first = tm.month + 1
+          temp.second = tm.date
+        } else if (this.meta.timeUnit === '30') {
+          temp.first = tm.date
+          temp.second = tm.hour
+        } else if (this.meta.timeUnit === '7') {
+          temp.first = tm.day
+          temp.second = tm.hour
+        } else if (this.meta.timeUnit === '24') {
+          temp.first = tm.hour
+          temp.second = tm.minute
+        } else if (this.meta.timeUnit === '60') {
+          temp.first = tm.minute
+          temp.second = tm.second
+        }
+        // eslint-disable-next-line no-console
+        console.log(temp)
+        return temp
+      }
     }
+    /**
+     *
+     */
+    // TODO: another scale function is needed to find the angle of a circle among a period of time
   },
   mounted() {
     this.setupSVG()

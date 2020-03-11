@@ -167,7 +167,7 @@ export default {
         return {
           size: '10',
           color: '#d6d0bc',
-          opacity: '0.9',
+          opacity: '0.75',
           strokeSize: '0.7',
           strokeOpacity: '0.8',
           strokeColor: '#797362'
