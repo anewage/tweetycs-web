@@ -65,7 +65,7 @@
           {{ index + 1 }}
         </text>
       </g>
-      <!--Bubbles-->
+      <!--TOKENS-->
       <g>
         <circle
           v-for="(candid, index) in this.candidates"
@@ -86,9 +86,11 @@
           :stroke="token.stroke"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
-          :fill="circleFill(index)"
+          :fill="circleFill(candid.index)"
           :fill-opacity="token.opacity"
-        />
+        >
+          <title>{{ candid.index }}</title>
+        </circle>
       </g>
     </g>
   </svg>
@@ -412,12 +414,6 @@ export default {
     tokenPlacement: function() {
       return (tweet, userIndex) => {
         const track = this.findTrack(tweet)
-        // eslint-disable-next-line no-console
-        console.log(
-          'stackScale: ',
-          userIndex,
-          this.stackScale(userIndex, track)
-        )
         return track + this.stackScale(userIndex, track)
       }
     }
