@@ -214,7 +214,7 @@ export default {
         const c = a.keywords.map(kw => {
           return {
             name: kw,
-            value: 1
+            value: Math.random() * 10
           }
         })
         return {
