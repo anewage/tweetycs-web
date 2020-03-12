@@ -89,7 +89,7 @@
           :fill="circleFill(candid.index)"
           :fill-opacity="token.opacity"
         >
-          <title>{{ candid.index }}</title>
+          <title>{{ candid.name }}</title>
         </circle>
       </g>
     </g>
@@ -321,7 +321,7 @@ export default {
     colorToken: function() {
       const that = this
       return d3.scaleOrdinal(
-        d3.quantize(d3.interpolateCubehelixDefault, that.users.length)
+        d3.quantize(d3.interpolateTurbo, that.users.length)
       )
     },
     /**
@@ -369,7 +369,11 @@ export default {
             this.minDate.getTime() < date.getTime() &&
             date.getTime() < this.maxDate.getTime()
           ) {
-            array.push({ index: userIndex, tweet: tweet })
+            array.push({
+              index: userIndex,
+              name: this.users[userIndex].screen_name,
+              tweet: tweet
+            })
           }
         }
       }
