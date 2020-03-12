@@ -28,9 +28,9 @@
         />
         <!--ConcentricLabels-->
         <text
-          v-for="(circle, index) in numberOfTracks + 1"
-          :key="index"
-          :font-size="2 * radiusCalculation(index) ** 0.3"
+          v-for="(circle, index) in numberOfTracks"
+          :key="`label-${index}`"
+          :font-size="2 * radiusCalculation(circle) ** 0.3"
           opacity="0.5"
           fill="#354452"
           :transform="
@@ -40,7 +40,6 @@
           {{ concentricLables(circle).title }}
           {{ concentricLables(circle).label }}
         </text>
-        >
       </g>
       <!--RadialAxis-->
       <g>
@@ -54,7 +53,6 @@
           :d="divider(index)"
         ></path>
         <!--TimeSlotLabels-->
-        /* TODO: check the other component to implement*/
         <text
           v-for="(item, index) in parseInt(this.meta.timeUnit)"
           :key="'c-' + index"
