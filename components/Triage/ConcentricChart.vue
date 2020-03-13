@@ -28,7 +28,7 @@
         />
         <!--ConcentricLabels-->
         <text
-          v-for="(circle, index) in numberOfTracks"
+          v-for="(circle, index) in numberOfTracks + 1"
           :key="`label-${index}`"
           :font-size="2 * radiusCalculation(circle) ** 0.3"
           opacity="0.5"
@@ -37,8 +37,7 @@
             'translate(' + '0' + ',' + concentricTransform(circle) + ')'
           "
         >
-          {{ concentricLables(circle).title }}
-          {{ concentricLables(circle).label }}
+          {{ concentricLabels(circle) }}
         </text>
       </g>
       <!--RadialAxis-->
@@ -251,38 +250,29 @@ export default {
         return (d.y0 + d.y1) / 2
       }
     },
-    concentricLables: function() {
+    concentricLabels: function() {
       return d => {
         const now = new Date()
         let label = null
         let title = null
-        let pre = ''
         if (this.meta.timeUnit === '12') {
-          title = 'Year'
           label = now.getFullYear() - this.numberOfTracks + d
+          title = `Year ${label}`
         } else if (this.meta.timeUnit === '30') {
-          title = 'Month'
           label = now.getMonth() - this.numberOfTracks + d + 1
           if (label < 1) while (label < 1) label += 12
+          title = `Month ${label}`
         } else if (this.meta.timeUnit === '7') {
-          pre = 'Past '
-          title = 'Week'
           label = this.numberOfTracks - d
+          title = label === 0 ? 'This Week' : `${label} Week Ago`
         } else if (this.meta.timeUnit === '24') {
-          pre = 'Past '
-          title = 'Day'
           label = this.numberOfTracks - d
+          title = label === 0 ? 'Today' : `${label} Day Ago`
         } else if (this.meta.timeUnit === '60') {
-          pre = 'Past '
-          title = 'Hour'
           label = this.numberOfTracks - d
+          title = label === 0 ? 'This Hour' : `${label} Hour Ago`
         }
-        if (label === 0) {
-          pre = this.meta.timeUnit === '24' ? 'To' : 'This '
-          label = ''
-        }
-        title = pre + title
-        return { title: title, label: label }
+        return title
       }
     },
     concentricTransform: function() {
