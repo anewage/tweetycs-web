@@ -70,13 +70,13 @@
           :key="index"
           :cx="
             PolarToCartesianX(
-              tokenRadialScale(findTimeSlot(candid.tweet)),
+              tokenRadialScale(findTimeSlot(candid.tweetTime)),
               totalDistance(candid.tweet, candid.userIndex)
             )
           "
           :cy="
             PolarToCartesianY(
-              tokenRadialScale(findTimeSlot(candid.tweet)),
+              tokenRadialScale(findTimeSlot(candid.tweetTime)),
               totalDistance(candid.tweet, candid.userIndex)
             )
           "
@@ -484,11 +484,32 @@ export default {
       }
     },
     findTimeSlot: function() {
-      return tweet => {
-        return (
-          (new Date().getTime() - new Date(tweet.created_at).getTime()) %
-          this.unitRange
-        )
+      return tweetTime => {
+        let temp = null
+        const twYear = new Date(tweetTime).getFullYear()
+        const twMonth = new Date(tweetTime).getMonth()
+        const twDate = new Date(tweetTime).getDate()
+        const twDay = new Date(tweetTime).getDay()
+        const twHour = new Date(tweetTime).getHours()
+        const time = new Date(tweetTime).getTime()
+        if (this.meta.timeUnit === '12') {
+          // years beginning
+          temp = time - new Date(twYear, 0, 1).getTime()
+        } else if (this.meta.timeUnit === '30') {
+          // months beginning
+          temp = time - new Date(twYear, twMonth, 1).getTime()
+        } else if (this.meta.timeUnit === '7') {
+          // weeks beginning
+          temp = time - new Date(twYear, twMonth, twDate - twDay).getTime()
+        } else if (this.meta.timeUnit === '24') {
+          // Days beginning
+          temp = time - new Date(twYear, twMonth, twDate, 0, 0, 0, 0).getTime()
+        } else if (this.meta.timeUnit === '60') {
+          // hours beginning
+          temp =
+            time - new Date(twYear, twMonth, twDate, twHour, 0, 0, 0).getTime()
+        }
+        return temp
       }
     },
     /**
@@ -497,19 +518,6 @@ export default {
     totalDistance: function() {
       return (tweet, userIndex) => {
         const track = this.findTrack(tweet)
-        // eslint-disable-next-line no-console
-        console.log(
-          'tweet',
-          tweet.created_at,
-          'track',
-          track,
-          'radius',
-          this.radiusCalculation(track),
-          'stack',
-          this.usersStackScale(userIndex, track),
-          'userIndex',
-          userIndex
-        )
         return (
           this.radiusCalculation(track) + this.usersStackScale(userIndex, track)
         )
