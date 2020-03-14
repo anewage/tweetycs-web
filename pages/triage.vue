@@ -244,7 +244,7 @@ export default {
             }
           ],
           selected: false
-        } /*,
+        },
         {
           screen_name: 'e',
           tweets: [
@@ -340,7 +340,7 @@ export default {
             }
           ],
           selected: false
-        }
+        } /*
         ,
         {
           screen_name: 'b',

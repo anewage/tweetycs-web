@@ -197,107 +197,12 @@ export default {
     }
   },
   computed: {
-    angleScale() {
-      return d3
-        .scaleLinear()
-        .domain([0, parseInt(this.meta.timeUnit)])
-        .range([0, 2 * Math.PI])
-    },
     radius: function() {
       return Math.min(this.meta.width) / 2
     },
-    innerRadius: function() {
-      return this.radius / 3
-    },
-    outerRadius: function() {
-      return this.radius / 2
-    },
-    divider: function() {
-      return d => {
-        const x0 = this.PolarToCartesianX(
-          this.angleScale(d),
-          this.radiusCalculation(0)
-        )
-        const y0 = this.PolarToCartesianY(
-          this.angleScale(d),
-          this.radiusCalculation(0)
-        )
-        const x1 = this.PolarToCartesianX(
-          this.angleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
-        )
-        const y1 = this.PolarToCartesianY(
-          this.angleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
-        )
-        return `M ${x0},${y0}` + `L ${x1},${y1}`
-      }
-    },
-    textTransform: function() {
-      return d => {
-        const clockFormat = !!(
-          this.meta.timeUnit === '24' || this.meta.timeUnit === '60'
-        )
-        const x = !clockFormat
-          ? this.labelX({
-              x0: this.angleScale(d),
-              x1: this.angleScale(d + 1)
-            })
-          : this.labelX({
-              x0: this.angleScale(d),
-              x1: this.angleScale(d)
-            })
-        // circlePadding is defined for symmetric distances to circle in both sides
-        const textLabel =
-          this.meta.timeUnit === '7' || this.meta.timeUnit === '12' ? 0.06 : 0
-        const circlePadding = x < 180 ? 1.03 : 1.09 + textLabel
-        const y = this.labelY({
-          // to bring labels in the inner ares: radiusCalculation(0)
-          y0: this.radiusCalculation(this.numberOfTracks) * circlePadding,
-          y1: this.radiusCalculation(this.numberOfTracks)
-        })
-        return `rotate(${x - 90}) translate(${y},0) rotate(${
-          x < 180 ? 0 : 180
-        })`
-      }
-    },
-    timeSlotLabel: function() {
-      return d => {
-        if (this.meta.timeUnit === '12') {
-          const monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ]
-          return monthNames[d]
-        }
-        if (this.meta.timeUnit === '7') {
-          const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-          return weekDays[d]
-        }
-        if (this.meta.timeUnit === '24' || this.meta.timeUnit === '60') return d
-        return d + 1
-      }
-    },
-    labelX: function() {
-      return d => {
-        return (((d.x0 + d.x1) / 2) * 180) / Math.PI
-      }
-    },
-    labelY: function() {
-      return d => {
-        return (d.y0 + d.y1) / 2
-      }
-    },
+    /**
+     * Returns labels of outer circle based on selected time unit(e.g. Jan - Dec , or Sun - Sat)
+     **/
     concentricLabels: function() {
       return d => {
         const now = new Date()
@@ -337,13 +242,140 @@ export default {
         return title
       }
     },
+    /**
+     * Places the label of each tracks on its circle (e.g. Year 2020 , Year 2019, ...)
+     **/
     concentricTransform: function() {
       return d => {
         const circlePadding = 0.9
         return this.radiusCalculation(d) * circlePadding * -1
       }
     },
+    /**
+     * Returns the radius of the i th track (tracks for recent time have larger index)
+     * to change the ratio of radius, we should change this function
+     * radius(d) = coef * r
+     */
+    radiusCalculation: function() {
+      return d => {
+        const coef = ((d + 1) * (d + 2)) / 2
+        const total =
+          ((this.numberOfTracks + 1) * (this.numberOfTracks + 2)) / 2
+        const scale = d3
+          .scaleLinear()
+          .domain([0, total])
+          .range([this.radius / total, this.radius])
+        return scale(coef)
+      }
+    },
+    /**
+     * Places the label of each time slot based on selected unit time around the outer circle
+     **/
+    labelAngleScale() {
+      return d3
+        .scaleLinear()
+        .domain([0, parseInt(this.meta.timeUnit)])
+        .range([0, 2 * Math.PI])
+    },
+    /**
+     * draw lines to divide to the number of selected unit time
+     **/
+    divider: function() {
+      return d => {
+        const x0 = this.PolarToCartesianX(
+          this.labelAngleScale(d),
+          this.radiusCalculation(0)
+        )
+        const y0 = this.PolarToCartesianY(
+          this.labelAngleScale(d),
+          this.radiusCalculation(0)
+        )
+        const x1 = this.PolarToCartesianX(
+          this.labelAngleScale(d),
+          this.radiusCalculation(this.numberOfTracks)
+        )
+        const y1 = this.PolarToCartesianY(
+          this.labelAngleScale(d),
+          this.radiusCalculation(this.numberOfTracks)
+        )
+        return `M ${x0},${y0}` + `L ${x1},${y1}`
+      }
+    },
+    /**
+     * Places time slot labels based on selected unit time
+     **/
+    textTransform: function() {
+      return d => {
+        const clockFormat = !!(
+          this.meta.timeUnit === '24' || this.meta.timeUnit === '60'
+        )
+        const x = !clockFormat
+          ? this.labelX({
+              x0: this.labelAngleScale(d),
+              x1: this.labelAngleScale(d + 1)
+            })
+          : this.labelX({
+              x0: this.labelAngleScale(d),
+              x1: this.labelAngleScale(d)
+            })
+        // circlePadding is defined for symmetric distances to circle in both sides
+        const textLabel =
+          this.meta.timeUnit === '7' || this.meta.timeUnit === '12' ? 0.06 : 0
+        const circlePadding = x < 180 ? 1.03 : 1.09 + textLabel
+        const y = this.labelY({
+          // to bring labels in the inner ares: radiusCalculation(0)
+          y0: this.radiusCalculation(this.numberOfTracks) * circlePadding,
+          y1: this.radiusCalculation(this.numberOfTracks)
+        })
+        return `rotate(${x - 90}) translate(${y},0) rotate(${
+          x < 180 ? 0 : 180
+        })`
+      }
+    },
+    /**
+     * Places the label of each tracks on its circle (e.g. Year 2020 , Year 2019, ...)
+     **/
+    timeSlotLabel: function() {
+      return d => {
+        if (this.meta.timeUnit === '12') {
+          const monthNames = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ]
+          return monthNames[d]
+        }
+        if (this.meta.timeUnit === '7') {
+          const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+          return weekDays[d]
+        }
+        if (this.meta.timeUnit === '24' || this.meta.timeUnit === '60') return d
+        return d + 1
+      }
+    },
+    labelX: function() {
+      return d => {
+        return (((d.x0 + d.x1) / 2) * 180) / Math.PI
+      }
+    },
+    labelY: function() {
+      return d => {
+        return (d.y0 + d.y1) / 2
+      }
+    },
     // TODO: temp is not accurate ( doesn't consider 31 day months and ...)
+    /**
+     * value of the selected time unit in ms
+     **/
     unitRange: function() {
       let temp = 0
       if (this.meta.timeUnit === '12') {
@@ -364,28 +396,14 @@ export default {
       }
       return temp
     },
+    /**
+     * Scales a token on its track
+     **/
     tokenRadialScale() {
       return d3
         .scaleLinear()
         .domain([0, this.unitRange])
         .range([0, 2 * Math.PI])
-    },
-    /**
-     * Returns the radius of the i th track (recent tracks have larger index)
-     * to change the ratio of radius, we should change this function
-     * radius(d) = coef * r
-     */
-    radiusCalculation: function() {
-      return d => {
-        const coef = ((d + 1) * (d + 2)) / 2
-        const total =
-          ((this.numberOfTracks + 1) * (this.numberOfTracks + 2)) / 2
-        const scale = d3
-          .scaleLinear()
-          .domain([0, total])
-          .range([this.radius / total, this.radius])
-        return scale(coef)
-      }
     },
     circleFill: function() {
       return d => {
@@ -402,14 +420,14 @@ export default {
       )
     },
     /**
-     * Returns the place of a user on the stack of users in each epoch
-     * this will feed radius of PolarToCartesianX/Y(angle, radius) for placing a circle
-     */
+     * Returns the place of a user on the stack of users in each track
+     * this will feed radius of PolarToCartesianX/Y(angle, radius) for placing a token
+     **/
     usersStackScale: function() {
       return (userIndex, track) => {
         const scale = d3
           .scaleLinear()
-          .domain([0, this.numberOfCandidateUsers])
+          .domain([0, this.numberOfCandidateUsers + 1])
           .range([
             1.5 * this.circleSize,
             this.radiusCalculation(track + 1) -
@@ -419,6 +437,9 @@ export default {
         return scale(userIndex)
       }
     },
+    /**
+     * the value of minimum acceptable date in ms
+     **/
     minDate: function() {
       let temp = 0
       const now = new Date()
@@ -477,6 +498,9 @@ export default {
       temp = new Date(this.maxDate.getTime() - temp)
       return temp
     },
+    /**
+     * List of tweets that can be shown based on selected time unit and number of tracks
+     **/
     candidates: function() {
       const array = []
       let newIndex = 0
@@ -500,6 +524,9 @@ export default {
       }
       return array
     },
+    /**
+     * Number of users that their tweets are in candidates tweets
+     **/
     numberOfCandidateUsers: function() {
       const usersArray = []
       for (const tweet of this.candidates)
@@ -511,7 +538,7 @@ export default {
     },
     /**
      * Returns number of the track for a token
-     */
+     **/
     findTrack: function() {
       return tweet => {
         return (
@@ -524,6 +551,10 @@ export default {
         )
       }
     },
+    /**
+     * Returns the distance of a tweet from the beginning of its corresponded track
+     * to feed the tokenRadialScale()
+     **/
     findTimeSlot: function() {
       return tweetTime => {
         let temp = null
@@ -555,7 +586,7 @@ export default {
     },
     /**
      * Returns the radius at which the user should be placed (stackScale(index,track) + radiusCalculation(track))
-     */
+     **/
     totalDistance: function() {
       return (tweet, userIndex) => {
         const track = this.findTrack(tweet)
