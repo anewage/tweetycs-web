@@ -71,13 +71,13 @@
           :cx="
             PolarToCartesianX(
               tokenRadialScale(findTimeSlot(candid.tweet)),
-              totalDistance(candid.tweet, candid.index)
+              totalDistance(candid.tweet, candid.userIndex)
             )
           "
           :cy="
             PolarToCartesianY(
               tokenRadialScale(findTimeSlot(candid.tweet)),
-              totalDistance(candid.tweet, candid.index)
+              totalDistance(candid.tweet, candid.userIndex)
             )
           "
           :r="circleSize"
@@ -87,7 +87,8 @@
           :fill="circleFill(candid.userIndex)"
           :fill-opacity="token.opacity"
         >
-          <title>{{ candid.name }}</title>
+          <!-- <title>{{ candid.name }}</title>-->
+          <title>{{ candid.tweet.created_at }}</title>
         </circle>
       </g>
     </g>
@@ -355,7 +356,7 @@ export default {
       }
     },
     circleSize: function() {
-      return this.radius * 0.01
+      return this.radius * 0.015
     },
     colorToken: function() {
       const that = this
@@ -373,8 +374,10 @@ export default {
           .scaleLinear()
           .domain([0, this.numberOfCandidateUsers])
           .range([
-            this.radiusCalculation(track) + this.circleSize,
-            this.radiusCalculation(track + 1) - this.circleSize
+            this.circleSize,
+            this.radiusCalculation(track + 1) -
+              this.radiusCalculation(track) -
+              this.circleSize
           ])
         return scale(userIndex)
       }
@@ -494,6 +497,19 @@ export default {
     totalDistance: function() {
       return (tweet, userIndex) => {
         const track = this.findTrack(tweet)
+        // eslint-disable-next-line no-console
+        console.log(
+          'tweet',
+          tweet.created_at,
+          'track',
+          track,
+          'radius',
+          this.radiusCalculation(track),
+          'stack',
+          this.usersStackScale(userIndex, track),
+          'userIndex',
+          userIndex
+        )
         return (
           this.radiusCalculation(track) + this.usersStackScale(userIndex, track)
         )
