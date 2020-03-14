@@ -26,13 +26,13 @@
           :stroke-width="axis.stroke_width"
           :stroke-opacity="axis.strokeOpacity"
         />
-        <!--ConcentricLabels-->
+        <!--ConcentricAxisLabels-->
         <text
           v-for="(circle, index) in numberOfTracks + 1"
           :key="`label-${index}`"
           :font-size="2 * radiusCalculation(circle) ** 0.3"
-          opacity="0.5"
-          fill="#354452"
+          :opacity="label.opacity"
+          :fill="label.fill"
           :transform="
             'translate(' + '0' + ',' + concentricTransform(circle) + ')'
           "
@@ -43,7 +43,7 @@
       <!--RadialAxis-->
       <g>
         <path
-          v-for="(path, index) in parseInt(this.meta.timeUnit)"
+          v-for="(path, index) in parseInt(meta.timeUnit)"
           :key="'t-' + index"
           :stroke="line.stroke"
           :stroke-opacity="line.strokeOpacity"
@@ -53,11 +53,12 @@
         ></path>
         <!--TimeSlotLabels-->
         <text
-          v-for="(item, index) in parseInt(this.meta.timeUnit)"
+          v-for="(item, index) in parseInt(meta.timeUnit)"
           :key="'c-' + index"
-          font-size="7"
+          :font-size="label.fontSize"
           :transform="textTransform(index)"
-          opacity="0.6"
+          :opacity="label.opacity"
+          :fill="label.fill"
         >
           {{ index + 1 }}
         </text>
@@ -65,25 +66,25 @@
       <!--TOKENS-->
       <g>
         <circle
-          v-for="(candid, index) in this.candidates"
+          v-for="(candid, index) in candidates"
           :key="index"
           :cx="
             PolarToCartesianX(
-              angleScale(findTrack(candid.tweet)),
-              tokenPlacement(candid.tweet, candid.index)
+              tokenRadialScale(findTimeSlot(candid.tweet)),
+              totalDistance(candid.tweet, candid.index)
             )
           "
           :cy="
             PolarToCartesianY(
-              angleScale(findTrack(candid.tweet)),
-              tokenPlacement(candid.tweet, candid.index)
+              tokenRadialScale(findTimeSlot(candid.tweet)),
+              totalDistance(candid.tweet, candid.index)
             )
           "
           :r="circleSize"
           :stroke="token.stroke"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
-          :fill="circleFill(candid.index)"
+          :fill="circleFill(candid.userIndex)"
           :fill-opacity="token.opacity"
         >
           <title>{{ candid.name }}</title>
@@ -173,6 +174,16 @@ export default {
           strokeColor: '#6eecbf'
         }
       }
+    },
+    label: {
+      type: Object,
+      default: function() {
+        return {
+          fontSize: '10',
+          fill: '#104842',
+          opacity: '0.7'
+        }
+      }
     }
   },
   data() {
@@ -186,11 +197,10 @@ export default {
   },
   computed: {
     angleScale() {
-      const temp = d3
+      return d3
         .scaleLinear()
         .domain([0, parseInt(this.meta.timeUnit)])
         .range([0, 2 * Math.PI])
-      return temp
     },
     radius: function() {
       return Math.min(this.meta.width) / 2
@@ -229,7 +239,7 @@ export default {
           x1: this.angleScale(d + 1)
         })
         // circlePadding is defined for symmetric distances to circle in both sides
-        const circlePadding = x < 180 ? 1.02 : 1.06
+        const circlePadding = x < 180 ? 1.03 : 1.09
         const y = this.labelY({
           // to bring labels in the inner ares: radiusCalculation(0)
           y0: this.radiusCalculation(this.numberOfTracks) * circlePadding,
@@ -261,7 +271,21 @@ export default {
         } else if (this.meta.timeUnit === '30') {
           label = now.getMonth() - this.numberOfTracks + d + 1
           if (label < 1) while (label < 1) label += 12
-          title = `Month ${label}`
+          const monthNames = [
+            'Jan.',
+            'Feb.',
+            'Mar.',
+            'Apr.',
+            'May',
+            'Jun.',
+            'Jul.',
+            'Aug.',
+            'Sept.',
+            'Oct.',
+            'Nov.',
+            'Dec.'
+          ]
+          title = `${monthNames[label - 1]}`
         } else if (this.meta.timeUnit === '7') {
           label = this.numberOfTracks - d
           title = label === 0 ? 'This Week' : `${label} Week Ago`
@@ -277,9 +301,36 @@ export default {
     },
     concentricTransform: function() {
       return d => {
-        const circlePadding = 1 * 0.95
+        const circlePadding = 0.9
         return this.radiusCalculation(d) * circlePadding * -1
       }
+    },
+    // TODO: temp is not accurate ( doesn't consider 31 day months and ...)
+    unitRange: function() {
+      let temp = 0
+      if (this.meta.timeUnit === '12') {
+        // years ago
+        temp = 365 * 24 * 60 * 60 * 1000
+      } else if (this.meta.timeUnit === '30') {
+        // months ago
+        temp = 30 * 24 * 60 * 60 * 1000
+      } else if (this.meta.timeUnit === '7') {
+        // weeks ago
+        temp = 7 * 24 * 60 * 60 * 1000
+      } else if (this.meta.timeUnit === '24') {
+        // days ago
+        temp = 24 * 60 * 60 * 1000
+      } else if (this.meta.timeUnit === '60') {
+        // hours ago
+        temp = 60 * 60 * 1000
+      }
+      return temp
+    },
+    tokenRadialScale() {
+      return d3
+        .scaleLinear()
+        .domain([0, this.unitRange])
+        .range([0, 2 * Math.PI])
     },
     /**
      * Returns the radius of the i th track (recent tracks have larger index)
@@ -304,52 +355,87 @@ export default {
       }
     },
     circleSize: function() {
-      return this.radius * 0.02
+      return this.radius * 0.01
     },
     colorToken: function() {
       const that = this
       return d3.scaleOrdinal(
-        d3.quantize(d3.interpolateTurbo, that.users.length)
+        d3.quantize(d3.interpolateTurbo, that.numberOfCandidateUsers)
       )
     },
     /**
      * Returns the place of a user on the stack of users in each epoch
-     * this will feed radius of PolarToCartesianX/Y(angel, radius) for placing a circle
+     * this will feed radius of PolarToCartesianX/Y(angle, radius) for placing a circle
      */
-    stackScale: function() {
-      return (d, track) => {
+    usersStackScale: function() {
+      return (userIndex, track) => {
         const scale = d3
           .scaleLinear()
-          .domain([0, this.users.length])
+          .domain([0, this.numberOfCandidateUsers])
           .range([
-            this.radiusCalculation(track - 1) + this.circleSize,
-            this.radiusCalculation(track) - this.circleSize
+            this.radiusCalculation(track) + this.circleSize,
+            this.radiusCalculation(track + 1) - this.circleSize
           ])
-        return scale(d)
+        return scale(userIndex)
       }
     },
     minDate: function() {
       let temp = 0
+      const now = new Date()
       if (this.meta.timeUnit === '12') {
         // years ago
-        temp = 365 * 24 * 60 * 60 * 1000
+        temp =
+          new Date(now.getFullYear() + 1, 0, 1) -
+          new Date(now.getFullYear() - (this.numberOfTracks - 1), 0, 1)
       } else if (this.meta.timeUnit === '30') {
         // months ago
-        temp = 30 * 24 * 60 * 60 * 1000
+        temp =
+          new Date(now.getFullYear(), now.getMonth() + 1, 1) -
+          new Date(
+            now.getFullYear(),
+            now.getMonth() - (this.numberOfTracks - 1),
+            1
+          )
       } else if (this.meta.timeUnit === '7') {
         // weeks ago
-        temp = 7 * 24 * 60 * 60 * 1000
+        temp =
+          new Date(now.getFullYear(), now.getMonth(), now.getDate()) -
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + (this.numberOfTracks - 1) * 7
+          )
       } else if (this.meta.timeUnit === '24') {
-        // days ago
-        temp = 24 * 60 * 60 * 1000
+        // Days ago
+        temp =
+          new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) -
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - (this.numberOfTracks - 1)
+          )
       } else if (this.meta.timeUnit === '60') {
         // hours ago
-        temp = 60 * 60 * 1000
+        temp =
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours()
+          ) -
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours() - (this.numberOfTracks - 1)
+          )
       }
-      return new Date(this.maxDate.getTime() - temp * this.numberOfTracks)
+      temp = new Date(this.maxDate.getTime() - temp)
+      return temp
     },
     candidates: function() {
       const array = []
+      let newIndex = 0
       for (const userIndex in this.users) {
         for (const tweet of this.users[userIndex].tweets) {
           const date = new Date(tweet.created_at)
@@ -358,58 +444,64 @@ export default {
             date.getTime() < this.maxDate.getTime()
           ) {
             array.push({
-              index: userIndex,
+              index: newIndex,
+              userIndex: userIndex,
               name: this.users[userIndex].screen_name,
-              tweet: tweet
+              tweet: tweet,
+              tweetTime: tweet.created_at
             })
+            newIndex += 1
           }
         }
       }
       return array
     },
-    maxDate: function() {
-      const date = new Date()
-      return date
+    numberOfCandidateUsers: function() {
+      const usersArray = []
+      for (const tweet of this.candidates)
+        if (!usersArray.includes(tweet.name)) usersArray.push(tweet.name)
+      return usersArray.length
     },
+    maxDate: function() {
+      return new Date()
+    },
+    /**
+     * Returns number of the track for a token
+     */
     findTrack: function() {
       return tweet => {
-        const tweetDate = new Date(tweet.created_at)
-        let temp = 0
-        if (this.meta.timeUnit === '12') {
-          // years ago
-          temp = 365 * 24 * 60 * 60 * 1000
-        } else if (this.meta.timeUnit === '30') {
-          // months ago
-          temp = 30 * 24 * 60 * 60 * 1000
-        } else if (this.meta.timeUnit === '7') {
-          // weeks ago
-          temp = 7 * 24 * 60 * 60 * 1000
-        } else if (this.meta.timeUnit === '24') {
-          // days ago
-          temp = 24 * 60 * 60 * 1000
-        } else if (this.meta.timeUnit === '60') {
-          // hours ago
-          temp = 60 * 60 * 1000
-        }
-        const elapse = Math.ceil(
-          (this.maxDate.getTime() - tweetDate.getTime()) / temp
+        return (
+          this.numberOfTracks -
+          Math.floor(
+            (new Date().getTime() - new Date(tweet.created_at).getTime()) /
+              this.unitRange
+          ) -
+          1
         )
-        return this.numberOfTracks + 1 - elapse
       }
     },
-    chartTopPadding: function() {
-      return this.meta.padding.top + this.radius
+    findTimeSlot: function() {
+      return tweet => {
+        return (
+          (new Date().getTime() - new Date(tweet.created_at).getTime()) %
+          this.unitRange
+        )
+      }
     },
     /**
      * Returns the radius at which the user should be placed (stackScale(index,track) + radiusCalculation(track))
      */
-    tokenPlacement: function() {
+    totalDistance: function() {
       return (tweet, userIndex) => {
         const track = this.findTrack(tweet)
-        return track + this.stackScale(userIndex, track)
+        return (
+          this.radiusCalculation(track) + this.usersStackScale(userIndex, track)
+        )
       }
+    },
+    chartTopPadding: function() {
+      return this.meta.padding.top + this.radius
     }
-    // TODO: another scale function is needed to find the angle of a circle among a period of time
   },
   mounted() {
     this.setupSVG()

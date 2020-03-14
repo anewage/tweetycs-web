@@ -156,7 +156,7 @@ export default {
               id: 1,
               keywords: ['democrats'],
               topics: ['democratic'],
-              created_at: 'Mon Dec 13 15:24:15 +0000 2014'
+              created_at: 'Mon Dec 13 15:24:15 +0000 2019'
             },
             {
               id: 2,
@@ -186,13 +186,13 @@ export default {
               id: 5,
               keywords: ['Adam Kokesh'],
               topics: ['libertarian'],
-              created_at: 'Thu Mar 11 19:20:20 +0000 2017'
+              created_at: 'Thu Mar 11 19:20:20 +0000 2018'
             },
             {
               id: 6,
               keywords: ['IMPOTUS'],
               topics: ['impeachment'],
-              created_at: 'Thu Jan 2 15:24:15 +0000 2020'
+              created_at: 'Thu Jan 2 15:24:15 +0000 2018'
             }
           ],
           selected: false
@@ -288,7 +288,7 @@ export default {
               id: 18,
               keywords: ['IMPOTUS'],
               topics: ['impeachment'],
-              created_at: 'Thu Jan 2 15:24:15 +0000 2020'
+              created_at: 'Thu Jan 30 15:24:15 +0000 2020'
             }
           ],
           selected: false
