@@ -60,7 +60,7 @@
           :opacity="label.opacity"
           :fill="label.fill"
         >
-          {{ index + 1 }}
+          {{ timeSlotLabel(index) }}
         </text>
       </g>
       <!--TOKENS-->
@@ -235,12 +235,22 @@ export default {
     },
     textTransform: function() {
       return d => {
-        const x = this.labelX({
-          x0: this.angleScale(d),
-          x1: this.angleScale(d + 1)
-        })
+        const clockFormat = !!(
+          this.meta.timeUnit === '24' || this.meta.timeUnit === '60'
+        )
+        const x = !clockFormat
+          ? this.labelX({
+              x0: this.angleScale(d),
+              x1: this.angleScale(d + 1)
+            })
+          : this.labelX({
+              x0: this.angleScale(d),
+              x1: this.angleScale(d)
+            })
         // circlePadding is defined for symmetric distances to circle in both sides
-        const circlePadding = x < 180 ? 1.03 : 1.09
+        const textLabel =
+          this.meta.timeUnit === '7' || this.meta.timeUnit === '12' ? 0.06 : 0
+        const circlePadding = x < 180 ? 1.03 : 1.09 + textLabel
         const y = this.labelY({
           // to bring labels in the inner ares: radiusCalculation(0)
           y0: this.radiusCalculation(this.numberOfTracks) * circlePadding,
@@ -249,6 +259,33 @@ export default {
         return `rotate(${x - 90}) translate(${y},0) rotate(${
           x < 180 ? 0 : 180
         })`
+      }
+    },
+    timeSlotLabel: function() {
+      return d => {
+        if (this.meta.timeUnit === '12') {
+          const monthNames = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ]
+          return monthNames[d]
+        }
+        if (this.meta.timeUnit === '7') {
+          const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+          return weekDays[d]
+        }
+        if (this.meta.timeUnit === '24' || this.meta.timeUnit === '60') return d
+        return d + 1
       }
     },
     labelX: function() {
@@ -374,10 +411,10 @@ export default {
           .scaleLinear()
           .domain([0, this.numberOfCandidateUsers])
           .range([
-            this.circleSize,
+            1.5 * this.circleSize,
             this.radiusCalculation(track + 1) -
               this.radiusCalculation(track) -
-              this.circleSize
+              this.circleSize * 1.5
           ])
         return scale(userIndex)
       }
@@ -402,11 +439,15 @@ export default {
       } else if (this.meta.timeUnit === '7') {
         // weeks ago
         temp =
-          new Date(now.getFullYear(), now.getMonth(), now.getDate()) -
           new Date(
             now.getFullYear(),
             now.getMonth(),
-            now.getDate() + (this.numberOfTracks - 1) * 7
+            now.getDate() + ((7 - now.getDay()) % 7)
+          ) -
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - (this.numberOfTracks - 1) * 7
           )
       } else if (this.meta.timeUnit === '24') {
         // Days ago
