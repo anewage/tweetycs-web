@@ -10,7 +10,7 @@
                 .sunburst
             "
           >
-            SUNBURST VIEW
+            Topic/Keyword
           </v-btn>
           <topic-user
             :meta="charts.topicUserDiagram"
@@ -52,6 +52,28 @@
         </div>
       </v-flex>
       <v-flex xs3></v-flex>
+      <v-flex xs3></v-flex>
+      <v-flex xs6>
+        <div :id="charts.userSimilarity.id">
+          <v-btn
+            @click="
+              charts.userSimilarity.tracks =
+                charts.userSimilarity.tracks < 10
+                  ? charts.userSimilarity.tracks + 1
+                  : 1
+            "
+          >
+            NUMBER OF Neighbors {{ charts.userSimilarity.tracks }}
+          </v-btn>
+          <user-similarity
+            :meta="charts.userSimilarity"
+            :topics="topics"
+            :users="usersSet"
+            :number-of-tracks="charts.userSimilarity.tracks"
+          ></user-similarity>
+        </div>
+      </v-flex>
+      <v-flex xs3></v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -59,9 +81,11 @@
 <script>
 import TopicUser from '../components/Triage/TopicUserAssociationDiagram'
 import ConcentricChart from '../components/Triage/ConcentricChart'
+import UserSimilarity from '../components/Triage/UserSimilarity'
 export default {
   name: 'Triage',
   components: {
+    UserSimilarity,
     TopicUser,
     ConcentricChart
   },
@@ -153,19 +177,31 @@ export default {
           screen_name: 'a',
           tweets: [
             {
-              id: 1,
-              keywords: ['democrats'],
-              topics: ['democratic'],
-              created_at: 'Fri Mar 14 15:24:15 +0000 2020'
-            },
-            {
               id: 2,
               keywords: ['Adam Kokesh'],
               topics: ['libertarian'],
-              created_at: 'Thu Mar 14 15:20:20 +0000 2020'
+              created_at: 'Thu May 15 15:20:20 +0000 2020'
             },
             {
-              id: 3,
+              id: 31,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Mar 14 13:24:15 +0000 2020'
+            },
+            {
+              id: 32,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Mar 14 13:24:15 +0000 2020'
+            },
+            {
+              id: 33,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Mar 14 13:24:15 +0000 2020'
+            },
+            {
+              id: 34,
               keywords: ['IMPOTUS'],
               topics: ['impeachment'],
               created_at: 'Thu Mar 14 13:24:15 +0000 2020'
@@ -180,19 +216,49 @@ export default {
               id: 4,
               keywords: ['democrats'],
               topics: ['democratic'],
-              created_at: 'Mon Dec 13 15:24:15 +0000 2014'
+              created_at: 'Mon May 13 15:24:15 +0000 2020'
             },
             {
               id: 5,
               keywords: ['Adam Kokesh'],
               topics: ['libertarian'],
-              created_at: 'Thu Mar 11 19:20:20 +0000 2018'
+              created_at: 'Thu May 14 19:21:20 +0000 2020'
             },
             {
-              id: 6,
-              keywords: ['IMPOTUS'],
-              topics: ['impeachment'],
-              created_at: 'Thu Jan 2 15:24:15 +0000 2018'
+              id: 51,
+              keywords: ['Adam Kokesh'],
+              topics: ['libertarian'],
+              created_at: 'Thu Apr 1 20:20:20 +0000 2020'
+            },
+            {
+              id: 52,
+              keywords: ['Adam Kokesh'],
+              topics: ['libertarian'],
+              created_at: 'Thu May 2 03:20:20 +0000 2020'
+            },
+            {
+              id: 53,
+              keywords: ['Adam Kokesh'],
+              topics: ['libertarian'],
+              created_at: 'Thu Mar 13 13:18:20 +0000 2020'
+            },
+            {
+              id: 54,
+              keywords: ['Booker'],
+              topics: ['democraticn'],
+              created_at: 'Thu Feb 18 19:18:20 +0000 2020'
+            },
+            {
+              id: 55,
+              keywords: ['Cory Booker'],
+              topics: ['democratic'],
+              created_at: 'Thu May 12 19:18:20 +0000 2019'
+            },
+            {
+              id: 55,
+              keywords: ['Adam Kokesh'],
+              topics: ['libertarian'],
+              created_at: 'Thu Feb 14 19:18:20 +0000 2018'
             }
           ],
           selected: false
@@ -220,7 +286,7 @@ export default {
             }
           ],
           selected: false
-        },
+        } /*,
         {
           screen_name: 'd',
           tweets: [
@@ -334,6 +400,24 @@ export default {
             },
             {
               id: 24,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Jan 2 15:24:15 +0000 2020'
+            },
+            {
+              id: 25,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Jan 2 15:24:15 +0000 2020'
+            },
+            {
+              id: 26,
+              keywords: ['IMPOTUS'],
+              topics: ['impeachment'],
+              created_at: 'Thu Jan 2 15:24:15 +0000 2020'
+            },
+            {
+              id: 27,
               keywords: ['IMPOTUS'],
               topics: ['impeachment'],
               created_at: 'Thu Jan 2 15:24:15 +0000 2020'
@@ -458,6 +542,15 @@ export default {
         concentricChart: {
           id: 'concentric-chart',
           label: 'Agent-Time Association ',
+          width: 600,
+          height: 1000,
+          padding: { top: 20, bottom: 0, left: 0, right: 0 },
+          tracks: 3,
+          timeUnit: '12'
+        },
+        userSimilarity: {
+          id: 'user-similarity',
+          label: 'Agents Similarity',
           width: 600,
           height: 1000,
           padding: { top: 20, bottom: 0, left: 0, right: 0 },

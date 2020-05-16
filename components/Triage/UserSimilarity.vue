@@ -4,11 +4,11 @@
     :width="meta.width"
     :height="meta.height"
     :fill-opacity="meta.fillOpacity"
-    class="svg concentric"
+    class="svg similarity"
   >
-    <!--ConcentricCalendar-->
+    <!--ConcentricCircles-->
     <g
-      id="concentricCalendar"
+      id="concentricCircles"
       :duration="transitionDuration"
       :transform="'translate(' + radius + ',' + chartTopPadding + ')'"
     >
@@ -38,29 +38,6 @@
           "
         >
           {{ concentricLabels(circle) }}
-        </text>
-      </g>
-      <!--RadialAxis-->
-      <g>
-        <path
-          v-for="(path, index) in parseInt(meta.timeUnit)"
-          :key="'t-' + index"
-          :stroke="line.stroke"
-          :stroke-opacity="line.strokeOpacity"
-          :fill="line.fill"
-          stroke-dasharray="3,7"
-          :d="divider(index)"
-        ></path>
-        <!--TimeSlotLabels-->
-        <text
-          v-for="(item, index) in parseInt(meta.timeUnit)"
-          :key="'c-' + index"
-          :font-size="label.fontSize"
-          :transform="textTransform(index)"
-          :opacity="label.opacity"
-          :fill="label.fill"
-        >
-          {{ timeSlotLabel(index) }}
         </text>
       </g>
       <!--TOKENS-->
@@ -99,11 +76,11 @@
 import * as d3 from 'd3'
 
 export default {
-  name: 'ConcentricChart',
+  name: 'UserSimilarity',
   props: {
     chartDomID: {
       type: String,
-      default: 'concentric-chart'
+      default: 'user-similarity'
     },
     topics: {
       type: Array,
@@ -115,8 +92,8 @@ export default {
       type: Object,
       default: function() {
         return {
-          id: 'concentric-chart',
-          label: 'Agent-Time Association ',
+          id: 'user-similarity',
+          label: 'Agents Similarity',
           width: 500,
           height: 500,
           fillOpacity: 0.6,
@@ -142,7 +119,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: '#eef1f1',
+          fill: '#acac9a',
           fillOpacity: 0.4,
           stroke: '#829ba8',
           stroke_width: '1',
@@ -155,7 +132,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: '#7f93ac',
+          fill: '#a3ac6e',
           fillOpacity: 0.5,
           stroke: '#d4dee7',
           stroke_width: '0.1',
@@ -201,48 +178,6 @@ export default {
       return Math.min(this.meta.width) / 2
     },
     /**
-     * Returns labels of outer circle based on selected time unit(e.g. Jan - Dec , or Sun - Sat)
-     **/
-    concentricLabels: function() {
-      return d => {
-        const now = new Date()
-        let label = null
-        let title = null
-        if (this.meta.timeUnit === '12') {
-          label = now.getFullYear() - this.numberOfTracks + d
-          title = `Year ${label}`
-        } else if (this.meta.timeUnit === '30') {
-          label = now.getMonth() - this.numberOfTracks + d + 1
-          if (label < 1) while (label < 1) label += 12
-          const monthNames = [
-            'Jan.',
-            'Feb.',
-            'Mar.',
-            'Apr.',
-            'May',
-            'Jun.',
-            'Jul.',
-            'Aug.',
-            'Sept.',
-            'Oct.',
-            'Nov.',
-            'Dec.'
-          ]
-          title = `${monthNames[label - 1]}`
-        } else if (this.meta.timeUnit === '7') {
-          label = this.numberOfTracks - d
-          title = label === 0 ? 'This Week' : `${label} Week Ago`
-        } else if (this.meta.timeUnit === '24') {
-          label = this.numberOfTracks - d
-          title = label === 0 ? 'Today' : `${label} Day Ago`
-        } else if (this.meta.timeUnit === '60') {
-          label = this.numberOfTracks - d
-          title = label === 0 ? 'This Hour' : `${label} Hour Ago`
-        }
-        return title
-      }
-    },
-    /**
      * Places the label of each tracks on its circle (e.g. Year 2020 , Year 2019, ...)
      **/
     concentricTransform: function() {
@@ -268,37 +203,15 @@ export default {
         return scale(coef)
       }
     },
-    /**
-     * Places the label of each time slot based on selected unit time around the outer circle
-     **/
-    labelAngleScale() {
-      return d3
-        .scaleLinear()
-        .domain([0, parseInt(this.meta.timeUnit)])
-        .range([0, 2 * Math.PI])
-    },
-    /**
-     * draw lines to divide to the number of selected unit time
-     **/
-    divider: function() {
+    concentricLabels: function() {
       return d => {
-        const x0 = this.PolarToCartesianX(
-          this.labelAngleScale(d),
-          this.radiusCalculation(0)
-        )
-        const y0 = this.PolarToCartesianY(
-          this.labelAngleScale(d),
-          this.radiusCalculation(0)
-        )
-        const x1 = this.PolarToCartesianX(
-          this.labelAngleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
-        )
-        const y1 = this.PolarToCartesianY(
-          this.labelAngleScale(d),
-          this.radiusCalculation(this.numberOfTracks)
-        )
-        return `M ${x0},${y0}` + `L ${x1},${y1}`
+        const distance = d
+        let postfix = 'th'
+        if (d % 10 === 1) postfix = 'st'
+        else if (d % 10 === 2) postfix = 'nd'
+        else if (d % 10 === 3) postfix = 'rd'
+        const title = `${distance} ${postfix} Neighbor`
+        return title
       }
     },
     /**
@@ -411,7 +324,7 @@ export default {
       }
     },
     circleSize: function() {
-      return this.radius * 0.015
+      return this.radius * 0.06
     },
     colorToken: function() {
       const that = this

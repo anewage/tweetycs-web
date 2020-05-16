@@ -33,7 +33,16 @@
             {{ ancestorPath(arc) }}
           </title>
         </path>
-        <!--Labels-->
+      </g>
+      <!--Labels-->
+      <g
+        v-for="(arc, index) in rootText"
+        :id="'arc-' + arc.data.name"
+        :key="index"
+        class="highlightable"
+        @mouseover="highlightConnectedSet({ arc: arc })"
+        @mouseout="removeHighlights"
+      >
         <text
           pointer-events="null"
           text-anchor="middle"
@@ -214,7 +223,7 @@ export default {
         const c = a.keywords.map(kw => {
           return {
             name: kw,
-            value: Math.random() * 10
+            value: 1 * Math.random()
           }
         })
         return {
@@ -266,6 +275,11 @@ export default {
       return this.partitions(this.hierarchizeTopicData)
         .descendants()
         .filter(d => d.depth)
+    },
+    rootText: function() {
+      return this.partitions(this.hierarchizeTopicData)
+        .descendants()
+        .filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 10)
     },
     sliceColor: function() {
       return d => {
