@@ -82,6 +82,11 @@
       </v-flex>
       <v-flex xs3></v-flex>
     </v-layout>
+    <v-layout row justify-center>
+      <v-flex xs8>
+        <treemap :users="usersSet"></treemap>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -89,12 +94,14 @@
 import TopicUser from '../components/Triage/TopicUserAssociationDiagram'
 import ConcentricChart from '../components/Triage/ConcentricChart'
 import UserSimilarity from '../components/Triage/UserSimilarity'
+import Treemap from '../components/Treemap/Treemap'
 export default {
   name: 'Triage',
   components: {
     UserSimilarity,
     TopicUser,
-    ConcentricChart
+    ConcentricChart,
+    Treemap
   },
   data() {
     return {
