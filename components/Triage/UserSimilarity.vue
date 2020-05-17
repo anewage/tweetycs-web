@@ -118,7 +118,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: '#c8c9ba',
+          fill: '#e6e9e9',
           fillOpacity: 0.4,
           stroke: '#829ba8',
           stroke_width: '1',
@@ -183,7 +183,7 @@ export default {
       }
     },
     /**
-     * Returns the radius of the i th track (tracks for recent time have larger index)
+     * Returns the radius of the i th track
      * to change the ratio of radius, we should change this function
      * radius(d) = coef * r
      */
@@ -230,10 +230,12 @@ export default {
     },
     colorToken: function() {
       const that = this
-      return d3.scaleOrdinal(d3.quantize(d3.interpolateBrBG, that.users.length))
+      return d3.scaleOrdinal(
+        d3.quantize(d3.interpolateViridis, that.users.length)
+      )
     },
     /**
-     * List of tweets that can be shown based on selected time unit and number of tracks
+     * List of users that can be shown based on selected user
      **/
     candidates: function() {
       const array = []
@@ -251,12 +253,10 @@ export default {
           })
           newIndex += 1
         }
-      // eslint-disable-next-line no-console
-      console.log('candidate', array)
       return array
     },
     /**
-     * Returns the distance of a tweet from the beginning of its corresponded track
+     * Returns the distance of a tweet from the beginning of its corresponded track to scatter users in same level
      * to feed the tokenRadialScale()
      **/
     findAngle: function() {
@@ -271,6 +271,9 @@ export default {
         }
       }
     },
+    /**
+     * Returns all users in same level for a certain user
+     **/
     sameLevelUsers: function() {
       return distance => {
         const sameDistanceUsers = []
@@ -281,9 +284,8 @@ export default {
       }
     },
     /**
-     * Returns the radius at which the user
+     * Returns the radius at which the user should be placed
      **/
-    // TODO: add the selected user and change the track based on that (track = selected - this)/ and limited to number of tracks
     tokenRadius: function() {
       return userDistance => {
         const track =

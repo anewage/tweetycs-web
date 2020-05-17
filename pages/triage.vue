@@ -219,7 +219,7 @@ export default {
         },
         {
           screen_name: 'b',
-          w2v: 1,
+          w2v: 2,
           tweets: [
             {
               id: 4,
@@ -296,9 +296,10 @@ export default {
             }
           ],
           selected: false
-        } /*,
+        },
         {
           screen_name: 'd',
+          w2v: 4,
           tweets: [
             {
               id: 10,
@@ -323,6 +324,7 @@ export default {
         },
         {
           screen_name: 'e',
+          w2v: 1,
           tweets: [
             {
               id: 13,
@@ -347,6 +349,7 @@ export default {
         },
         {
           screen_name: 'f',
+          w2v: 2,
           tweets: [
             {
               id: 16,
@@ -371,6 +374,7 @@ export default {
         },
         {
           screen_name: 'g',
+          w2v: 6,
           tweets: [
             {
               id: 19,
@@ -395,6 +399,7 @@ export default {
         },
         {
           screen_name: 'h',
+          w2v: 1,
           tweets: [
             {
               id: 22,
