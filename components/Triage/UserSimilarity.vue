@@ -43,18 +43,18 @@
       <!--TOKENS-->
       <g>
         <circle
-          v-for="(user, index) in users"
+          v-for="(candid, index) in candidates"
           :key="index"
           :cx="
             PolarToCartesianX(
-              tokenRadialScale(findAngle(user)),
-              tokenRadius(user.w2v)
+              tokenRadialScale(findAngle(candid)),
+              tokenRadius(candid.w2v)
             )
           "
           :cy="
             PolarToCartesianY(
-              tokenRadialScale(findAngle(user)),
-              tokenRadius(user.w2v)
+              tokenRadialScale(findAngle(candid)),
+              tokenRadius(candid.w2v)
             )
           "
           :r="circleSize"
@@ -64,7 +64,7 @@
           :fill="circleFill(index)"
           :fill-opacity="token.opacity"
         >
-          <title>{{ user.screen_name }}</title>
+          <title>{{ candid.screen_name }}</title>
         </circle>
       </g>
     </g>
@@ -96,7 +96,7 @@ export default {
           width: 500,
           height: 500,
           fillOpacity: 0.6,
-          timeUnit: 12,
+          focalUser: 0,
           padding: { top: 0, bottom: 0, left: 0, right: 0 }
         }
       }
@@ -233,16 +233,39 @@ export default {
       return d3.scaleOrdinal(d3.quantize(d3.interpolateBrBG, that.users.length))
     },
     /**
+     * List of tweets that can be shown based on selected time unit and number of tracks
+     **/
+    candidates: function() {
+      const array = []
+      let newIndex = 0
+      for (const userIndex in this.users)
+        if (
+          this.users[userIndex].w2v - this.meta.focalUser <=
+          this.meta.tracks
+        ) {
+          array.push({
+            index: newIndex,
+            userIndex: userIndex,
+            screen_name: this.users[userIndex].screen_name,
+            w2v: this.users[userIndex].w2v
+          })
+          newIndex += 1
+        }
+      // eslint-disable-next-line no-console
+      console.log('candidate', array)
+      return array
+    },
+    /**
      * Returns the distance of a tweet from the beginning of its corresponded track
      * to feed the tokenRadialScale()
      **/
     findAngle: function() {
-      return candidate => {
-        const sameLevel = this.sameLevelUsers(candidate.w2v)
+      return candid => {
+        const sameLevel = this.sameLevelUsers(candid.w2v)
         let index = 1
         const totalNumber = sameLevel.length
         for (const user of sameLevel) {
-          if (user.screen_name.includes(candidate.screen_name)) {
+          if (user.screen_name.includes(candid.screen_name)) {
             return index / totalNumber
           } else index++
         }
@@ -258,7 +281,7 @@ export default {
       }
     },
     /**
-     * Returns the radius at which the user should be placed (stackScale(index,track) + radiusCalculation(track))
+     * Returns the radius at which the user
      **/
     // TODO: add the selected user and change the track based on that (track = selected - this)/ and limited to number of tracks
     tokenRadius: function() {

@@ -565,7 +565,7 @@ export default {
           height: 1000,
           padding: { top: 20, bottom: 0, left: 0, right: 0 },
           tracks: 3,
-          timeUnit: '12',
+          focalUser: 0,
           adjacency: false
         }
       }
