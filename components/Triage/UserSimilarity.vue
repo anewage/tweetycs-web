@@ -225,21 +225,13 @@ export default {
         return (d.y0 + d.y1) / 2
       }
     },
-    // TODO: temp is not accurate ( doesn't consider 31 day months and ...)
-    /**
-     * value of the selected time unit in ms
-     **/
-    unitRange: function() {
-      const temp = 365 * 24 * 60 * 60 * 1000
-      return temp
-    },
     /**
      * Scales a token on its track
      **/
     tokenRadialScale() {
       return d3
         .scaleLinear()
-        .domain([0, this.unitRange])
+        .domain([0, 365 * 24 * 60 * 60 * 1000])
         .range([0, 2 * Math.PI])
     },
     circleFill: function() {
@@ -261,17 +253,11 @@ export default {
      * this will feed radius of PolarToCartesianX/Y(angle, radius) for placing a token
      **/
     usersStackScale: function() {
-      return (userIndex, track) => {
-        const scale = d3
-          .scaleLinear()
-          .domain([0, this.numberOfCandidateUsers + 1])
-          .range([
-            1.5 * this.circleSize,
-            this.radiusCalculation(track + 1) -
-              this.radiusCalculation(track) -
-              this.circleSize * 1.5
-          ])
-        return scale(userIndex)
+      return track => {
+        return (
+          (this.radiusCalculation(track + 1) + this.radiusCalculation(track)) /
+          2
+        )
       }
     },
     /**
@@ -329,11 +315,11 @@ export default {
      **/
     findTrack: function() {
       return tweet => {
+        const time = 365 * 24 * 60 * 60 * 1000
         return (
           this.numberOfTracks -
           Math.floor(
-            (new Date().getTime() - new Date(tweet.created_at).getTime()) /
-              this.unitRange
+            (new Date().getTime() - new Date(tweet.created_at).getTime()) / time
           ) -
           1
         )
@@ -359,10 +345,11 @@ export default {
      * Returns the radius at which the user should be placed (stackScale(index,track) + radiusCalculation(track))
      **/
     totalDistance: function() {
-      return (tweet, userIndex) => {
+      return (tweet, userDistance) => {
         const track = this.findTrack(tweet)
         return (
-          this.radiusCalculation(track) + this.usersStackScale(userIndex, track)
+          (this.radiusCalculation(track) + this.radiusCalculation(track + 1)) /
+          2
         )
       }
     },
