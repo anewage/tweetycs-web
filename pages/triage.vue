@@ -58,12 +58,19 @@
           <v-btn
             @click="
               charts.userSimilarity.tracks =
-                charts.userSimilarity.tracks < 10
+                charts.userSimilarity.tracks < 4
                   ? charts.userSimilarity.tracks + 1
                   : 1
             "
           >
             NUMBER OF Neighbors {{ charts.userSimilarity.tracks }}
+          </v-btn>
+          <v-btn
+            @click="
+              charts.userSimilarity.adjacency = !charts.userSimilarity.adjacency
+            "
+          >
+            Adjacency
           </v-btn>
           <user-similarity
             :meta="charts.userSimilarity"
@@ -175,6 +182,7 @@ export default {
       usersSet: [
         {
           screen_name: 'a',
+          w2v: 1,
           tweets: [
             {
               id: 2,
@@ -211,6 +219,7 @@ export default {
         },
         {
           screen_name: 'b',
+          w2v: 1,
           tweets: [
             {
               id: 4,
@@ -265,6 +274,7 @@ export default {
         },
         {
           screen_name: 'c',
+          w2v: 3,
           tweets: [
             {
               id: 7,
@@ -555,7 +565,8 @@ export default {
           height: 1000,
           padding: { top: 20, bottom: 0, left: 0, right: 0 },
           tracks: 3,
-          timeUnit: '12'
+          timeUnit: '12',
+          adjacency: false
         }
       }
     }

@@ -119,7 +119,7 @@ export default {
       default: function() {
         return {
           show: true,
-          fill: '#acac9a',
+          fill: '#c8c9ba',
           fillOpacity: 0.4,
           stroke: '#829ba8',
           stroke_width: '1',
@@ -205,74 +205,14 @@ export default {
     },
     concentricLabels: function() {
       return d => {
-        const distance = d
+        const distance =
+          this.meta.adjacency === false ? d : this.meta.tracks - d + 1
         let postfix = 'th'
-        if (d % 10 === 1) postfix = 'st'
-        else if (d % 10 === 2) postfix = 'nd'
-        else if (d % 10 === 3) postfix = 'rd'
+        if (distance % 10 === 1) postfix = 'st'
+        else if (distance % 10 === 2) postfix = 'nd'
+        else if (distance % 10 === 3) postfix = 'rd'
         const title = `${distance} ${postfix} Neighbor`
         return title
-      }
-    },
-    /**
-     * Places time slot labels based on selected unit time
-     **/
-    textTransform: function() {
-      return d => {
-        const clockFormat = !!(
-          this.meta.timeUnit === '24' || this.meta.timeUnit === '60'
-        )
-        const x = !clockFormat
-          ? this.labelX({
-              x0: this.labelAngleScale(d),
-              x1: this.labelAngleScale(d + 1)
-            })
-          : this.labelX({
-              x0: this.labelAngleScale(d),
-              x1: this.labelAngleScale(d)
-            })
-        // circlePadding is defined for symmetric distances to circle in both sides
-        const textLabel =
-          this.meta.timeUnit === '7' || this.meta.timeUnit === '12' ? 0.06 : 0
-        const circlePadding = x < 180 ? 1.03 : 1.09 + textLabel
-        const y = this.labelY({
-          // to bring labels in the inner ares: radiusCalculation(0)
-          y0: this.radiusCalculation(this.numberOfTracks) * circlePadding,
-          y1: this.radiusCalculation(this.numberOfTracks)
-        })
-        return `rotate(${x - 90}) translate(${y},0) rotate(${
-          x < 180 ? 0 : 180
-        })`
-      }
-    },
-    /**
-     * Places the label of each tracks on its circle (e.g. Year 2020 , Year 2019, ...)
-     **/
-    timeSlotLabel: function() {
-      return d => {
-        if (this.meta.timeUnit === '12') {
-          const monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-          ]
-          return monthNames[d]
-        }
-        if (this.meta.timeUnit === '7') {
-          const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-          return weekDays[d]
-        }
-        if (this.meta.timeUnit === '24' || this.meta.timeUnit === '60') return d
-        return d + 1
       }
     },
     labelX: function() {
@@ -290,23 +230,7 @@ export default {
      * value of the selected time unit in ms
      **/
     unitRange: function() {
-      let temp = 0
-      if (this.meta.timeUnit === '12') {
-        // years ago
-        temp = 365 * 24 * 60 * 60 * 1000
-      } else if (this.meta.timeUnit === '30') {
-        // months ago
-        temp = 30 * 24 * 60 * 60 * 1000
-      } else if (this.meta.timeUnit === '7') {
-        // weeks ago
-        temp = 7 * 24 * 60 * 60 * 1000
-      } else if (this.meta.timeUnit === '24') {
-        // days ago
-        temp = 24 * 60 * 60 * 1000
-      } else if (this.meta.timeUnit === '60') {
-        // hours ago
-        temp = 60 * 60 * 1000
-      }
+      const temp = 365 * 24 * 60 * 60 * 1000
       return temp
     },
     /**
@@ -356,58 +280,9 @@ export default {
     minDate: function() {
       let temp = 0
       const now = new Date()
-      if (this.meta.timeUnit === '12') {
-        // years ago
-        temp =
-          new Date(now.getFullYear() + 1, 0, 1) -
-          new Date(now.getFullYear() - (this.numberOfTracks - 1), 0, 1)
-      } else if (this.meta.timeUnit === '30') {
-        // months ago
-        temp =
-          new Date(now.getFullYear(), now.getMonth() + 1, 1) -
-          new Date(
-            now.getFullYear(),
-            now.getMonth() - (this.numberOfTracks - 1),
-            1
-          )
-      } else if (this.meta.timeUnit === '7') {
-        // weeks ago
-        temp =
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() + ((7 - now.getDay()) % 7)
-          ) -
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() - (this.numberOfTracks - 1) * 7
-          )
-      } else if (this.meta.timeUnit === '24') {
-        // Days ago
-        temp =
-          new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) -
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() - (this.numberOfTracks - 1)
-          )
-      } else if (this.meta.timeUnit === '60') {
-        // hours ago
-        temp =
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-            now.getHours()
-          ) -
-          new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-            now.getHours() - (this.numberOfTracks - 1)
-          )
-      }
+      temp =
+        new Date(now.getFullYear() + 1, 0, 1) -
+        new Date(now.getFullYear() - (this.numberOfTracks - 1), 0, 1)
       temp = new Date(this.maxDate.getTime() - temp)
       return temp
     },
@@ -472,27 +347,10 @@ export default {
       return tweetTime => {
         let temp = null
         const twYear = new Date(tweetTime).getFullYear()
-        const twMonth = new Date(tweetTime).getMonth()
-        const twDate = new Date(tweetTime).getDate()
-        const twDay = new Date(tweetTime).getDay()
-        const twHour = new Date(tweetTime).getHours()
         const time = new Date(tweetTime).getTime()
         if (this.meta.timeUnit === '12') {
           // years beginning
           temp = time - new Date(twYear, 0, 1).getTime()
-        } else if (this.meta.timeUnit === '30') {
-          // months beginning
-          temp = time - new Date(twYear, twMonth, 1).getTime()
-        } else if (this.meta.timeUnit === '7') {
-          // weeks beginning
-          temp = time - new Date(twYear, twMonth, twDate - twDay).getTime()
-        } else if (this.meta.timeUnit === '24') {
-          // Days beginning
-          temp = time - new Date(twYear, twMonth, twDate, 0, 0, 0, 0).getTime()
-        } else if (this.meta.timeUnit === '60') {
-          // hours beginning
-          temp =
-            time - new Date(twYear, twMonth, twDate, twHour, 0, 0, 0).getTime()
         }
         return temp
       }
