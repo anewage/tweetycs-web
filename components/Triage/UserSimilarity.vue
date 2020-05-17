@@ -43,29 +43,28 @@
       <!--TOKENS-->
       <g>
         <circle
-          v-for="(candid, index) in candidates"
+          v-for="(user, index) in users"
           :key="index"
           :cx="
             PolarToCartesianX(
-              tokenRadialScale(findTimeSlot(candid.tweetTime)),
-              totalDistance(candid.tweet, candid.userIndex)
+              tokenRadialScale(findAngle(user)),
+              tokenRadius(user.w2v)
             )
           "
           :cy="
             PolarToCartesianY(
-              tokenRadialScale(findTimeSlot(candid.tweetTime)),
-              totalDistance(candid.tweet, candid.userIndex)
+              tokenRadialScale(findAngle(user)),
+              tokenRadius(user.w2v)
             )
           "
           :r="circleSize"
           :stroke="token.stroke"
           :stroke-opacity="token.strokeOpacity"
           :stroke-width="token.strokeSize"
-          :fill="circleFill(candid.userIndex)"
+          :fill="circleFill(index)"
           :fill-opacity="token.opacity"
         >
-          <!-- <title>{{ candid.name }}</title>-->
-          <title>{{ candid.tweet.created_at }}</title>
+          <title>{{ user.screen_name }}</title>
         </circle>
       </g>
     </g>
@@ -167,10 +166,7 @@ export default {
   data() {
     return {
       svg: null,
-      transitionDuration: 50,
-      unit: 0,
-      innerRCoefficient: 1,
-      outerRCoefficient: 1
+      transitionDuration: 50
     }
   },
   computed: {
@@ -178,7 +174,7 @@ export default {
       return Math.min(this.meta.width) / 2
     },
     /**
-     * Places the label of each tracks on its circle (e.g. Year 2020 , Year 2019, ...)
+     * Places the label of each tracks on its circle (e.g. 1st, 2nd, ...)
      **/
     concentricTransform: function() {
       return d => {
@@ -211,18 +207,8 @@ export default {
         if (distance % 10 === 1) postfix = 'st'
         else if (distance % 10 === 2) postfix = 'nd'
         else if (distance % 10 === 3) postfix = 'rd'
-        const title = `${distance} ${postfix} Neighbor`
+        const title = `${distance} ${postfix}`
         return title
-      }
-    },
-    labelX: function() {
-      return d => {
-        return (((d.x0 + d.x1) / 2) * 180) / Math.PI
-      }
-    },
-    labelY: function() {
-      return d => {
-        return (d.y0 + d.y1) / 2
       }
     },
     /**
@@ -231,7 +217,7 @@ export default {
     tokenRadialScale() {
       return d3
         .scaleLinear()
-        .domain([0, 365 * 24 * 60 * 60 * 1000])
+        .domain([0, 1])
         .range([0, 2 * Math.PI])
     },
     circleFill: function() {
@@ -244,111 +230,45 @@ export default {
     },
     colorToken: function() {
       const that = this
-      return d3.scaleOrdinal(
-        d3.quantize(d3.interpolateTurbo, that.numberOfCandidateUsers)
-      )
-    },
-    /**
-     * Returns the place of a user on the stack of users in each track
-     * this will feed radius of PolarToCartesianX/Y(angle, radius) for placing a token
-     **/
-    usersStackScale: function() {
-      return track => {
-        return (
-          (this.radiusCalculation(track + 1) + this.radiusCalculation(track)) /
-          2
-        )
-      }
-    },
-    /**
-     * the value of minimum acceptable date in ms
-     **/
-    minDate: function() {
-      let temp = 0
-      const now = new Date()
-      temp =
-        new Date(now.getFullYear() + 1, 0, 1) -
-        new Date(now.getFullYear() - (this.numberOfTracks - 1), 0, 1)
-      temp = new Date(this.maxDate.getTime() - temp)
-      return temp
-    },
-    /**
-     * List of tweets that can be shown based on selected time unit and number of tracks
-     **/
-    candidates: function() {
-      const array = []
-      let newIndex = 0
-      for (const userIndex in this.users) {
-        for (const tweet of this.users[userIndex].tweets) {
-          const date = new Date(tweet.created_at)
-          if (
-            this.minDate.getTime() < date.getTime() &&
-            date.getTime() < this.maxDate.getTime()
-          ) {
-            array.push({
-              index: newIndex,
-              userIndex: userIndex,
-              name: this.users[userIndex].screen_name,
-              tweet: tweet,
-              tweetTime: tweet.created_at
-            })
-            newIndex += 1
-          }
-        }
-      }
-      return array
-    },
-    /**
-     * Number of users that their tweets are in candidates tweets
-     **/
-    numberOfCandidateUsers: function() {
-      const usersArray = []
-      for (const tweet of this.candidates)
-        if (!usersArray.includes(tweet.name)) usersArray.push(tweet.name)
-      return usersArray.length
-    },
-    maxDate: function() {
-      return new Date()
-    },
-    /**
-     * Returns number of the track for a token
-     **/
-    findTrack: function() {
-      return tweet => {
-        const time = 365 * 24 * 60 * 60 * 1000
-        return (
-          this.numberOfTracks -
-          Math.floor(
-            (new Date().getTime() - new Date(tweet.created_at).getTime()) / time
-          ) -
-          1
-        )
-      }
+      return d3.scaleOrdinal(d3.quantize(d3.interpolateBrBG, that.users.length))
     },
     /**
      * Returns the distance of a tweet from the beginning of its corresponded track
      * to feed the tokenRadialScale()
      **/
-    findTimeSlot: function() {
-      return tweetTime => {
-        let temp = null
-        const twYear = new Date(tweetTime).getFullYear()
-        const time = new Date(tweetTime).getTime()
-        if (this.meta.timeUnit === '12') {
-          // years beginning
-          temp = time - new Date(twYear, 0, 1).getTime()
+    findAngle: function() {
+      return candidate => {
+        const sameLevel = this.sameLevelUsers(candidate.w2v)
+        let index = 1
+        const totalNumber = sameLevel.length
+        for (const user of sameLevel) {
+          if (user.screen_name.includes(candidate.screen_name)) {
+            return index / totalNumber
+          } else index++
         }
-        return temp
+      }
+    },
+    sameLevelUsers: function() {
+      return distance => {
+        const sameDistanceUsers = []
+        for (const user of this.users) {
+          if (user.w2v === distance) sameDistanceUsers.push(user)
+        }
+        return sameDistanceUsers
       }
     },
     /**
      * Returns the radius at which the user should be placed (stackScale(index,track) + radiusCalculation(track))
      **/
-    totalDistance: function() {
-      return (tweet, userDistance) => {
-        const track = this.findTrack(tweet)
+    // TODO: add the selected user and change the track based on that (track = selected - this)/ and limited to number of tracks
+    tokenRadius: function() {
+      return userDistance => {
+        const track =
+          this.meta.adjacency === false
+            ? userDistance
+            : this.meta.tracks - userDistance + 1
         return (
-          (this.radiusCalculation(track) + this.radiusCalculation(track + 1)) /
+          (this.radiusCalculation(track - 1) + this.radiusCalculation(track)) /
           2
         )
       }
